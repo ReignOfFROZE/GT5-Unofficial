@@ -83,7 +83,7 @@ public class GT_Tool_HardHammer extends GT_Tool {
 
     @Override
     public String getCraftingSound() {
-        return SoundResource.RANDOM_ANVIL_USE.toString();
+        return SoundResource.RANDOM_ANVIL_LAND.toString();
     }
 
     @Override

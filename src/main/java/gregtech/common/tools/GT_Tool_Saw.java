@@ -1,5 +1,6 @@
 package gregtech.common.tools;
 
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.items.GT_MetaGenerated_Tool;
@@ -61,17 +62,17 @@ public class GT_Tool_Saw extends GT_Tool {
 
     @Override
     public String getCraftingSound() {
-        return null;
+        return SoundResource.GT_SAW.toString();
     }
 
     @Override
     public String getEntityHitSound() {
-        return null;
+        return SoundResource.GT_SAW.toString();
     }
 
     @Override
     public String getMiningSound() {
-        return null;
+        return SoundResource.GT_SAW.toString();
     }
 
     @Override

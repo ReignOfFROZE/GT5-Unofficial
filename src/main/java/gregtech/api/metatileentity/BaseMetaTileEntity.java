@@ -961,6 +961,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
         leaveEnet();
         if (canAccessData()) {
             if (GregTech_API.mAE2) invalidateAE();
+            mMetaTileEntity.stopSoundLoop((byte) 1, xCoord, yCoord, zCoord);
             mMetaTileEntity.onRemoval();
             mMetaTileEntity.setBaseMetaTileEntity(null);
         }
@@ -1463,13 +1464,13 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
                                         .setMainFacing(GT_Utility.determineWrenchingSide(aSide, aX, aY, aZ))) {
                             GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
                             GT_Utility.sendSoundToPlayers(
-                                    worldObj, SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
+                                    worldObj, SoundResource.GT_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
                             cableUpdateDelay = 10;
                         } else if (mMetaTileEntity.onWrenchRightClick(
                                 aSide, GT_Utility.determineWrenchingSide(aSide, aX, aY, aZ), aPlayer, aX, aY, aZ)) {
                             GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
                             GT_Utility.sendSoundToPlayers(
-                                    worldObj, SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
+                                    worldObj, SoundResource.GT_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
                             cableUpdateDelay = 10;
                         }
                         return true;
@@ -1491,7 +1492,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
                                                     aZ));
                             mMetaTileEntity.onScrewdriverRightClick(aSide, aPlayer, aX, aY, aZ);
                             GT_Utility.sendSoundToPlayers(
-                                    worldObj, SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
+                                    worldObj, SoundResource.GT_SCREWDRIVER, 1.0F, -1, xCoord, yCoord, zCoord);
                         }
                         return true;
                     }
@@ -1511,7 +1512,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
                                                                     ? GT_Utility.trans("087", "Disabled")
                                                                     : GT_Utility.trans("088", "Enabled"))));
                             GT_Utility.sendSoundToPlayers(
-                                    worldObj, SoundResource.RANDOM_ANVIL_USE, 1.0F, -1, xCoord, yCoord, zCoord);
+                                    worldObj, SoundResource.RANDOM_ANVIL_LAND, 1.0F, -1, xCoord, yCoord, zCoord);
                         }
                         return true;
                     }
@@ -1531,13 +1532,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
                                 GT_Utility.sendChatToPlayer(aPlayer, tChat);
                             }
                             GT_Utility.sendSoundToPlayers(
-                                    worldObj,
-                                    SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE,
-                                    1.0F,
-                                    -1,
-                                    xCoord,
-                                    yCoord,
-                                    zCoord);
+                                    worldObj, SoundResource.GT_SOFT_HAMMER, 1.0F, -1, xCoord, yCoord, zCoord);
                         }
                         return true;
                     }
@@ -1572,7 +1567,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
                         if (mMetaTileEntity.onWireCutterRightClick(aSide, tSide, aPlayer, aX, aY, aZ)) {
                             // logic handled internally
                             GT_Utility.sendSoundToPlayers(
-                                    worldObj, SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
+                                    worldObj, SoundResource.GT_WIRECUTTER, 1.0F, -1, xCoord, yCoord, zCoord);
                         }
                         doEnetUpdate();
                         cableUpdateDelay = 10;
@@ -1590,7 +1585,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
                                 setCoverItemAtSide(coverSide, tCurrentItem);
                                 if (!aPlayer.capabilities.isCreativeMode) tCurrentItem.stackSize--;
                                 GT_Utility.sendSoundToPlayers(
-                                        worldObj, SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
+                                        worldObj, SoundResource.GT_SCREWDRIVER, 1.0F, -1, xCoord, yCoord, zCoord);
                             }
                             return true;
                         }
@@ -1598,7 +1593,7 @@ public class BaseMetaTileEntity extends CommonMetaTileEntity
                         if (GT_Utility.isStackInList(tCurrentItem, GregTech_API.sCrowbarList)) {
                             if (GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer)) {
                                 GT_Utility.sendSoundToPlayers(
-                                        worldObj, SoundResource.RANDOM_BREAK, 1.0F, -1, xCoord, yCoord, zCoord);
+                                        worldObj, SoundResource.RANDOM_DOOR_OPEN, 1.0F, -1, xCoord, yCoord, zCoord);
                                 dropCover(coverSide, aSide, false);
                             }
                             return true;

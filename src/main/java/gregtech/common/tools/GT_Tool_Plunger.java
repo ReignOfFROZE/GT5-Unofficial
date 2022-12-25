@@ -29,17 +29,17 @@ public class GT_Tool_Plunger extends GT_Tool {
 
     @Override
     public String getCraftingSound() {
-        return SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE.toString();
+        return SoundResource.GT_PLUNGER.toString();
     }
 
     @Override
     public String getEntityHitSound() {
-        return SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE.toString();
+        return SoundResource.GT_PLUNGER.toString();
     }
 
     @Override
     public String getMiningSound() {
-        return SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE.toString();
+        return SoundResource.GT_PLUNGER.toString();
     }
 
     @Override

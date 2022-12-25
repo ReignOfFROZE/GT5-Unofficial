@@ -1,16 +1,12 @@
 package gregtech.api.metatileentity.implementations;
 
-import static gregtech.api.enums.GT_Values.V;
-import static gregtech.api.enums.GT_Values.VN;
-import static gregtech.api.enums.GT_Values.W;
-import static gregtech.api.enums.GT_Values.ticksBetweenSounds;
+import static gregtech.api.enums.GT_Values.*;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.*;
-import gregtech.api.enums.ParticleFX;
 import gregtech.api.enums.Textures.BlockIcons.CustomIcon;
 import gregtech.api.gui.GT_Container_BasicMachine;
 import gregtech.api.gui.GT_GUIContainer_BasicMachine;
@@ -18,6 +14,7 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
+import gregtech.api.objects.BlockPosition;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GT_ModHandler;
 import gregtech.api.util.GT_Recipe;
@@ -26,10 +23,12 @@ import gregtech.api.util.WorldSpawnedEventBuilder;
 import gregtech.api.util.WorldSpawnedEventBuilder.ParticleEventBuilder;
 import ic2.core.Ic2Items;
 import java.util.Locale;
+import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
@@ -48,6 +47,7 @@ public class GT_MetaTileEntity_BasicMachine_GT_Recipe extends GT_MetaTileEntity_
     private final ResourceLocation mSoundResourceLocation;
     private final boolean mSharedTank, mRequiresFluidForFiltering;
     private final byte mGUIParameterA, mGUIParameterB;
+    private UUID soundUUID;
 
     public GT_MetaTileEntity_BasicMachine_GT_Recipe(
             int aID,
@@ -1134,13 +1134,89 @@ public class GT_MetaTileEntity_BasicMachine_GT_Recipe extends GT_MetaTileEntity_
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void startSoundLoop(byte aIndex, double aX, double aY, double aZ) {
         super.startSoundLoop(aIndex, aX, aY, aZ);
         if (aIndex == 1
                 && this.mSoundResourceLocation != null
                 && GT_Utility.isStringValid(this.mSoundResourceLocation.getResourceDomain())
-                && GT_Utility.isStringValid(this.mSoundResourceLocation.getResourcePath()))
-            GT_Utility.doSoundAtClient(this.mSoundResourceLocation, 100, 1.0F, aX, aY, aZ);
+                && GT_Utility.isStringValid(this.mSoundResourceLocation.getResourcePath())) {
+            if (this.mSoundResourceLocation.getResourceDomain().equals("ic2")) {
+                if (this.getBaseMetaTileEntity().getWorld().isRemote) {
+                    GT_Utility.doSoundAtClient(
+                            this.mSoundResourceLocation,
+                            -1,
+                            0.7F,
+                            1.08F,
+                            aX,
+                            aY,
+                            aZ,
+                            false,
+                            new BlockPosition(
+                                    MathHelper.floor_double(aX),
+                                    MathHelper.floor_double(aY),
+                                    MathHelper.floor_double(aZ)));
+                } else {
+                    GT_Utility.sendSoundToPlayers(
+                            this.getBaseMetaTileEntity().getWorld(),
+                            this.mSoundResourceLocation.toString(),
+                            0.7F,
+                            1.08F,
+                            MathHelper.floor_double(aX),
+                            MathHelper.floor_double(aY),
+                            MathHelper.floor_double(aZ),
+                            false);
+                }
+            } else {
+                this.soundUUID = UUID.randomUUID();
+                if (this.getBaseMetaTileEntity().getWorld().isRemote) {
+                    GT_Utility.doSoundAtClient(
+                            this.mSoundResourceLocation,
+                            -1,
+                            0.7F,
+                            1.08F,
+                            aX,
+                            aY,
+                            aZ,
+                            true,
+                            new BlockPosition(
+                                    MathHelper.floor_double(aX),
+                                    MathHelper.floor_double(aY),
+                                    MathHelper.floor_double(aZ)));
+                } else {
+                    GT_Utility.sendSoundToPlayers(
+                            this.getBaseMetaTileEntity().getWorld(),
+                            this.mSoundResourceLocation.toString(),
+                            0.7F,
+                            1.08F,
+                            MathHelper.floor_double(aX),
+                            MathHelper.floor_double(aY),
+                            MathHelper.floor_double(aZ),
+                            true);
+                }
+            }
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void stopSoundLoop(byte aIndex, double aX, double aY, double aZ) {
+        super.stopSoundLoop(aIndex, aX, aY, aZ);
+        System.out.println("Stop sound loop called");
+        System.out.printf("aIndex: %s\naX: %f\naY: %f\naZ: %f%n", aIndex, aX, aY, aZ);
+        if (aIndex == 1 && this.soundUUID != null) {
+            if (this.getBaseMetaTileEntity().getWorld().isRemote) {
+                GT_Utility.stopSoundAtClient(new BlockPosition(
+                        MathHelper.floor_double(aX), MathHelper.floor_double(aY), MathHelper.floor_double(aZ)));
+            } else {
+                GT_Utility.stopSoundForPlayers(
+                        this.getBaseMetaTileEntity().getWorld(),
+                        this.mSoundResourceLocation.toString(),
+                        MathHelper.floor_double(aX),
+                        MathHelper.floor_double(aY),
+                        MathHelper.floor_double(aZ));
+            }
+        }
     }
 
     @Override
@@ -1155,6 +1231,27 @@ public class GT_MetaTileEntity_BasicMachine_GT_Recipe extends GT_MetaTileEntity_
             // Does not have overflow protection, but they are longs.
             myMetaTileEntity.mLastSoundTick = myMetaTileEntity.mTickTimer;
         }
+    }
+
+    @Override
+    public void endProcess() {
+
+        super.endProcess();
+        this.sendLoopEnd((byte) 1);
+    }
+
+    @Override
+    public void abortProcess() {
+
+        super.abortProcess();
+        this.sendLoopEnd((byte) 1);
+    }
+
+    @Override
+    public void stutterProcess() {
+
+        super.stutterProcess();
+        this.sendLoopEnd((byte) 1);
     }
 
     @Override

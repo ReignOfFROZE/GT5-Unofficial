@@ -34,7 +34,6 @@ import gregtech.api.util.ColorsMetadataSectionSerializer;
 import gregtech.api.util.GT_ClientPreference;
 import gregtech.api.util.GT_Log;
 import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_PlayedSound;
 import gregtech.api.util.GT_Recipe;
 import gregtech.api.util.GT_Utility;
 import gregtech.api.util.WorldSpawnedEventBuilder;
@@ -51,9 +50,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -698,16 +695,6 @@ public class GT_Client extends GT_Proxy implements Runnable {
                                         recipe.getOutput(0).getUnlocalizedName()));
                     }
                 } catch (Exception ignored) {
-                }
-            }
-            for (Iterator<Map.Entry<GT_PlayedSound, Integer>> iterator =
-                            GT_Utility.sPlayedSoundMap.entrySet().iterator();
-                    iterator.hasNext(); ) {
-                Map.Entry<GT_PlayedSound, Integer> tEntry = iterator.next();
-                if (tEntry.getValue() < 0) {
-                    iterator.remove();
-                } else {
-                    tEntry.setValue(tEntry.getValue() - 1);
                 }
             }
             if (!GregTech_API.mServerStarted) GregTech_API.mServerStarted = true;

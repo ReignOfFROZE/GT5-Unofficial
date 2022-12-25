@@ -1,5 +1,6 @@
 package gregtech.common.tools;
 
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.IIconContainer;
 import net.minecraft.entity.Entity;
@@ -18,6 +19,11 @@ public class GT_Tool_Knife extends GT_Tool_Sword {
     @Override
     public int getToolDamagePerDropConversion() {
         return 100;
+    }
+
+    @Override
+    public String getCraftingSound() {
+        return SoundResource.GT_SAW.toString();
     }
 
     @Override

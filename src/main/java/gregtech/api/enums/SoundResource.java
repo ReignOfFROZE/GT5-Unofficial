@@ -1,6 +1,6 @@
 package gregtech.api.enums;
 
-import static gregtech.api.enums.GT_Values.MOD_ID_IC2;
+import static gregtech.api.enums.GT_Values.*;
 
 import com.google.common.collect.Maps;
 import java.util.EnumSet;
@@ -49,6 +49,45 @@ public enum SoundResource {
     IC2_MACHINES_INTERRUPT_ONE(210, MOD_ID_IC2, "machines.InterruptOne"),
     IC2_MACHINES_KA_CHING(211, MOD_ID_IC2, "machines.KaChing"),
     IC2_MACHINES_MAGNETIZER_LOOP(212, MOD_ID_IC2, "machines.MagnetizerLoop"),
+
+    /*
+     * GregTech-Specific Sounds
+     */
+    GT_FORGE_HAMMER(213, MOD_ID, "tick.forge_hammer"),
+    GT_MACERATOR(214, MOD_ID, "tick.macerator"),
+    GT_CHEMICAL_REACTOR(215, MOD_ID, "tick.chemical_reactor"),
+    GT_ASSEMBLING_MACHINE(216, MOD_ID, "tick.assembler"),
+    GT_CENTRIFUGE(217, MOD_ID, "tick.centrifuge"),
+    GT_COMPRESSOR(218, MOD_ID, "tick.compressor"),
+    GT_ELECTROLYZER(219, MOD_ID, "tick.electrolyzer"),
+    GT_MIXER(220, MOD_ID, "tick.mixer"),
+    GT_REPLICATOR(221, MOD_ID, "tick.replicator"),
+    GT_ARC_FURNACE(222, MOD_ID, "tick.arc"),
+    GT_BOILER(223, MOD_ID, "tick.boiler"),
+    GT_FURNACE(224, MOD_ID, "tick.furnace"),
+    GT_COOLING(225, MOD_ID, "tick.cooling"),
+    GT_FIRE(226, MOD_ID, "tick.fire"),
+    GT_BATH(227, MOD_ID, "tick.bath"),
+    GT_MOTOR(228, MOD_ID, "tick.motor"),
+    GT_CUT(229, MOD_ID, "tick.cut"),
+    GT_TURBINE(230, MOD_ID, "tick.turbine"),
+    GT_COMBUSTION(231, MOD_ID, "tick.combustion"),
+    GT_MINER(232, MOD_ID, "tick.miner"),
+    GT_SCIENCE(233, MOD_ID, "tick.science"),
+    GT_WRENCH(234, MOD_ID, "use.wrench"),
+    GT_SOFT_HAMMER(235, MOD_ID, "use.soft_hammer"),
+    GT_DRILL(236, MOD_ID, "use.drill"),
+    GT_PLUNGER(237, MOD_ID, "use.plunger"),
+    GT_FILE(238, MOD_ID, "use.file"),
+    GT_SAW(239, MOD_ID, "use.saw"),
+    GT_SCREWDRIVER(240, MOD_ID, "use.screwdriver"),
+    GT_CHAINSAW(241, MOD_ID, "use.chainsaw"),
+    GT_WIRECUTTER(242, MOD_ID, "use.wirecutter"),
+    GT_SPRAY_CAN(243, MOD_ID, "use.spray_can"),
+    GT_TRICORDER(244, MOD_ID, "use.tricorder"),
+    GT_MORTAR(245, MOD_ID, "use.mortar"),
+    GT_PORTAL_OPENING(245, MOD_ID, "entity.portal_opening"),
+    GT_PORTAL_CLOSING(246, MOD_ID, "entity.portal_closing"),
 
     /*
      * Other Minecraft Sounds that were missing

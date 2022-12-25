@@ -79,7 +79,7 @@ public class GT_Tool_Wrench extends GT_Tool {
 
     @Override
     public String getCraftingSound() {
-        return SoundResource.IC2_TOOLS_WRENCH.toString();
+        return SoundResource.GT_WRENCH.toString();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class GT_Tool_Wrench extends GT_Tool {
 
     @Override
     public String getMiningSound() {
-        return SoundResource.IC2_TOOLS_WRENCH.toString();
+        return SoundResource.GT_WRENCH.toString();
     }
 
     @Override

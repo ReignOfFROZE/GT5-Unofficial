@@ -55,17 +55,17 @@ public class GT_Tool_WireCutter extends GT_Tool {
 
     @Override
     public String getCraftingSound() {
-        return SoundResource.IC2_TOOLS_INSULATION_CUTTERS.toString();
+        return SoundResource.GT_WIRECUTTER.toString();
     }
 
     @Override
     public String getEntityHitSound() {
-        return null;
+        return SoundResource.GT_WIRECUTTER.toString();
     }
 
     @Override
     public String getMiningSound() {
-        return SoundResource.IC2_TOOLS_INSULATION_CUTTERS.toString();
+        return SoundResource.GT_WIRECUTTER.toString();
     }
 
     @Override

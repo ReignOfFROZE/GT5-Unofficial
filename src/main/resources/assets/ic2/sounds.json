@@ -1,4 +1,13 @@
 {
+  "machines.AssemblingMachine": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "AssemblingMachine",
+        "stream": false
+      }
+    ]
+  },
   "machines.ExtractorOp": {
     "category": "block",
     "sounds": [

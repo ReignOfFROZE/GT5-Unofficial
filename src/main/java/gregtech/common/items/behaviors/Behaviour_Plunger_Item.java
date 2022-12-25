@@ -68,7 +68,7 @@ public class Behaviour_Plunger_Item extends Behaviour_None {
                                     tEntity.motionZ = 0.0D;
                                     aWorld.spawnEntityInWorld(tEntity);
                                     GT_Utility.sendSoundToPlayers(
-                                            aWorld, SoundResource.IC2_TOOLS_RUBBER_TRAMPOLINE, 1.0F, -1.0F, aX, aY, aZ);
+                                            aWorld, SoundResource.GT_PLUNGER, 1.0F, -1.0F, aX, aY, aZ);
                                 }
                                 return true;
                             }

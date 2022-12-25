@@ -1,14 +1,7 @@
 package gregtech.api.util;
 
 import static gregtech.GT_Mod.GT_FML_LOGGER;
-import static gregtech.api.enums.GT_Values.D1;
-import static gregtech.api.enums.GT_Values.E;
-import static gregtech.api.enums.GT_Values.GT;
-import static gregtech.api.enums.GT_Values.L;
-import static gregtech.api.enums.GT_Values.M;
-import static gregtech.api.enums.GT_Values.NW;
-import static gregtech.api.enums.GT_Values.V;
-import static gregtech.api.enums.GT_Values.W;
+import static gregtech.api.enums.GT_Values.*;
 import static gregtech.common.GT_UndergroundOil.undergroundOilReadInformation;
 
 import cofh.api.transport.IItemDuct;
@@ -21,31 +14,23 @@ import com.gtnewhorizon.structurelib.alignment.IAlignmentProvider;
 import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTech_API;
 import gregtech.api.damagesources.GT_DamageSources;
 import gregtech.api.damagesources.GT_DamageSources.DamageSourceHotItem;
 import gregtech.api.enchants.Enchantment_Radioactivity;
 import gregtech.api.enums.*;
 import gregtech.api.events.BlockScanningEvent;
-import gregtech.api.interfaces.IBlockContainer;
-import gregtech.api.interfaces.IDebugableBlock;
-import gregtech.api.interfaces.IHasIndexedTexture;
-import gregtech.api.interfaces.IProjectileItem;
-import gregtech.api.interfaces.ITexture;
-import gregtech.api.interfaces.tileentity.IBasicEnergyContainer;
-import gregtech.api.interfaces.tileentity.ICoverable;
-import gregtech.api.interfaces.tileentity.IGregTechDeviceInformation;
-import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.interfaces.tileentity.IMachineProgress;
-import gregtech.api.interfaces.tileentity.IUpgradableMachine;
+import gregtech.api.interfaces.*;
+import gregtech.api.interfaces.tileentity.*;
 import gregtech.api.items.GT_EnergyArmor_Item;
 import gregtech.api.items.GT_Generic_Item;
 import gregtech.api.items.GT_MetaGenerated_Tool;
 import gregtech.api.net.GT_Packet_Sound;
-import gregtech.api.objects.CollectorUtils;
-import gregtech.api.objects.GT_ItemStack;
-import gregtech.api.objects.GT_ItemStack2;
-import gregtech.api.objects.ItemData;
+import gregtech.api.net.GT_Packet_Stop_Sound;
+import gregtech.api.objects.*;
+import gregtech.api.sound.SimpleSound;
 import gregtech.api.threads.GT_Runnable_Sound;
 import gregtech.api.util.extensions.ArrayExt;
 import gregtech.common.GT_Pollution;
@@ -68,13 +53,10 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraft.entity.*;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -108,13 +90,8 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.*;
 import net.minecraftforge.fluids.FluidContainerRegistry.FluidContainerData;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidContainerItem;
-import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
@@ -142,7 +119,7 @@ public class GT_Utility {
     private static final Map<Integer, Boolean> sOreTable = new HashMap<>();
     public static volatile int VERSION = 509;
     public static boolean TE_CHECK = false, BC_CHECK = false, CHECK_ALL = true, RF_CHECK = false;
-    public static Map<GT_PlayedSound, Integer> sPlayedSoundMap = new /*Concurrent*/ HashMap<>();
+    public static Map<BlockPosition, SimpleSound> sPlayedSoundMap = new /*Concurrent*/ HashMap<>();
     private static int sBookCount = 0;
     public static UUID defaultUuid =
             null; // maybe default non-null? UUID.fromString("00000000-0000-0000-0000-000000000000");
@@ -2245,6 +2222,42 @@ public class GT_Utility {
             double aX,
             double aY,
             double aZ) {
+        return doSoundAtClient(
+                aSoundResourceLocation, aTimeUntilNextSound, aSoundStrength, aSoundModulation, aX, aY, aZ, false);
+    }
+
+    public static boolean doSoundAtClient(
+            ResourceLocation aSoundResourceLocation,
+            int aTimeUntilNextSound,
+            float aSoundStrength,
+            float aSoundModulation,
+            double aX,
+            double aY,
+            double aZ,
+            boolean aRepeatable) {
+        return doSoundAtClient(
+                aSoundResourceLocation,
+                aTimeUntilNextSound,
+                aSoundStrength,
+                aSoundModulation,
+                aX,
+                aY,
+                aZ,
+                aRepeatable,
+                new BlockPosition(
+                        MathHelper.floor_double(aX), MathHelper.floor_double(aY), MathHelper.floor_double(aZ)));
+    }
+
+    public static boolean doSoundAtClient(
+            ResourceLocation aSoundResourceLocation,
+            int aTimeUntilNextSound,
+            float aSoundStrength,
+            float aSoundModulation,
+            double aX,
+            double aY,
+            double aZ,
+            boolean aRepeatable,
+            BlockPosition aBlockPos) {
         if (!FMLCommonHandler.instance().getEffectiveSide().isClient()
                 || GT.getThePlayer() == null
                 || !GT.getThePlayer().worldObj.isRemote) return false;
@@ -2258,7 +2271,9 @@ public class GT_Utility {
                                     aTimeUntilNextSound,
                                     aSoundResourceLocation,
                                     aSoundStrength,
-                                    aSoundModulation),
+                                    aSoundModulation,
+                                    aRepeatable,
+                                    aBlockPos),
                             "Sound Effect")
                     .start();
         else
@@ -2270,9 +2285,20 @@ public class GT_Utility {
                             aTimeUntilNextSound,
                             aSoundResourceLocation,
                             aSoundStrength,
-                            aSoundModulation)
+                            aSoundModulation,
+                            aRepeatable,
+                            aBlockPos)
                     .run();
         return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void stopSoundAtClient(BlockPosition aBlockPos) {
+        SimpleSound sound = GT_Utility.sPlayedSoundMap.get(aBlockPos);
+        if (sound != null) {
+            Minecraft.getMinecraft().getSoundHandler().stopSound(sound);
+            sPlayedSoundMap.remove(aBlockPos);
+        }
     }
 
     /**
@@ -2294,10 +2320,56 @@ public class GT_Utility {
     }
 
     public static boolean sendSoundToPlayers(
+            World aWorld,
+            String aSoundName,
+            float aSoundStrength,
+            float aSoundModulation,
+            int aX,
+            int aY,
+            int aZ,
+            boolean aRepeatable) {
+        if (isStringInvalid(aSoundName) || aWorld == null || aWorld.isRemote) return false;
+        NW.sendPacketToAllPlayersInRange(
+                aWorld,
+                new GT_Packet_Sound(aSoundName, aSoundStrength, aSoundModulation, aX, (short) aY, aZ, aRepeatable),
+                aX,
+                aZ);
+        return true;
+    }
+
+    public static boolean sendSoundToPlayers(
             World aWorld, String aSoundName, float aSoundStrength, float aSoundModulation, int aX, int aY, int aZ) {
         if (isStringInvalid(aSoundName) || aWorld == null || aWorld.isRemote) return false;
         NW.sendPacketToAllPlayersInRange(
-                aWorld, new GT_Packet_Sound(aSoundName, aSoundStrength, aSoundModulation, aX, (short) aY, aZ), aX, aZ);
+                aWorld,
+                new GT_Packet_Sound(aSoundName, aSoundStrength, aSoundModulation, aX, (short) aY, aZ, false),
+                aX,
+                aZ);
+        return true;
+    }
+
+    public static boolean sendSoundToPlayers(
+            World aWorld,
+            SoundResource sound,
+            float aSoundStrength,
+            float aSoundModulation,
+            int aX,
+            int aY,
+            int aZ,
+            boolean aRepeatable) {
+        if (aWorld == null || aWorld.isRemote) return false;
+        NW.sendPacketToAllPlayersInRange(
+                aWorld,
+                new GT_Packet_Sound(
+                        sound.resourceLocation.toString(),
+                        aSoundStrength,
+                        aSoundModulation,
+                        aX,
+                        (short) aY,
+                        aZ,
+                        aRepeatable),
+                aX,
+                aZ);
         return true;
     }
 
@@ -2307,9 +2379,16 @@ public class GT_Utility {
         NW.sendPacketToAllPlayersInRange(
                 aWorld,
                 new GT_Packet_Sound(
-                        sound.resourceLocation.toString(), aSoundStrength, aSoundModulation, aX, (short) aY, aZ),
+                        sound.resourceLocation.toString(), aSoundStrength, aSoundModulation, aX, (short) aY, aZ, false),
                 aX,
                 aZ);
+        return true;
+    }
+
+    public static boolean stopSoundForPlayers(World aWorld, String soundName, int aX, int aY, int aZ) {
+        if (aWorld == null || aWorld.isRemote) return false;
+        NW.sendPacketToAllPlayersInRange(aWorld, new GT_Packet_Stop_Sound(soundName, aX, (short) aY, aZ), aX, aZ);
+
         return true;
     }
 

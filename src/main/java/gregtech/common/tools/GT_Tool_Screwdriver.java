@@ -79,17 +79,17 @@ public class GT_Tool_Screwdriver extends GT_Tool {
 
     @Override
     public String getCraftingSound() {
-        return SoundResource.IC2_TOOLS_WRENCH.toString();
+        return SoundResource.GT_SCREWDRIVER.toString();
     }
 
     @Override
     public String getEntityHitSound() {
-        return null;
+        return SoundResource.GT_SCREWDRIVER.toString();
     }
 
     @Override
     public String getMiningSound() {
-        return null;
+        return SoundResource.GT_SCREWDRIVER.toString();
     }
 
     @Override

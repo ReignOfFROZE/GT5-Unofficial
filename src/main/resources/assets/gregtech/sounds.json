@@ -1,0 +1,317 @@
+{
+  "tick.forge_hammer": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "forge_hammer",
+        "stream": false
+      }
+    ]
+  },
+  "tick.macerator": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "macerator",
+        "stream": false
+      }
+    ]
+  },
+  "tick.chemical_reactor": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "chemical",
+        "stream": false
+      }
+    ]
+  },
+  "tick.assembler": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "assembler",
+        "stream": false
+      }
+    ]
+  },
+  "tick.centrifuge": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "centrifuge",
+        "stream": false
+      }
+    ]
+  },
+  "tick.compressor": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "compressor",
+        "stream": false
+      }
+    ]
+  },
+  "tick.electrolyzer": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "electrolyzer",
+        "stream": false
+      }
+    ]
+  },
+  "tick.mixer": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "mixer",
+        "stream": false
+      }
+    ]
+  },
+  "tick.replicator": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "replicator",
+        "stream": false
+      }
+    ]
+  },
+  "tick.arc": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "hum",
+        "stream": false
+      }
+    ]
+  },
+  "tick.boiler": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "boiling",
+        "stream": false
+      }
+    ]
+  },
+  "tick.furnace": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "heating",
+        "stream": false
+      }
+    ]
+  },
+  "tick.cooling": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "cooling",
+        "stream": false
+      }
+    ]
+  },
+  "tick.fire": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "fire",
+        "stream": false
+      }
+    ]
+  },
+  "tick.bath": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "bath",
+        "stream": false
+      }
+    ]
+  },
+  "tick.motor": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "motor",
+        "stream": false
+      }
+    ]
+  },
+  "tick.cut": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "cut",
+        "stream": false
+      }
+    ]
+  },
+  "tick.turbine": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "turbine",
+        "stream": false
+      }
+    ]
+  },
+  "tick.combustion": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "combustion",
+        "stream": false
+      }
+    ]
+  },
+  "tick.miner": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "miner",
+        "stream": false
+      }
+    ]
+  },
+  "tick.science": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "science",
+        "stream": false
+      }
+    ]
+  },
+  "use.wrench": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "wrench",
+        "stream": false
+      }
+    ]
+  },
+  "use.soft_hammer": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "soft_hammer",
+        "stream": false
+      }
+    ]
+  },
+  "use.drill": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "drill",
+        "stream": false
+      }
+    ]
+  },
+  "use.plunger": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "plunger",
+        "stream": false
+      }
+    ]
+  },
+  "use.file": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "file",
+        "stream": false
+      }
+    ]
+  },
+  "use.saw": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "saw",
+        "stream": false
+      }
+    ]
+  },
+  "use.screwdriver": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "screwdriver",
+        "stream": false
+      }
+    ]
+  },
+  "use.chainsaw": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "chainsaw",
+        "stream": false
+      }
+    ]
+  },
+  "use.wirecutter": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "wirecutter",
+        "stream": false
+      }
+    ]
+  },
+  "use.spray_can": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "spray_can",
+        "stream": false
+      }
+    ]
+  },
+  "use.tricorder": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "tricorder",
+        "stream": false
+      }
+    ]
+  },
+  "use.mortar": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "mortar",
+        "stream": false
+      }
+    ]
+  },
+  "entity.portal_opening": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "portal_opening",
+        "stream": false
+      }
+    ]
+  },
+  "entity.portal_closing": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "portal_closing",
+        "stream": false
+      }
+    ]
+  }
+}

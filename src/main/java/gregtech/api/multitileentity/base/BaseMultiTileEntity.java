@@ -833,7 +833,7 @@ public abstract class BaseMultiTileEntity extends CoverableTileEntity
             EntityPlayer aPlayer, ItemStack tCurrentItem, byte wrenchSide, float aX, float aY, float aZ) {
         if (setMainFacing(wrenchSide)) {
             GT_ModHandler.damageOrDechargeItem(tCurrentItem, 1, 1000, aPlayer);
-            GT_Utility.sendSoundToPlayers(worldObj, SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
+            GT_Utility.sendSoundToPlayers(worldObj, SoundResource.GT_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
         }
         return true;
     }
@@ -854,7 +854,7 @@ public abstract class BaseMultiTileEntity extends CoverableTileEntity
                                     aY,
                                     aZ));
             // TODO: Update connections!
-            GT_Utility.sendSoundToPlayers(worldObj, SoundResource.IC2_TOOLS_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
+            GT_Utility.sendSoundToPlayers(worldObj, SoundResource.GT_WRENCH, 1.0F, -1, xCoord, yCoord, zCoord);
         }
         return true;
     }

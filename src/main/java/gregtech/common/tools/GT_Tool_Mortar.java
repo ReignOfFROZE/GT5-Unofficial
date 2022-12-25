@@ -1,6 +1,7 @@
 package gregtech.common.tools;
 
 import gregtech.api.enums.Dyes;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.items.GT_MetaGenerated_Tool;
@@ -54,7 +55,7 @@ public class GT_Tool_Mortar extends GT_Tool {
 
     @Override
     public String getCraftingSound() {
-        return null;
+        return SoundResource.GT_MORTAR.toString();
     }
 
     @Override
