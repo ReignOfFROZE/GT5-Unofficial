@@ -1,19 +1,8 @@
 package gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.processing;
 
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlocksTiered;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
-import static gregtech.api.enums.GT_HatchElement.Energy;
-import static gregtech.api.enums.GT_HatchElement.InputBus;
-import static gregtech.api.enums.GT_HatchElement.InputHatch;
-import static gregtech.api.enums.GT_HatchElement.Maintenance;
-import static gregtech.api.enums.GT_HatchElement.Muffler;
-import static gregtech.api.enums.GT_HatchElement.OutputBus;
-import static gregtech.api.enums.GT_HatchElement.OutputHatch;
-import static gregtech.api.enums.Mods.EnderIO;
-import static gregtech.api.enums.Mods.Railcraft;
-import static gregtech.api.enums.Mods.ThaumicBases;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
+import static gregtech.api.enums.GT_HatchElement.*;
+import static gregtech.api.enums.Mods.*;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 
 import java.util.HashMap;
@@ -46,12 +35,13 @@ import gregtech.api.util.GT_Multiblock_Tooltip_Builder;
 import gregtech.api.util.GT_Utility;
 import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.lib.CORE;
-import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase;
+import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase_ExoticCapable;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
 @SuppressWarnings("SpellCheckingInspection")
-public class GregtechMetaTileEntity_IndustrialForgeHammer extends
-    GregtechMeta_MultiBlockBase<GregtechMetaTileEntity_IndustrialForgeHammer> implements ISurvivalConstructable {
+public class GregtechMetaTileEntity_IndustrialForgeHammer
+    extends GregtechMeta_MultiBlockBase_ExoticCapable<GregtechMetaTileEntity_IndustrialForgeHammer>
+    implements ISurvivalConstructable {
 
     private int mCasing;
     private int mAnvilTier = 0;
@@ -138,7 +128,14 @@ public class GregtechMetaTileEntity_IndustrialForgeHammer extends
                 .addElement(
                     'C',
                     buildHatchAdder(GregtechMetaTileEntity_IndustrialForgeHammer.class)
-                        .atLeast(InputBus, OutputBus, Maintenance, Energy, Muffler, InputHatch, OutputHatch)
+                        .atLeast(
+                            InputBus,
+                            OutputBus,
+                            Maintenance,
+                            Energy.or(ExoticEnergy),
+                            Muffler,
+                            InputHatch,
+                            OutputHatch)
                         .casingIndex(TAE.getIndexFromPage(1, 11))
                         .dot(1)
                         .buildAndChain(onElementPass(x -> ++x.mCasing, ofBlock(ModBlocks.blockCasings5Misc, 6))))

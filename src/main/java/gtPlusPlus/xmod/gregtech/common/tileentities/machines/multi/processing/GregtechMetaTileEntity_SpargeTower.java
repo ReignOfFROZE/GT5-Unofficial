@@ -5,11 +5,7 @@ import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
-import static gregtech.api.enums.GT_HatchElement.Energy;
-import static gregtech.api.enums.GT_HatchElement.InputBus;
-import static gregtech.api.enums.GT_HatchElement.InputHatch;
-import static gregtech.api.enums.GT_HatchElement.Maintenance;
-import static gregtech.api.enums.GT_HatchElement.OutputHatch;
+import static gregtech.api.enums.GT_HatchElement.*;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 import static gregtech.api.util.GT_StructureUtility.ofHatchAdder;
 
@@ -50,11 +46,11 @@ import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.util.math.MathUtils;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
-import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase;
+import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase_ExoticCapable;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
-public class GregtechMetaTileEntity_SpargeTower extends GregtechMeta_MultiBlockBase<GregtechMetaTileEntity_SpargeTower>
-    implements ISurvivalConstructable {
+public class GregtechMetaTileEntity_SpargeTower extends
+    GregtechMeta_MultiBlockBase_ExoticCapable<GregtechMetaTileEntity_SpargeTower> implements ISurvivalConstructable {
 
     protected static final String STRUCTURE_PIECE_BASE = "base";
     protected static final String STRUCTURE_PIECE_LAYER = "layer";
@@ -74,7 +70,7 @@ public class GregtechMetaTileEntity_SpargeTower extends GregtechMeta_MultiBlockB
             .addElement(
                 'b',
                 buildHatchAdder(GregtechMetaTileEntity_SpargeTower.class)
-                    .atLeast(Energy, InputHatch, InputBus, Maintenance)
+                    .atLeast(Energy.or(ExoticEnergy), InputHatch, InputBus, Maintenance)
                     .disallowOnly(ForgeDirection.UP)
                     .casingIndex(getCasingIndex())
                     .dot(1)

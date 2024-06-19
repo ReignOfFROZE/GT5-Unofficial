@@ -1,14 +1,7 @@
 package gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.processing;
 
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
-import static gregtech.api.enums.GT_HatchElement.Energy;
-import static gregtech.api.enums.GT_HatchElement.InputBus;
-import static gregtech.api.enums.GT_HatchElement.Maintenance;
-import static gregtech.api.enums.GT_HatchElement.Muffler;
-import static gregtech.api.enums.GT_HatchElement.OutputBus;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
+import static gregtech.api.enums.GT_HatchElement.*;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 
 import java.util.List;
@@ -45,13 +38,14 @@ import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.lib.CORE;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
 import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
-import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase;
+import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase_ExoticCapable;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
 public class GregtechMetaTileEntity_IndustrialMacerator
-    extends GregtechMeta_MultiBlockBase<GregtechMetaTileEntity_IndustrialMacerator> implements ISurvivalConstructable {
+    extends GregtechMeta_MultiBlockBase_ExoticCapable<GregtechMetaTileEntity_IndustrialMacerator>
+    implements ISurvivalConstructable {
 
     private int controllerTier = 1;
     private int mCasing;
@@ -119,7 +113,7 @@ public class GregtechMetaTileEntity_IndustrialMacerator
                             .dot(2)
                             .build(),
                         buildHatchAdder(GregtechMetaTileEntity_IndustrialMacerator.class)
-                            .atLeast(Energy, Maintenance, Muffler)
+                            .atLeast(Energy.or(ExoticEnergy), Maintenance, Muffler)
                             .disallowOnly(ForgeDirection.UP, ForgeDirection.DOWN)
                             .casingIndex(TAE.GTPP_INDEX(7))
                             .dot(2)
@@ -129,7 +123,7 @@ public class GregtechMetaTileEntity_IndustrialMacerator
                     'B',
                     ofChain(
                         buildHatchAdder(GregtechMetaTileEntity_IndustrialMacerator.class)
-                            .atLeast(Energy, Maintenance, InputBus)
+                            .atLeast(Energy.or(ExoticEnergy), Maintenance, InputBus)
                             .disallowOnly(ForgeDirection.UP)
                             .casingIndex(TAE.GTPP_INDEX(7))
                             .dot(2)
@@ -145,7 +139,7 @@ public class GregtechMetaTileEntity_IndustrialMacerator
                             .dot(2)
                             .build(),
                         buildHatchAdder(GregtechMetaTileEntity_IndustrialMacerator.class)
-                            .atLeast(Energy, Maintenance, Muffler)
+                            .atLeast(Energy.or(ExoticEnergy), Maintenance, Muffler)
                             .disallowOnly(ForgeDirection.UP, ForgeDirection.DOWN)
                             .casingIndex(GT_Utility.getCasingTextureIndex(GregTech_API.sBlockCasings4, 2))
                             .dot(2)
@@ -155,7 +149,7 @@ public class GregtechMetaTileEntity_IndustrialMacerator
                     'b',
                     ofChain(
                         buildHatchAdder(GregtechMetaTileEntity_IndustrialMacerator.class)
-                            .atLeast(Energy, Maintenance, InputBus)
+                            .atLeast(Energy.or(ExoticEnergy), Maintenance, InputBus)
                             .disallowOnly(ForgeDirection.UP)
                             .casingIndex(GT_Utility.getCasingTextureIndex(GregTech_API.sBlockCasings4, 2))
                             .dot(2)

@@ -3,13 +3,7 @@ package gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.processing;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
-import static gregtech.api.enums.GT_HatchElement.Energy;
-import static gregtech.api.enums.GT_HatchElement.InputBus;
-import static gregtech.api.enums.GT_HatchElement.InputHatch;
-import static gregtech.api.enums.GT_HatchElement.Maintenance;
-import static gregtech.api.enums.GT_HatchElement.Muffler;
-import static gregtech.api.enums.GT_HatchElement.OutputBus;
-import static gregtech.api.enums.GT_HatchElement.OutputHatch;
+import static gregtech.api.enums.GT_HatchElement.*;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 
 import net.minecraft.item.ItemStack;
@@ -33,10 +27,11 @@ import gregtech.api.util.GT_Utility;
 import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.core.block.ModBlocks;
 import gtPlusPlus.core.lib.CORE;
-import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase;
+import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase_ExoticCapable;
 
-public class GregtechMetaTileEntity_NuclearSaltProcessingPlant extends
-    GregtechMeta_MultiBlockBase<GregtechMetaTileEntity_NuclearSaltProcessingPlant> implements ISurvivalConstructable {
+public class GregtechMetaTileEntity_NuclearSaltProcessingPlant
+    extends GregtechMeta_MultiBlockBase_ExoticCapable<GregtechMetaTileEntity_NuclearSaltProcessingPlant>
+    implements ISurvivalConstructable {
 
     protected GT_Recipe lastRecipeToBuffer;
     private int casing;
@@ -148,7 +143,8 @@ public class GregtechMetaTileEntity_NuclearSaltProcessingPlant extends
                         .buildAndChain(onElementPass(x -> ++x.casing, ofBlock(ModBlocks.blockSpecialMultiCasings, 8))))
                 .addElement(
                     'E',
-                    buildHatchAdder(GregtechMetaTileEntity_NuclearSaltProcessingPlant.class).atLeast(Energy)
+                    buildHatchAdder(GregtechMetaTileEntity_NuclearSaltProcessingPlant.class)
+                        .atLeast(Energy.or(ExoticEnergy))
                         .casingIndex(TAE.getIndexFromPage(0, 10))
                         .dot(5)
                         .buildAndChain(onElementPass(x -> ++x.casing, ofBlock(ModBlocks.blockSpecialMultiCasings, 8))))

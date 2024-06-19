@@ -3,13 +3,7 @@ package gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.processing;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
-import static gregtech.api.enums.GT_HatchElement.Energy;
-import static gregtech.api.enums.GT_HatchElement.InputBus;
-import static gregtech.api.enums.GT_HatchElement.InputHatch;
-import static gregtech.api.enums.GT_HatchElement.Maintenance;
-import static gregtech.api.enums.GT_HatchElement.Muffler;
-import static gregtech.api.enums.GT_HatchElement.OutputBus;
-import static gregtech.api.enums.GT_HatchElement.OutputHatch;
+import static gregtech.api.enums.GT_HatchElement.*;
 import static gregtech.api.util.GT_StructureUtility.buildHatchAdder;
 import static gregtech.api.util.GT_Utility.filterValidMTEs;
 
@@ -64,13 +58,14 @@ import gtPlusPlus.core.recipe.common.CI;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch_Solidifier;
-import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase;
+import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GregtechMeta_MultiBlockBase_ExoticCapable;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
-public class GregtechMetaTileEntity_IndustrialMultiMachine extends
-    GregtechMeta_MultiBlockBase<GregtechMetaTileEntity_IndustrialMultiMachine> implements ISurvivalConstructable {
+public class GregtechMetaTileEntity_IndustrialMultiMachine
+    extends GregtechMeta_MultiBlockBase_ExoticCapable<GregtechMetaTileEntity_IndustrialMultiMachine>
+    implements ISurvivalConstructable {
 
     protected int mInternalMode = 0;
     private static final int MODE_COMPRESSOR = 0;
@@ -128,7 +123,7 @@ public class GregtechMetaTileEntity_IndustrialMultiMachine extends
             .addInfo("Controller Block for the Industrial Multi-Machine")
             .addInfo("250% faster than using single block machines of the same voltage")
             .addInfo("Only uses 80% of the EU/t normally required")
-            .addInfo("Processes two items per voltage tier")
+            .addInfo("Processes four items per voltage tier")
             .addInfo("Machine Type: Metal - " + EnumChatFormatting.YELLOW + aBuiltStrings[0] + EnumChatFormatting.RESET)
             .addInfo("Machine Type: Fluid - " + EnumChatFormatting.YELLOW + aBuiltStrings[1] + EnumChatFormatting.RESET)
             .addInfo("Machine Type: Misc - " + EnumChatFormatting.YELLOW + aBuiltStrings[2] + EnumChatFormatting.RESET)
@@ -163,7 +158,14 @@ public class GregtechMetaTileEntity_IndustrialMultiMachine extends
                 .addElement(
                     'C',
                     buildHatchAdder(GregtechMetaTileEntity_IndustrialMultiMachine.class)
-                        .atLeast(InputBus, OutputBus, Maintenance, Energy, Muffler, InputHatch, OutputHatch)
+                        .atLeast(
+                            InputBus,
+                            OutputBus,
+                            Maintenance,
+                            Energy.or(ExoticEnergy),
+                            Muffler,
+                            InputHatch,
+                            OutputHatch)
                         .casingIndex(getTextureIndex())
                         .dot(1)
                         .buildAndChain(onElementPass(x -> ++x.mCasing, ofBlock(ModBlocks.blockCasings3Misc, 2))))
@@ -206,7 +208,7 @@ public class GregtechMetaTileEntity_IndustrialMultiMachine extends
 
     @Override
     public int getMaxParallelRecipes() {
-        return (2 * GT_Utility.getTier(this.getMaxInputVoltage()));
+        return (4 * GT_Utility.getTier(this.getMaxInputVoltage()));
     }
 
     @Override
