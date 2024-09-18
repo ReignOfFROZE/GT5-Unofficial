@@ -9,11 +9,11 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.render.TextureFactory;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 
 public class Textures {
 
@@ -86,6 +86,15 @@ public class Textures {
         MACHINE_CASING_TANK_13,
         MACHINE_CASING_TANK_14,
         MACHINE_CASING_TANK_0,
+
+        MACHINE_CASING_ITEM_PIPE_TIN,
+        MACHINE_CASING_ITEM_PIPE_BRASS,
+        MACHINE_CASING_ITEM_PIPE_ELECTRUM,
+        MACHINE_CASING_ITEM_PIPE_PLATINUM,
+        MACHINE_CASING_ITEM_PIPE_OSMIUM,
+        MACHINE_CASING_ITEM_PIPE_QUANTIUM,
+        MACHINE_CASING_ITEM_PIPE_FLUXED_ELECTRUM,
+        MACHINE_CASING_ITEM_PIPE_BLACK_PLUTONIUM,
 
         BLOCK_STEELEAF,
         BLOCK_ICHORIUM,
@@ -264,8 +273,13 @@ public class Textures {
         MACHINE_CASING_FUSION,
         MACHINE_CASING_FUSION_GLASS,
         MACHINE_CASING_FUSION_GLASS_YELLOW,
+        TEXTURE_METAL_PANEL_E,
+        TEXTURE_METAL_PANEL_E_A,
+
         MACHINE_CASING_FUSION_GLASS_YELLOW_GLOW,
         MACHINE_CASING_FUSION_2,
+        MACHINE_CASING_ANTIMATTER,
+        MACHINE_CASING_ANTIMATTER_GLOW,
 
         MACHINE_CASING_MAGIC,
         MACHINE_CASING_MAGIC_GLOW,
@@ -312,6 +326,66 @@ public class Textures {
         MACHINE_CASING_GRATE,
         MACHINE_CASING_VENT,
         MACHINE_CASING_VENT_T2,
+
+        OVERLAY_FRONT_EMS,
+        OVERLAY_FRONT_EMS_ACTIVE,
+        OVERLAY_FRONT_EMS_ACTIVE_GLOW,
+        OVERLAY_FRONT_EMS_GLOW,
+        MACHINE_CASING_EMS,
+
+        MACHINE_CASING_MS160,
+        RADIATOR_MS160,
+
+        OVERLAY_FRONT_MULTI_CANNER,
+        OVERLAY_FRONT_MULTI_CANNER_ACTIVE,
+        OVERLAY_FRONT_MULTI_CANNER_ACTIVE_GLOW,
+        OVERLAY_FRONT_MULTI_CANNER_GLOW,
+
+        OVERLAY_FRONT_MULTI_COMPRESSOR,
+        OVERLAY_FRONT_MULTI_COMPRESSOR_ACTIVE,
+        OVERLAY_FRONT_MULTI_COMPRESSOR_ACTIVE_GLOW,
+        OVERLAY_FRONT_MULTI_COMPRESSOR_GLOW,
+        OVERLAY_FRONT_MULTI_COMPRESSOR_COOLING,
+        OVERLAY_FRONT_MULTI_COMPRESSOR_COOLING_GLOW,
+
+        OVERLAY_HATCH_HEAT_SENSOR,
+        OVERLAY_HATCH_HEAT_SENSOR_GLOW,
+
+        OVERLAY_MULTI_NEUTRONIUM,
+        OVERLAY_MULTI_NEUTRONIUM_GLOW,
+        OVERLAY_MULTI_NEUTRONIUM_ACTIVE,
+        OVERLAY_MULTI_NEUTRONIUM_ACTIVE_GLOW,
+
+        OVERLAY_MULTI_BLACKHOLE,
+        OVERLAY_MULTI_BLACKHOLE_GLOW,
+        OVERLAY_MULTI_BLACKHOLE_ACTIVE,
+        OVERLAY_MULTI_BLACKHOLE_ACTIVE_GLOW,
+        OVERLAY_MULTI_BLACKHOLE_UNSTABLE,
+        OVERLAY_MULTI_BLACKHOLE_UNSTABLE_GLOW,
+
+        OVERLAY_FRONT_INDUSTRIAL_EXTRACTOR,
+        OVERLAY_FRONT_INDUSTRIAL_EXTRACTOR_ACTIVE,
+        OVERLAY_FRONT_INDUSTRIAL_EXTRACTOR_ACTIVE_GLOW,
+        OVERLAY_FRONT_INDUSTRIAL_EXTRACTOR_GLOW,
+
+        LASER_PLATE,
+        MACHINE_CASING_LASER,
+        OVERLAY_FRONT_ENGRAVER,
+        OVERLAY_FRONT_ENGRAVER_ACTIVE,
+        OVERLAY_FRONT_ENGRAVER_ACTIVE_GLOW,
+        OVERLAY_FRONT_ENGRAVER_GLOW,
+
+        OVERLAY_FRONT_MULTI_LATHE,
+        OVERLAY_FRONT_MULTI_LATHE_ACTIVE,
+        OVERLAY_FRONT_MULTI_LATHE_ACTIVE_GLOW,
+        OVERLAY_FRONT_MULTI_LATHE_GLOW,
+
+        OVERLAY_FRONT_MULTI_AUTOCLAVE,
+        OVERLAY_FRONT_MULTI_AUTOCLAVE_ACTIVE,
+        OVERLAY_FRONT_MULTI_AUTOCLAVE_ACTIVE_GLOW,
+        OVERLAY_FRONT_MULTI_AUTOCLAVE_GLOW,
+
+        MACHINE_CASING_AUTOCLAVE,
 
         MACHINE_CASING_RADIATIONPROOF,
         MACHINE_CASING_ADVANCEDRADIATIONPROOF,
@@ -490,9 +564,13 @@ public class Textures {
         OVERLAY_INPUT_HATCH_2x2,
         FLUID_OUT_SIGN,
         FLUID_IN_SIGN,
+        FLUID_STEAM_IN_SIGN,
         ITEM_IN_SIGN,
         ITEM_OUT_SIGN,
         OVERLAY_MUFFLER,
+
+        OVERLAY_EMS_HOUSING,
+        OVERLAY_EMS_HOUSING_GLOW,
 
         OVERLAY_CONTROLLER,
         OVERLAY_ACTIVITYDETECTOR,
@@ -500,6 +578,13 @@ public class Textures {
         OVERLAY_ENERGYDETECTOR,
         OVERLAY_FLUIDDETECTOR,
         OVERLAY_ITEMDETECTOR,
+
+        OVERLAY_COVER_CHEST_1,
+        OVERLAY_COVER_CHEST_1_OPENED,
+        OVERLAY_COVER_CHEST_2,
+        OVERLAY_COVER_CHEST_2_OPENED,
+        OVERLAY_COVER_CHEST_3,
+        OVERLAY_COVER_CHEST_3_OPENED,
 
         OVERLAY_REDSTONE_TRANSMITTER,
         OVERLAY_REDSTONE_RECEIVER,
@@ -539,6 +624,7 @@ public class Textures {
         OVERLAY_FUSION3_GLOW,
         OVERLAY_SCREEN,
         OVERLAY_SCREEN_GLOW,
+        OVERLAY_RAINBOWSCREEN_GLOW,
         OVERLAY_QTANK,
         OVERLAY_QTANK_GLOW,
         OVERLAY_QCHEST,
@@ -588,18 +674,19 @@ public class Textures {
         OVERLAY_FRONT_RESEARCH_COMPLETER_ACTIVE,
         OVERLAY_FRONT_RESEARCH_COMPLETER_ACTIVE_GLOW,
 
-        OVERLAY_TOP_POTIONBREWER,
-        OVERLAY_TOP_POTIONBREWER_GLOW,
-        OVERLAY_TOP_REPLICATOR,
-        OVERLAY_TOP_REPLICATOR_GLOW,
         OVERLAY_TOP_MASSFAB,
         OVERLAY_TOP_MASSFAB_GLOW,
+        OVERLAY_TOP_SCANNER,
+        OVERLAY_TOP_SCANNER_ACTIVE,
+        OVERLAY_TOP_SCANNER_GLOW,
+        OVERLAY_TOP_SCANNER_ACTIVE_GLOW,
         OVERLAY_TOP_STEAM_HAMMER,
         OVERLAY_TOP_STEAM_HAMMER_GLOW,
         OVERLAY_TOP_STEAM_FURNACE,
         OVERLAY_TOP_STEAM_FURNACE_GLOW,
         OVERLAY_TOP_STEAM_ALLOY_SMELTER,
         OVERLAY_TOP_STEAM_ALLOY_SMELTER_GLOW,
+        OVERLAY_TOP_JUKEBOX,
 
         OVERLAY_TOP_STEAM_MACERATOR,
         OVERLAY_TOP_STEAM_MACERATOR_GLOW,
@@ -609,21 +696,17 @@ public class Textures {
         OVERLAY_TOP_STEAM_EXTRACTOR_GLOW,
         OVERLAY_TOP_DISASSEMBLER,
         OVERLAY_TOP_DISASSEMBLER_GLOW,
-        OVERLAY_TOP_BOXINATOR,
-        OVERLAY_TOP_BOXINATOR_GLOW,
         OVERLAY_TOP_ROCK_BREAKER,
         OVERLAY_TOP_ROCK_BREAKER_GLOW,
-        OVERLAY_TOP_SCANNER,
-        OVERLAY_TOP_SCANNER_GLOW,
         OVERLAY_TOP_INDUSTRIAL_APIARY,
         OVERLAY_TOP_INDUSTRIAL_APIARY_GLOW,
 
-        OVERLAY_FRONT_POTIONBREWER,
-        OVERLAY_FRONT_POTIONBREWER_GLOW,
-        OVERLAY_FRONT_REPLICATOR,
-        OVERLAY_FRONT_REPLICATOR_GLOW,
         OVERLAY_FRONT_MASSFAB,
         OVERLAY_FRONT_MASSFAB_GLOW,
+        OVERLAY_FRONT_SCANNER,
+        OVERLAY_FRONT_SCANNER_ACTIVE,
+        OVERLAY_FRONT_SCANNER_ACTIVE_GLOW,
+        OVERLAY_FRONT_SCANNER_GLOW,
         OVERLAY_FRONT_STEAM_HAMMER,
         OVERLAY_FRONT_STEAM_HAMMER_GLOW,
         OVERLAY_FRONT_STEAM_HAMMER_ACTIVE,
@@ -632,6 +715,8 @@ public class Textures {
         OVERLAY_FRONT_STEAM_FURNACE_GLOW,
         OVERLAY_FRONT_STEAM_ALLOY_SMELTER,
         OVERLAY_FRONT_STEAM_ALLOY_SMELTER_GLOW,
+        OVERLAY_FRONT_NUCLEAR_REACTOR,
+        OVERLAY_FRONT_NUCLEAR_REACTOR_ACTIVE,
 
         OVERLAY_FRONT_STEAM_MACERATOR,
         OVERLAY_FRONT_STEAM_MACERATOR_GLOW,
@@ -639,8 +724,12 @@ public class Textures {
         OVERLAY_FRONT_STEAM_MACERATOR_ACTIVE_GLOW,
         OVERLAY_FRONT_STEAM_WASHER,
         OVERLAY_FRONT_STEAM_WASHER_ACTIVE,
+        OVERLAY_FRONT_WATER_PUMP,
+        OVERLAY_FRONT_WATER_PUMP_ACTIVE,
         OVERLAY_FRONT_STEAM_CENTRIFUGE,
         OVERLAY_FRONT_STEAM_CENTRIFUGE_ACTIVE,
+        OVERLAY_FRONT_STEAM_FORGE_HAMMER,
+        OVERLAY_FRONT_STEAM_FORGE_HAMMER_ACTIVE,
         OVERLAY_FRONT_STEAM_COMPRESSOR,
         OVERLAY_FRONT_STEAM_COMPRESSOR_GLOW,
         OVERLAY_FRONT_STEAM_EXTRACTOR,
@@ -649,21 +738,17 @@ public class Textures {
         OVERLAY_FRONT_DISASSEMBLER_GLOW,
         OVERLAY_FRONT_DISASSEMBLER_ACTIVE,
         OVERLAY_FRONT_DISASSEMBLER_ACTIVE_GLOW,
-        OVERLAY_FRONT_BOXINATOR,
-        OVERLAY_FRONT_BOXINATOR_GLOW,
         OVERLAY_FRONT_ROCK_BREAKER,
         OVERLAY_FRONT_ROCK_BREAKER_GLOW,
-        OVERLAY_FRONT_SCANNER,
-        OVERLAY_FRONT_SCANNER_GLOW,
         OVERLAY_FRONT_INDUSTRIAL_APIARY,
         OVERLAY_FRONT_INDUSTRIAL_APIARY_GLOW,
 
-        OVERLAY_BOTTOM_POTIONBREWER,
-        OVERLAY_BOTTOM_POTIONBREWER_GLOW,
-        OVERLAY_BOTTOM_REPLICATOR,
-        OVERLAY_BOTTOM_REPLICATOR_GLOW,
         OVERLAY_BOTTOM_MASSFAB,
         OVERLAY_BOTTOM_MASSFAB_GLOW,
+        OVERLAY_BOTTOM_SCANNER,
+        OVERLAY_BOTTOM_SCANNER_ACTIVE,
+        OVERLAY_BOTTOM_SCANNER_ACTIVE_GLOW,
+        OVERLAY_BOTTOM_SCANNER_GLOW,
         OVERLAY_BOTTOM_STEAM_HAMMER,
         OVERLAY_BOTTOM_STEAM_HAMMER_GLOW,
         OVERLAY_BOTTOM_STEAM_FURNACE,
@@ -679,21 +764,18 @@ public class Textures {
         OVERLAY_BOTTOM_STEAM_EXTRACTOR_GLOW,
         OVERLAY_BOTTOM_DISASSEMBLER,
         OVERLAY_BOTTOM_DISASSEMBLER_GLOW,
-        OVERLAY_BOTTOM_BOXINATOR,
-        OVERLAY_BOTTOM_BOXINATOR_GLOW,
         OVERLAY_BOTTOM_ROCK_BREAKER,
         OVERLAY_BOTTOM_ROCK_BREAKER_GLOW,
-        OVERLAY_BOTTOM_SCANNER,
-        OVERLAY_BOTTOM_SCANNER_GLOW,
         OVERLAY_BOTTOM_INDUSTRIAL_APIARY,
         OVERLAY_BOTTOM_INDUSTRIAL_APIARY_GLOW,
 
-        OVERLAY_SIDE_POTIONBREWER,
-        OVERLAY_SIDE_POTIONBREWER_GLOW,
-        OVERLAY_SIDE_REPLICATOR,
-        OVERLAY_SIDE_REPLICATOR_GLOW,
+        OVERLAY_SIDE_FLUIDTANK,
         OVERLAY_SIDE_MASSFAB,
         OVERLAY_SIDE_MASSFAB_GLOW,
+        OVERLAY_SIDE_SCANNER,
+        OVERLAY_SIDE_SCANNER_ACTIVE,
+        OVERLAY_SIDE_SCANNER_ACTIVE_GLOW,
+        OVERLAY_SIDE_SCANNER_GLOW,
         OVERLAY_SIDE_STEAM_HAMMER,
         OVERLAY_SIDE_STEAM_HAMMER_GLOW,
         OVERLAY_SIDE_STEAM_FURNACE,
@@ -708,19 +790,13 @@ public class Textures {
         OVERLAY_SIDE_STEAM_EXTRACTOR_GLOW,
         OVERLAY_SIDE_DISASSEMBLER,
         OVERLAY_SIDE_DISASSEMBLER_GLOW,
-        OVERLAY_SIDE_BOXINATOR,
-        OVERLAY_SIDE_BOXINATOR_GLOW,
         OVERLAY_SIDE_ROCK_BREAKER,
         OVERLAY_SIDE_ROCK_BREAKER_GLOW,
-        OVERLAY_SIDE_SCANNER,
-        OVERLAY_SIDE_SCANNER_GLOW,
         OVERLAY_SIDE_INDUSTRIAL_APIARY,
         OVERLAY_SIDE_INDUSTRIAL_APIARY_GLOW,
+        OVERLAY_SIDE_JUKEBOX,
 
-        OVERLAY_TOP_POTIONBREWER_ACTIVE,
-        OVERLAY_TOP_POTIONBREWER_ACTIVE_GLOW,
-        OVERLAY_TOP_REPLICATOR_ACTIVE,
-        OVERLAY_TOP_REPLICATOR_ACTIVE_GLOW,
+        OVERLAY_TOP_FLUIDTANK,
         OVERLAY_TOP_MASSFAB_ACTIVE,
         OVERLAY_TOP_MASSFAB_ACTIVE_GLOW,
 
@@ -739,19 +815,11 @@ public class Textures {
         OVERLAY_TOP_STEAM_EXTRACTOR_ACTIVE_GLOW,
         OVERLAY_TOP_DISASSEMBLER_ACTIVE,
         OVERLAY_TOP_DISASSEMBLER_ACTIVE_GLOW,
-        OVERLAY_TOP_BOXINATOR_ACTIVE,
-        OVERLAY_TOP_BOXINATOR_ACTIVE_GLOW,
         OVERLAY_TOP_ROCK_BREAKER_ACTIVE,
         OVERLAY_TOP_ROCK_BREAKER_ACTIVE_GLOW,
-        OVERLAY_TOP_SCANNER_ACTIVE,
-        OVERLAY_TOP_SCANNER_ACTIVE_GLOW,
         OVERLAY_TOP_INDUSTRIAL_APIARY_ACTIVE,
         OVERLAY_TOP_INDUSTRIAL_APIARY_ACTIVE_GLOW,
 
-        OVERLAY_FRONT_POTIONBREWER_ACTIVE,
-        OVERLAY_FRONT_POTIONBREWER_ACTIVE_GLOW,
-        OVERLAY_FRONT_REPLICATOR_ACTIVE,
-        OVERLAY_FRONT_REPLICATOR_ACTIVE_GLOW,
         OVERLAY_FRONT_MASSFAB_ACTIVE,
         OVERLAY_FRONT_MASSFAB_ACTIVE_GLOW,
         OVERLAY_FRONT_STEAM_FURNACE_ACTIVE,
@@ -763,19 +831,11 @@ public class Textures {
         OVERLAY_FRONT_STEAM_COMPRESSOR_ACTIVE_GLOW,
         OVERLAY_FRONT_STEAM_EXTRACTOR_ACTIVE,
         OVERLAY_FRONT_STEAM_EXTRACTOR_ACTIVE_GLOW,
-        OVERLAY_FRONT_BOXINATOR_ACTIVE,
-        OVERLAY_FRONT_BOXINATOR_ACTIVE_GLOW,
         OVERLAY_FRONT_ROCK_BREAKER_ACTIVE,
         OVERLAY_FRONT_ROCK_BREAKER_ACTIVE_GLOW,
-        OVERLAY_FRONT_SCANNER_ACTIVE,
-        OVERLAY_FRONT_SCANNER_ACTIVE_GLOW,
         OVERLAY_FRONT_INDUSTRIAL_APIARY_ACTIVE,
         OVERLAY_FRONT_INDUSTRIAL_APIARY_ACTIVE_GLOW,
 
-        OVERLAY_BOTTOM_POTIONBREWER_ACTIVE,
-        OVERLAY_BOTTOM_POTIONBREWER_ACTIVE_GLOW,
-        OVERLAY_BOTTOM_REPLICATOR_ACTIVE,
-        OVERLAY_BOTTOM_REPLICATOR_ACTIVE_GLOW,
         OVERLAY_BOTTOM_MASSFAB_ACTIVE,
         OVERLAY_BOTTOM_MASSFAB_ACTIVE_GLOW,
         OVERLAY_BOTTOM_STEAM_HAMMER_ACTIVE,
@@ -793,19 +853,11 @@ public class Textures {
         OVERLAY_BOTTOM_STEAM_EXTRACTOR_ACTIVE_GLOW,
         OVERLAY_BOTTOM_DISASSEMBLER_ACTIVE,
         OVERLAY_BOTTOM_DISASSEMBLER_ACTIVE_GLOW,
-        OVERLAY_BOTTOM_BOXINATOR_ACTIVE,
-        OVERLAY_BOTTOM_BOXINATOR_ACTIVE_GLOW,
         OVERLAY_BOTTOM_ROCK_BREAKER_ACTIVE,
         OVERLAY_BOTTOM_ROCK_BREAKER_ACTIVE_GLOW,
-        OVERLAY_BOTTOM_SCANNER_ACTIVE,
-        OVERLAY_BOTTOM_SCANNER_ACTIVE_GLOW,
         OVERLAY_BOTTOM_INDUSTRIAL_APIARY_ACTIVE,
         OVERLAY_BOTTOM_INDUSTRIAL_APIARY_ACTIVE_GLOW,
 
-        OVERLAY_SIDE_POTIONBREWER_ACTIVE,
-        OVERLAY_SIDE_POTIONBREWER_ACTIVE_GLOW,
-        OVERLAY_SIDE_REPLICATOR_ACTIVE,
-        OVERLAY_SIDE_REPLICATOR_ACTIVE_GLOW,
         OVERLAY_SIDE_MASSFAB_ACTIVE,
         OVERLAY_SIDE_MASSFAB_ACTIVE_GLOW,
         OVERLAY_SIDE_STEAM_HAMMER_ACTIVE,
@@ -823,12 +875,8 @@ public class Textures {
         OVERLAY_SIDE_STEAM_EXTRACTOR_ACTIVE_GLOW,
         OVERLAY_SIDE_DISASSEMBLER_ACTIVE,
         OVERLAY_SIDE_DISASSEMBLER_ACTIVE_GLOW,
-        OVERLAY_SIDE_BOXINATOR_ACTIVE,
-        OVERLAY_SIDE_BOXINATOR_ACTIVE_GLOW,
         OVERLAY_SIDE_ROCK_BREAKER_ACTIVE,
         OVERLAY_SIDE_ROCK_BREAKER_ACTIVE_GLOW,
-        OVERLAY_SIDE_SCANNER_ACTIVE,
-        OVERLAY_SIDE_SCANNER_ACTIVE_GLOW,
         OVERLAY_SIDE_INDUSTRIAL_APIARY_ACTIVE,
         OVERLAY_SIDE_INDUSTRIAL_APIARY_ACTIVE_GLOW,
 
@@ -942,6 +990,9 @@ public class Textures {
         LARGETURBINE_TU_ACTIVE9,
 
         MACHINE_CASING_TURBINE,
+        MACHINE_CASING_TURBINE_STAINLESSSTEEL,
+        MACHINE_CASING_TURBINE_TITANIUM,
+        MACHINE_CASING_TURBINE_TUNGSTENSTEEL,
         MACHINE_CASING_ADVANCEDGAS,
         BLOCK_ADAMANTIUM,
         BLOCK_ALUMINIUM,
@@ -1131,6 +1182,7 @@ public class Textures {
         BLOCK_UNIVERSIUM,
         BLOCK_ETERNITY,
         BLOCK_MAGMATTER,
+        BLOCK_SIXPHASEDCOPPER,
 
         BLOCK_ORIHARUKON,
 
@@ -1305,6 +1357,8 @@ public class Textures {
         OVERLAY_ME_CRAFTING_HATCH_ACTIVE,
         OVERLAY_ME_FLUID_HATCH,
         OVERLAY_ME_FLUID_HATCH_ACTIVE,
+        OVERLAY_HATCH_PH_SENSOR,
+        OVERLAY_HATCH_PH_SENSOR_GLOW,
 
         STRUCTURE_MARK,
 
@@ -1335,6 +1389,8 @@ public class Textures {
         MACHINE_CASING_PCB_TIER_3,
         INFINITY_COOLED_CASING,
 
+        MACHINE_CASING_SHIELDED_ACCELERATOR,
+
         LARGETURBINE_NEW1,
         LARGETURBINE_NEW2,
         LARGETURBINE_NEW3,
@@ -1361,7 +1417,37 @@ public class Textures {
         LARGETURBINE_NEW_EMPTY6,
         LARGETURBINE_NEW_EMPTY7,
         LARGETURBINE_NEW_EMPTY8,
-        LARGETURBINE_NEW_EMPTY9,;
+        LARGETURBINE_NEW_EMPTY9,
+        INDUSTRIAL_STRENGTH_CONCRETE,
+        GLASS_PH_RESISTANT,
+        GLASS_TINTED_INDUSTRIAL_WHITE,
+        GLASS_TINTED_INDUSTRIAL_LIGHT_GRAY,
+        GLASS_TINTED_INDUSTRIAL_GRAY,
+        GLASS_TINTED_INDUSTRIAL_BLACK,
+        MACHINE_CASING_INDUSTRIAL_WATER_PLANT,
+        WATER_PLANT_CONCRETE_CASING,
+        MACHINE_CASING_FLOCCULATION,
+        MACHINE_CASING_NAQUADAH_REINFORCED_WATER_PLANT,
+        MACHINE_CASING_EXTREME_CORROSION_RESISTANT,
+        MACHINE_CASING_HIGH_PRESSURE_RESISTANT,
+        MACHINE_CASING_OZONE,
+        MACHINE_CASING_PLASMA_HEATER,
+        NAQUADRIA_REINFORCED_WATER_PLANT_CASING,
+        UV_BACKLIGHT_STERILIZER_CASING,
+        NEUTRONIUM_COATED_UV_RESISTANT_GLASS,
+        OMNI_PURPOSE_INFINITY_FUSED_GLASS,
+        GLASS_QUARK_CONTAINMENT,
+        BLOCK_QUARK_PIPE,
+        BLOCK_QUARK_RELEASE_CHAMBER,
+        BLOCK_QUARK_CONTAINMENT_CASING,
+        COMPRESSOR_CASING,
+        COMPRESSOR_PIPE_CASING,
+        NEUTRONIUM_CASING,
+        NEUTRONIUM_ACTIVE_CASING,
+        NEUTRONIUM_STABLE_CASING,
+        EXTREME_DENSITY_CASING,
+        RADIATION_ABSORBENT_CASING,
+        HAWKING_GLASS;
 
         /**
          * Icon for Fresh CFoam
@@ -1506,7 +1592,7 @@ public class Textures {
                 BLOCK_BLAZE },
             STORAGE_BLOCKS12 = { BLOCK_CRYOLITE, BLOCK_SILICONSG, BLOCK_NICKELALUMINIUM, BLOCK_SPACETIME,
                 BLOCK_TRANSCENDENTMETAL, BLOCK_ORIHARUKON, BLOCK_WHITEDWARFMATTER, BLOCK_BLACKDWARFMATTER,
-                BLOCK_UNIVERSIUM, BLOCK_ETERNITY, BLOCK_MAGMATTER };
+                BLOCK_UNIVERSIUM, BLOCK_ETERNITY, BLOCK_MAGMATTER, BLOCK_SIXPHASEDCOPPER };
 
         public static final ITexture[] HIDDEN_TEXTURE = { TextureFactory.builder()
             .addIcon(HIDDEN_FACE)
@@ -1667,11 +1753,18 @@ public class Textures {
         public static final ITexture[] CASING_BLOCKS = new ITexture[128]; // original variable still limited to 128
 
         public static ITexture[][] MACHINE_CASINGS = new ITexture[15][17];
+        // spotless:off
         /**
-         * by Default pages are null page 0: 0-63 GT casing 1-4, 64-127 GT++ page 1: 0-15 GT casing 5, 22-26 GS dyson
-         * swarm, 48-57 GT casing 8, 63 EMT, 80-95 GT reinforced blocks, 96 casing 2 meta 6, 97 error casing page 8:
-         * 0-111 TecTech, 112-127 GT casing 6 page 12: 0-127 GlodBlock page 42: 0-126 glee8e, 127 KekzTech LSC base
+         * by Default pages are null
+         * page 0: 0-63 GT casing 1-4, 64-127 GT++
+         * page 1: 0-15 GT casing 5, 22-26 GS dyson swarm, 48-57 GT casing 8, 63 EMT, 80-95 GT reinforced blocks, 96 casing 2 meta 6, 97 error casing
+         * page 2: 0-15 solenoid coils
+         * page 8: 0-111 TecTech, 112-127 GT casing 6
+         * page 12: 0-127 GlodBlock
+         * page 16: 0-15 GT glass 1, 16-31 GT casing 9, 32-47 GT glass 2, 48-63 GT casing 10, 64-79 GT casing 11
+         * page 42: 0-126 glee8e, 127 KekzTech LSC base
          */
+        // spotless:on
         public static ITexture[][] casingTexturePages = new ITexture[128][]; // page holder so we don't make an short
                                                                              // long array
 
@@ -1687,15 +1780,17 @@ public class Textures {
                     Dyes.getModulation(j - 1, Dyes.MACHINE_METAL.mRGBa));
             casingTexturePages[0] = new ITexture[128];
             // adds some known pages, modders also can do it...
-            GT_Utility.addTexturePage((byte) 1);
-            GT_Utility.addTexturePage((byte) 8);
+            GTUtility.addTexturePage((byte) 1);
+            GTUtility.addTexturePage((byte) 2);
+            GTUtility.addTexturePage((byte) 8);
+            GTUtility.addTexturePage((byte) 16);
             setCasingTextureForId(ERROR_TEXTURE_INDEX, ERROR_RENDERING[0]);
         }
 
         IIcon mIcon;
 
         BlockIcons() {
-            GregTech_API.sGTBlockIconload.add(this);
+            GregTechAPI.sGTBlockIconload.add(this);
         }
 
         public static ITexture getCasingTextureForId(int id) {
@@ -1736,7 +1831,7 @@ public class Textures {
 
         @Override
         public void run() {
-            mIcon = GregTech_API.sBlockIcons.registerIcon(GregTech.getResourcePath("iconsets", this.toString()));
+            mIcon = GregTechAPI.sBlockIcons.registerIcon(GregTech.getResourcePath("iconsets", this.toString()));
         }
 
         public static class CustomIcon implements IIconContainer, Runnable {
@@ -1746,12 +1841,12 @@ public class Textures {
 
             public CustomIcon(String aIconName) {
                 mIconName = !aIconName.contains(":") ? GregTech.getResourcePath(aIconName) : aIconName;
-                GregTech_API.sGTBlockIconload.add(this);
+                GregTechAPI.sGTBlockIconload.add(this);
             }
 
             @Override
             public void run() {
-                mIcon = GregTech_API.sBlockIcons.registerIcon(mIconName);
+                mIcon = GregTechAPI.sBlockIcons.registerIcon(mIconName);
             }
 
             @Override
@@ -1819,6 +1914,7 @@ public class Textures {
         TURBINE_SMALL,
         TURBINE_LARGE,
         TURBINE_HUGE,
+        WIRELESS_HEADPHONES,
         POCKET_MULTITOOL_CLOSED,
         POCKET_MULTITOOL_BRANCHCUTTER,
         POCKET_MULTITOOL_FILE,
@@ -1840,7 +1936,7 @@ public class Textures {
         IIcon mIcon, mOverlay;
 
         ItemIcons() {
-            GregTech_API.sGTItemIconload.add(this);
+            GregTechAPI.sGTItemIconload.add(this);
         }
 
         @Override
@@ -1860,8 +1956,8 @@ public class Textures {
 
         @Override
         public void run() {
-            mIcon = GregTech_API.sItemIcons.registerIcon(GregTech.getResourcePath("iconsets", this.toString()));
-            mOverlay = GregTech_API.sItemIcons.registerIcon(GregTech.getResourcePath("iconsets", this + "_OVERLAY"));
+            mIcon = GregTechAPI.sItemIcons.registerIcon(GregTech.getResourcePath("iconsets", this.toString()));
+            mOverlay = GregTechAPI.sItemIcons.registerIcon(GregTech.getResourcePath("iconsets", this + "_OVERLAY"));
         }
 
         public static class CustomIcon implements IIconContainer, Runnable {
@@ -1871,7 +1967,7 @@ public class Textures {
 
             public CustomIcon(String aIconName) {
                 mIconName = aIconName;
-                GregTech_API.sGTItemIconload.add(this);
+                GregTechAPI.sGTItemIconload.add(this);
             }
 
             @Override
@@ -1891,8 +1987,8 @@ public class Textures {
 
             @Override
             public void run() {
-                mIcon = GregTech_API.sItemIcons.registerIcon(GregTech.getResourcePath(mIconName));
-                mOverlay = GregTech_API.sItemIcons.registerIcon(GregTech.getResourcePath(mIconName + "_OVERLAY"));
+                mIcon = GregTechAPI.sItemIcons.registerIcon(GregTech.getResourcePath(mIconName));
+                mOverlay = GregTechAPI.sItemIcons.registerIcon(GregTech.getResourcePath(mIconName + "_OVERLAY"));
             }
         }
     }

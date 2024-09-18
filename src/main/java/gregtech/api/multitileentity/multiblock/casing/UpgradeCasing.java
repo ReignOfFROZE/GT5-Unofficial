@@ -2,7 +2,7 @@ package gregtech.api.multitileentity.multiblock.casing;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import gregtech.api.multitileentity.interfaces.IMultiBlockController;
 import gregtech.api.multitileentity.multiblock.base.MultiBlockPart;
 
@@ -16,8 +16,8 @@ public abstract class UpgradeCasing extends MultiBlockPart {
     }
 
     @Override
-    public void setTarget(IMultiBlockController newTarget, int aAllowedModes) {
-        super.setTarget(newTarget, aAllowedModes);
+    public void setTarget(IMultiBlockController newController, int aAllowedModes) {
+        super.setTarget(newController, aAllowedModes);
 
         if (getTarget(false) != null) {
             customWork(getTarget(false));
@@ -27,7 +27,7 @@ public abstract class UpgradeCasing extends MultiBlockPart {
     @Override
     public void readMultiTileNBT(NBTTagCompound aNBT) {
         super.readMultiTileNBT(aNBT);
-        tier = aNBT.getInteger(GT_Values.NBT.TIER);
+        tier = aNBT.getInteger(GTValues.NBT.TIER);
     }
 
     protected abstract void customWork(IMultiBlockController aTarget);

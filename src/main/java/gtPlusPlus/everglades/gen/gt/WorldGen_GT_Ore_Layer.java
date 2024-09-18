@@ -2,8 +2,6 @@ package gtPlusPlus.everglades.gen.gt;
 
 import static gtPlusPlus.everglades.gen.gt.WorldGen_GT_Base.debugWorldGen;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,16 +13,16 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
-import gregtech.api.util.GT_Log;
-import gregtech.common.blocks.GT_Block_Ores;
-import gregtech.common.blocks.GT_TileEntity_Ores;
+import gregtech.api.util.GTLog;
+import gregtech.common.blocks.BlockOres;
+import gregtech.common.blocks.TileEntityOres;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.core.material.Material;
 import gtPlusPlus.core.util.Utils;
-import gtPlusPlus.everglades.dimension.Dimension_Everglades;
-import gtPlusPlus.xmod.gregtech.HANDLER_GT;
+import gtPlusPlus.everglades.dimension.DimensionEverglades;
+import gtPlusPlus.xmod.gregtech.HandlerGT;
 
 public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
 
@@ -85,23 +83,18 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
         boolean GC_UNUSED3, Material aPrimary, Material aSecondary, Material aBetween, Material aSporadic) {
         super(aName, sList, aDefault);
         Logger.WORLD("Creating Ore Layer Object");
-        this.mOverworld = HANDLER_GT.sCustomWorldgenFile
+        this.mOverworld = HandlerGT.sCustomWorldgenFile
             .get(aTextWorldgen + this.mWorldGenName, "Overworld", aOverworld);
-        this.mNether = HANDLER_GT.sCustomWorldgenFile.get(aTextWorldgen + this.mWorldGenName, "Nether", aNether);
-        this.mEnd = HANDLER_GT.sCustomWorldgenFile.get(aTextWorldgen + this.mWorldGenName, "TheEnd", aEnd);
+        this.mNether = HandlerGT.sCustomWorldgenFile.get(aTextWorldgen + this.mWorldGenName, "Nether", aNether);
+        this.mEnd = HandlerGT.sCustomWorldgenFile.get(aTextWorldgen + this.mWorldGenName, "TheEnd", aEnd);
         this.mMinY = 5;
-        short mMaxY = 14;
-        if (mMaxY < (this.mMinY + 7)) {
-            GT_Log.out.println("Oremix " + this.mWorldGenName + " has invalid Min/Max heights!");
-            mMaxY = (short) (this.mMinY + 7);
-        }
-        this.mMaxY = mMaxY;
-        this.mWeight = ((short) HANDLER_GT.sCustomWorldgenFile
+        this.mMaxY = (short) 14;
+        this.mWeight = ((short) HandlerGT.sCustomWorldgenFile
             .get(aTextWorldgen + this.mWorldGenName, "RandomWeight", aWeight));
-        this.mDensity = ((short) HANDLER_GT.sCustomWorldgenFile
+        this.mDensity = ((short) HandlerGT.sCustomWorldgenFile
             .get(aTextWorldgen + this.mWorldGenName, "Density", aDensity));
         this.mSize = ((short) Math
-            .max(1, HANDLER_GT.sCustomWorldgenFile.get(aTextWorldgen + this.mWorldGenName, "Size", aSize)));
+            .max(1, HandlerGT.sCustomWorldgenFile.get(aTextWorldgen + this.mWorldGenName, "Size", aSize)));
         this.mPrimary = aPrimary;
         this.mSecondary = aSecondary;
         this.mBetween = aBetween;
@@ -110,21 +103,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
         this.mSecondaryMeta = aSecondary.getOreBlock(1);
         this.mBetweenMeta = aBetween.getOreBlock(1);
         this.mSporadicMeta = aSporadic.getOreBlock(1);
-        this.mRestrictBiome = HANDLER_GT.sCustomWorldgenFile
-            .get(aTextWorldgen + this.mWorldGenName, "RestrictToBiomeName", "None");
-
-        // if (mPrimaryMeta != -1 && GregTech_API.sGeneratedMaterials[(mPrimaryMeta % 1000)] == null) throw new
-        // IllegalArgumentException("A Material for the supplied ID " + mPrimaryMeta + " for " + mWorldGenName + " does
-        // not exist");
-        // if (mSecondaryMeta != -1 && GregTech_API.sGeneratedMaterials[(mSecondaryMeta % 1000)] == null) throw new
-        // IllegalArgumentException("A Material for the supplied ID " + mSecondaryMeta + " for " + mWorldGenName + "
-        // does not exist");
-        // if (mBetweenMeta != -1 && GregTech_API.sGeneratedMaterials[(mBetweenMeta % 1000)] == null) throw new
-        // IllegalArgumentException("A Material for the supplied ID " + mBetweenMeta + " for " + mWorldGenName + " does
-        // not exist");
-        // if (mPrimaryMeta != -1 && GregTech_API.sGeneratedMaterials[(mSporadicMeta % 1000)] == null) throw new
-        // IllegalArgumentException("A Material for the supplied ID " + mSporadicMeta + " for " + mWorldGenName + " does
-        // not exist");
+        this.mRestrictBiome = "None";
 
         if (this.mEnabled) {
             sWeight += this.mWeight;
@@ -133,11 +112,8 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
 
     public int executeWorldgenChunkified(World aWorld, Random aRandom, String aBiome, int aDimensionType, int aChunkX,
         int aChunkZ, int aSeedX, int aSeedZ, IChunkProvider aChunkGenerator, IChunkProvider aChunkProvider) {
-
         // Debug Handler
-        /**
-         * This handles Variables that are null during Init
-         */
+        // This handles Variables that are null during Init
         if (this.mPrimaryMeta == Blocks.stone || this.mSecondaryMeta == Blocks.stone
             || this.mBetweenMeta == Blocks.stone
             || this.mSporadicMeta == Blocks.stone) {
@@ -150,14 +126,14 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
         }
 
         if (mWorldGenName.equals("vein0")) {
-            if (debugWorldGen) GT_Log.out.println(" NoOresInVein-vein0");
+            if (debugWorldGen) GTLog.out.println(" NoOresInVein-vein0");
             // This is a special empty orevein
             Logger.WORLD("[World Generation Debug] Special Empty Vein placed.");
             return ORE_PLACED;
         }
-        if (aDimensionType != Dimension_Everglades.DIMID) {
+        if (aDimensionType != DimensionEverglades.DIMID) {
             /*
-             * // Debug code, but spams log if (debugWorldGen) { GT_Log.out.println( "Wrong dimension" ); }
+             * // Debug code, but spams log if (debugWorldGen) { GTLog.out.println( "Wrong dimension" ); }
              */
             Logger.WORLD("[World Generation Debug] Wrong dimension.");
             return WRONG_DIMENSION;
@@ -178,19 +154,19 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
             Block tBlock = aWorld.getBlock(aChunkX + 8, tMinY, aChunkZ + 8);
             if (tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Blocks.stone)
                 || tBlock
-                    .isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Dimension_Everglades.blockSecondLayer)
+                    .isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, DimensionEverglades.blockSecondLayer)
                 || tBlock
-                    .isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Dimension_Everglades.blockMainFiller)
+                    .isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, DimensionEverglades.blockMainFiller)
                 || tBlock.isReplaceableOreGen(
                     aWorld,
                     aChunkX + 8,
                     tMinY,
                     aChunkZ + 8,
-                    Dimension_Everglades.blockSecondaryFiller)
+                    DimensionEverglades.blockSecondaryFiller)
                 || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Blocks.netherrack)
                 || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Blocks.end_stone)
-                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTech_API.sBlockGranites)
-                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTech_API.sBlockStones)) {
+                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTechAPI.sBlockGranites)
+                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTechAPI.sBlockStones)) {
                 // Didn't reach, but could have placed. Save orevein for future use.
                 return NO_OVERLAP;
             } else {
@@ -209,8 +185,8 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
             if (tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Blocks.stone)
                 || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Blocks.netherrack)
                 || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, Blocks.end_stone)
-                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTech_API.sBlockGranites)
-                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTech_API.sBlockStones)) {
+                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTechAPI.sBlockGranites)
+                || tBlock.isReplaceableOreGen(aWorld, aChunkX + 8, tMinY, aChunkZ + 8, GregTechAPI.sBlockStones)) {
                 // Didn't reach, but could have placed. Save orevein for future use.
                 return NO_OVERLAP;
             } else {
@@ -221,7 +197,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
 
         if (debugWorldGen) {
             String tDimensionName = aWorld.provider.getDimensionName();
-            GT_Log.out.print(
+            GTLog.out.print(
                 "Trying Orevein:" + this.mWorldGenName
                     + " Dimension="
                     + tDimensionName
@@ -261,14 +237,14 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                 } else
                     if ((aRandom.nextInt(7) == 0) && ((aRandom.nextInt(placeZ) == 0) || (aRandom.nextInt(placeX) == 0))
                         && (this.mSporadicMeta != null)) { // Sporadics are only 1 per vertical column normally,
-                                                           // reduce by 1/7 to
+                            // reduce by 1/7 to
                             // compensate
                             if (setOreBlock(aWorld, tX, level, tZ, this.mSporadicMeta, false, false)) placeCount[3]++;
                         }
             }
         }
         /*
-         * if ((placeCount[1]+placeCount[3])==0) { if (debugWorldGen) GT_Log.out.println( " No ore in bottom layer" );
+         * if ((placeCount[1]+placeCount[3])==0) { if (debugWorldGen) GTLog.out.println( " No ore in bottom layer" );
          * return NO_ORE_IN_BOTTOM_LAYER; // Exit early, didn't place anything in the bottom layer }
          */
         Logger.WORLD("[World Generation Debug] Trying to set Ores?");
@@ -288,7 +264,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     } else if ((aRandom.nextInt(7) == 0)
                         && ((aRandom.nextInt(placeZ) == 0) || (aRandom.nextInt(placeX) == 0))
                         && (this.mSporadicMeta != null)) { // Sporadics are only 1 per vertical column normally,
-                                                           // reduce by 1/7 to
+                            // reduce by 1/7 to
                             // compensate
                             if (setOreBlock(aWorld, tX, level, tZ, this.mSporadicMeta, false, false)) placeCount[3]++;
                         }
@@ -305,14 +281,14 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     .max(1, Math.max(MathHelper.abs_int(sZVein - tZ), MathHelper.abs_int(nZVein - tZ)) / localDensity);
                 if ((aRandom.nextInt(2) == 0) && ((aRandom.nextInt(placeZ) == 0) || (aRandom.nextInt(placeX) == 0))
                     && (this.mBetweenMeta != null)) { // Between are only 1 per vertical column, reduce by 1/2 to
-                                                      // compensate
+                    // compensate
                     if (setOreBlock(aWorld, tX, level, tZ, this.mBetweenMeta, false, false)) {
                         placeCount[2]++;
                     }
                 } else
                     if ((aRandom.nextInt(7) == 0) && ((aRandom.nextInt(placeZ) == 0) || (aRandom.nextInt(placeX) == 0))
                         && (this.mSporadicMeta != null)) { // Sporadics are only 1 per vertical column normally,
-                                                           // reduce by 1/7 to
+                            // reduce by 1/7 to
                             // compensate
                             if (setOreBlock(aWorld, tX, level, tZ, this.mSporadicMeta, false, false)) placeCount[3]++;
                         }
@@ -328,7 +304,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     .max(1, Math.max(MathHelper.abs_int(sZVein - tZ), MathHelper.abs_int(nZVein - tZ)) / localDensity);
                 if ((aRandom.nextInt(2) == 0) && ((aRandom.nextInt(placeZ) == 0) || (aRandom.nextInt(placeX) == 0))
                     && (this.mBetweenMeta != null)) { // Between are only 1 per vertical column, reduce by 1/2 to
-                                                      // compensate
+                    // compensate
                     if (setOreBlock(aWorld, tX, level, tZ, this.mBetweenMeta, false, false)) {
                         placeCount[2]++;
                     }
@@ -340,7 +316,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     } else
                     if ((aRandom.nextInt(7) == 0) && ((aRandom.nextInt(placeZ) == 0) || (aRandom.nextInt(placeX) == 0))
                         && (this.mSporadicMeta != null)) { // Sporadics are only 1 per vertical column normally,
-                                                           // reduce by 1/7 to
+                            // reduce by 1/7 to
                             // compensate
                             if (setOreBlock(aWorld, tX, level, tZ, this.mSporadicMeta, false, false)) placeCount[3]++;
                         }
@@ -364,7 +340,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     } else if ((aRandom.nextInt(7) == 0)
                         && ((aRandom.nextInt(placeZ) == 0) || (aRandom.nextInt(placeX) == 0))
                         && (this.mSporadicMeta != null)) { // Sporadics are only 1 per vertical column normally,
-                                                           // reduce by 1/7 to
+                            // reduce by 1/7 to
                             // compensate
                             if (setOreBlock(aWorld, tX, level, tZ, this.mSporadicMeta, false, false)) placeCount[3]++;
                         }
@@ -373,7 +349,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
         }
         if (debugWorldGen) {
             String tDimensionName = aWorld.provider.getDimensionName();
-            GT_Log.out.println(
+            GTLog.out.println(
                 "Generated Orevein:" + this.mWorldGenName
                     + " Dimension="
                     + tDimensionName
@@ -412,8 +388,10 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
         return ORE_PLACED;
     }
 
-    private String fString = "unset", ore1String = "unset", ore2String = "unset", ore3String = "unset",
-        ore4String = "unset";
+    private String ore1String = "unset";
+    private String ore2String = "unset";
+    private String ore3String = "unset";
+    private String ore4String = "unset";
     Map<Materials, String> gtOreMap = new HashMap<>();
 
     public boolean setOreBlock(World aWorld, int aX, int aY, int aZ, Block aMetaData, boolean isSmallOre, boolean air) {
@@ -422,7 +400,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
         }
 
         // Set GT ORE
-        if (aMetaData instanceof GT_Block_Ores) {
+        if (aMetaData instanceof BlockOres) {
             if (ore1String.equals("unset")) {
                 ore1String = Utils.sanitizeString(
                     this.mPrimary.getLocalizedName()
@@ -444,6 +422,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                         .toLowerCase());
             }
 
+            String fString;
             if (this.mPrimaryMeta == aMetaData) {
                 for (Materials f : Materials.values()) {
                     if (!gtOreMap.containsKey(f)) {
@@ -452,15 +431,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     fString = gtOreMap.get(f);
                     if (fString.contains(ore1String)) {
                         int r = f.mMetaItemSubID;
-                        if (setOreBlock(aWorld, aX, aY, aZ, r, false)) {
-                            Logger.WORLD(
-                                "[World Generation Debug] Set " + f.mDefaultLocalName
-                                    + " Ore at X: "
-                                    + aX
-                                    + " | Y: "
-                                    + aY
-                                    + " | Z: "
-                                    + aZ);
+                        if (TileEntityOres.setOreBlock(aWorld, aX, aY, aZ, r, false)) {
                             return true;
                         }
                     }
@@ -474,15 +445,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     fString = gtOreMap.get(f);
                     if (fString.contains(ore2String)) {
                         int r = f.mMetaItemSubID;
-                        if (setOreBlock(aWorld, aX, aY, aZ, r, false)) {
-                            Logger.WORLD(
-                                "[World Generation Debug] Set " + f.mDefaultLocalName
-                                    + " Ore at X: "
-                                    + aX
-                                    + " | Y: "
-                                    + aY
-                                    + " | Z: "
-                                    + aZ);
+                        if (TileEntityOres.setOreBlock(aWorld, aX, aY, aZ, r, false)) {
                             return true;
                         }
                     }
@@ -496,15 +459,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     fString = gtOreMap.get(f);
                     if (fString.contains(ore3String)) {
                         int r = f.mMetaItemSubID;
-                        if (setOreBlock(aWorld, aX, aY, aZ, r, false)) {
-                            Logger.WORLD(
-                                "[World Generation Debug] Set " + f.mDefaultLocalName
-                                    + " Ore at X: "
-                                    + aX
-                                    + " | Y: "
-                                    + aY
-                                    + " | Z: "
-                                    + aZ);
+                        if (TileEntityOres.setOreBlock(aWorld, aX, aY, aZ, r, false)) {
                             return true;
                         }
                     }
@@ -518,15 +473,7 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
                     fString = gtOreMap.get(f);
                     if (fString.contains(ore4String)) {
                         int r = f.mMetaItemSubID;
-                        if (setOreBlock(aWorld, aX, aY, aZ, r, false)) {
-                            Logger.WORLD(
-                                "[World Generation Debug] Set " + f.mDefaultLocalName
-                                    + " Ore at X: "
-                                    + aX
-                                    + " | Y: "
-                                    + aY
-                                    + " | Z: "
-                                    + aZ);
+                        if (TileEntityOres.setOreBlock(aWorld, aX, aY, aZ, r, false)) {
                             return true;
                         }
                     }
@@ -535,55 +482,19 @@ public class WorldGen_GT_Ore_Layer extends WorldGen_GT {
         }
 
         Block tBlock = aWorld.getBlock(aX, aY, aZ);
-        Block tOreBlock = aMetaData;
-        int BlockMeta = aWorld.getBlockMetadata(aX, aY, aZ);
-        String BlockName = tBlock.getUnlocalizedName();
         if (tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, Blocks.stone)
             || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, Blocks.sand)
             || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, Blocks.dirt)
-            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, GregTech_API.sBlockGranites)
-            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, GregTech_API.sBlockStones)
-            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, Dimension_Everglades.blockSecondLayer)
-            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, Dimension_Everglades.blockMainFiller)
-            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, Dimension_Everglades.blockSecondaryFiller)
+            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, GregTechAPI.sBlockGranites)
+            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, GregTechAPI.sBlockStones)
+            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, DimensionEverglades.blockSecondLayer)
+            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, DimensionEverglades.blockMainFiller)
+            || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, DimensionEverglades.blockSecondaryFiller)
             || tBlock.isReplaceableOreGen(aWorld, aX, aY, aZ, Blocks.sandstone)) {
 
-            if (aWorld.setBlock(aX, aY, aZ, tOreBlock, 0, 3)) {
-                Logger.WORLD(
-                    "[World Generation Debug] Set " + tOreBlock
-                        .getLocalizedName() + " at X: " + aX + " | Y: " + aY + " | Z: " + aZ);
+            if (aWorld.setBlock(aX, aY, aZ, aMetaData, 0, 3)) {
                 return true;
             }
-        }
-        return false;
-    }
-
-    private boolean setOreBlock(World aWorld, int aX, int aY, int aZ, int mMetaItemSubID, boolean useless) {
-
-        // Get Class and Methods
-        Method setOres = null;
-
-        try {
-            setOres = GT_TileEntity_Ores.class.getDeclaredMethod(
-                "setOreBlock",
-                World.class,
-                int.class,
-                int.class,
-                int.class,
-                int.class,
-                boolean.class);
-        } catch (NoSuchMethodException | SecurityException e) {
-
-        }
-
-        try {
-            if (setOres != null) {
-                setOres.invoke(null, aWorld, aX, aY, aZ, mMetaItemSubID, useless);
-            } else {
-                return false;
-            }
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-
         }
         return false;
     }

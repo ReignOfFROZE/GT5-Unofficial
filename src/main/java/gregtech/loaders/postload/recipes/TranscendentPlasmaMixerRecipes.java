@@ -2,10 +2,16 @@ package gregtech.loaders.postload.recipes;
 
 import static gregtech.api.recipe.RecipeMaps.transcendentPlasmaMixerRecipes;
 
-import gregtech.api.enums.GT_Values;
+import net.minecraftforge.fluids.FluidStack;
+
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.MaterialsUEVplus;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.enums.TierEU;
+import gregtech.api.util.GTRecipeBuilder;
+import gregtech.api.util.GTRecipeConstants;
+import gregtech.api.util.GTUtility;
+import gtPlusPlus.core.material.MaterialsElements;
 
 public class TranscendentPlasmaMixerRecipes implements Runnable {
 
@@ -20,8 +26,8 @@ public class TranscendentPlasmaMixerRecipes implements Runnable {
     @Override
     public void run() {
 
-        GT_Values.RA.stdBuilder()
-            .itemInputs(GT_Utility.getIntegratedCircuit(1))
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(1))
             .fluidInputs(
                 Materials.Helium.getPlasma(1000),
                 Materials.Iron.getPlasma(1000),
@@ -33,8 +39,8 @@ public class TranscendentPlasmaMixerRecipes implements Runnable {
             .noOptimize()
             .addTo(transcendentPlasmaMixerRecipes);
 
-        GT_Values.RA.stdBuilder()
-            .itemInputs(GT_Utility.getIntegratedCircuit(2))
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(2))
             .fluidInputs(
                 Materials.Helium.getPlasma(1000),
                 Materials.Iron.getPlasma(1000),
@@ -50,8 +56,8 @@ public class TranscendentPlasmaMixerRecipes implements Runnable {
             .noOptimize()
             .addTo(transcendentPlasmaMixerRecipes);
 
-        GT_Values.RA.stdBuilder()
-            .itemInputs(GT_Utility.getIntegratedCircuit(3))
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(3))
             .fluidInputs(
                 Materials.Helium.getPlasma(1000),
                 Materials.Iron.getPlasma(1000),
@@ -71,8 +77,8 @@ public class TranscendentPlasmaMixerRecipes implements Runnable {
             .noOptimize()
             .addTo(transcendentPlasmaMixerRecipes);
 
-        GT_Values.RA.stdBuilder()
-            .itemInputs(GT_Utility.getIntegratedCircuit(4))
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(4))
             .fluidInputs(
                 Materials.Helium.getPlasma(1000),
                 Materials.Iron.getPlasma(1000),
@@ -96,8 +102,8 @@ public class TranscendentPlasmaMixerRecipes implements Runnable {
             .noOptimize()
             .addTo(transcendentPlasmaMixerRecipes);
 
-        GT_Values.RA.stdBuilder()
-            .itemInputs(GT_Utility.getIntegratedCircuit(5))
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(5))
             .fluidInputs(
                 Materials.Helium.getPlasma(1000),
                 Materials.Iron.getPlasma(1000),
@@ -117,16 +123,17 @@ public class TranscendentPlasmaMixerRecipes implements Runnable {
                 Materials.Tin.getPlasma(1000),
                 Materials.Lead.getPlasma(1000),
                 Materials.Thorium.getPlasma(1000),
-                Materials.Plutonium241.getPlasma(1000L),
+                Materials.Naquadria.getPlasma(1000L),
                 MaterialsUEVplus.RawStarMatter.getFluid(25L))
             .fluidOutputs(MaterialsUEVplus.ExcitedDTSC.getFluid(1000L))
-            .duration(200)
+            .duration(100)
             .eut(STELLAR_EU_PER_HALF_L)
+            .metadata(GTRecipeConstants.EU_MULTIPLIER, 20)
             .noOptimize()
             .addTo(transcendentPlasmaMixerRecipes);
 
-        GT_Values.RA.stdBuilder()
-            .itemInputs(GT_Utility.getIntegratedCircuit(24))
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(24))
             .fluidInputs(
                 MaterialsUEVplus.RawStarMatter.getFluid(1000L),
                 MaterialsUEVplus.SpaceTime.getMolten(1000L),
@@ -138,5 +145,49 @@ public class TranscendentPlasmaMixerRecipes implements Runnable {
             .noOptimize()
             .addTo(transcendentPlasmaMixerRecipes);
 
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(24))
+            .fluidInputs(
+                new FluidStack(MaterialsElements.getInstance().FERMIUM.getPlasma(), 1000),
+                Materials.Thorium.getPlasma(1000L),
+                new FluidStack(MaterialsElements.STANDALONE.CELESTIAL_TUNGSTEN.getPlasma(), 1000),
+                Materials.Calcium.getPlasma(1000L),
+                MaterialsUEVplus.DimensionallyTranscendentResidue.getFluid(1000L))
+            .fluidOutputs(MaterialsUEVplus.Creon.getPlasma(5000L))
+            .duration(100)
+            .eut(TierEU.RECIPE_UMV)
+            .noOptimize()
+            .addTo(transcendentPlasmaMixerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(24))
+            .fluidInputs(
+                Materials.Infinity.getPlasma(1000),
+                Materials.Neutronium.getPlasma(1000),
+                Materials.Flerovium.getPlasma(1000),
+                new FluidStack(MaterialsElements.STANDALONE.CHRONOMATIC_GLASS.getPlasma(), 1000),
+                new FluidStack(MaterialsElements.STANDALONE.HYPOGEN.getPlasma(), 1000),
+                Materials.Ichorium.getPlasma(1000),
+                MaterialsUEVplus.SixPhasedCopper.getPlasma(1000),
+                Materials.DraconiumAwakened.getPlasma(1000),
+                new FluidStack(MaterialsElements.STANDALONE.DRAGON_METAL.getPlasma(), 1000),
+                new FluidStack(MaterialsElements.STANDALONE.RHUGNOR.getPlasma(), 1000),
+                Materials.Draconium.getPlasma(1000),
+                MaterialsUEVplus.Creon.getPlasma(1000),
+                Materials.Tritanium.getPlasma(1000),
+                Materials.CosmicNeutronium.getPlasma(1000),
+                Materials.Bedrockium.getPlasma(1000),
+                MaterialsUEVplus.ExcitedDTCC.getFluid(1000),
+                MaterialsUEVplus.ExcitedDTPC.getFluid(1000),
+                MaterialsUEVplus.ExcitedDTRC.getFluid(1000),
+                MaterialsUEVplus.ExcitedDTEC.getFluid(1000),
+                MaterialsUEVplus.ExcitedDTSC.getFluid(1000))
+            .fluidOutputs(MaterialsUEVplus.StargateCrystalSlurry.getFluid(1000L))
+            .duration(100 * GTRecipeBuilder.TICKS)
+            // 1 Trillion EU/t
+            .metadata(GTRecipeConstants.EU_MULTIPLIER, 1000)
+            .eut(1_000_000_000L)
+            .noOptimize()
+            .addTo(transcendentPlasmaMixerRecipes);
     }
 }

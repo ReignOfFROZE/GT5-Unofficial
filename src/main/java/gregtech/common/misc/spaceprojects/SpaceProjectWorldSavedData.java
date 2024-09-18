@@ -19,7 +19,6 @@ import static gregtech.common.misc.spaceprojects.enums.JsonVariables.UPGRADE_PRO
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +44,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.common.misc.spaceprojects.enums.SolarSystem;
@@ -78,6 +76,7 @@ public class SpaceProjectWorldSavedData extends WorldSavedData {
         .registerTypeHierarchyAdapter(ISP_Upgrade.class, new SP_UpgradeAdapter())
         .create();
     private static final Gson GSON_TEAMS = new GsonBuilder().serializeNulls()
+        .registerTypeAdapter(spaceTeams.getClass(), new SpaceTeamAdapter())
         .create();
 
     private static final String DATA_NAME = "GT_SpaceProjectData";
@@ -85,6 +84,10 @@ public class SpaceProjectWorldSavedData extends WorldSavedData {
     private static final String SPACE_TEAM_PROJECTS_JSON = "spaceTeamProject.json";
 
     private static final String SPACE_TEAMS_JSON = "spaceTeams.json";
+
+    private static final String SPACE_TEAM_PROJECTS_NBT = "spaceTeamProjects";
+
+    private static final String SPACE_TEAMS_NBT = "spaceTeams";
 
     private static File spaceTeamsFile;
     private static File teamProjectsFile;
@@ -99,21 +102,42 @@ public class SpaceProjectWorldSavedData extends WorldSavedData {
 
     @Override
     public void readFromNBT(NBTTagCompound aNBT) {
-        try (JsonReader reader = new JsonReader(new FileReader(teamProjectsFile))) {
-            spaceTeamProjects = GSON_SPACE_PROJECT.fromJson(reader, spaceTeamProjects.getClass());
-        } catch (Exception e) {
-            System.out.print("FAILED TO LOAD: " + SPACE_TEAM_PROJECTS_JSON);
-            e.printStackTrace();
+        if (!aNBT.hasKey(SPACE_TEAM_PROJECTS_NBT)) {
+            // We don't have a key? Try to read from file
+            try (JsonReader reader = new JsonReader(new FileReader(teamProjectsFile))) {
+                spaceTeamProjects = GSON_SPACE_PROJECT.fromJson(reader, spaceTeamProjects.getClass());
+            } catch (Exception e) {
+                spaceTeamProjects = null;
+            }
         }
 
-        try (JsonReader reader = new JsonReader(new FileReader(spaceTeamsFile))) {
-            HashMap<UUID, UUID> jsonMap = GSON_TEAMS.fromJson(reader, spaceTeams.getClass());
-            for (UUID member : jsonMap.keySet()) {
-                spaceTeams.put(member, jsonMap.get(member));
+        if (spaceTeamProjects == null) {
+            spaceTeamProjects = new HashMap<>();
+        }
+
+        if (aNBT.hasKey(SPACE_TEAM_PROJECTS_NBT)) {
+            spaceTeamProjects = GSON_SPACE_PROJECT
+                .fromJson(aNBT.getString(SPACE_TEAM_PROJECTS_NBT), spaceTeamProjects.getClass());
+        }
+
+        if (!aNBT.hasKey(SPACE_TEAMS_NBT)) {
+            // We don't have a key? Try to read from file
+            try (JsonReader reader = new JsonReader(new FileReader(spaceTeamsFile))) {
+                HashMap<UUID, UUID> jsonMap = GSON_TEAMS.fromJson(reader, spaceTeams.getClass());
+                for (UUID member : jsonMap.keySet()) {
+                    spaceTeams.put(member, jsonMap.get(member));
+                }
+            } catch (Exception e) {
+                spaceTeams = null;
             }
-        } catch (Exception e) {
-            System.out.print("FAILED TO LOAD: " + SPACE_TEAMS_JSON);
-            e.printStackTrace();
+        }
+
+        if (spaceTeams == null) {
+            spaceTeams = new HashMap<>();
+        }
+
+        if (aNBT.hasKey(SPACE_TEAMS_NBT)) {
+            spaceTeams = GSON_TEAMS.fromJson(aNBT.getString(SPACE_TEAMS_NBT), spaceTeams.getClass());
         }
 
         if (spaceTeamProjects == null) {
@@ -128,21 +152,11 @@ public class SpaceProjectWorldSavedData extends WorldSavedData {
     @Override
     public void writeToNBT(NBTTagCompound aNBT) {
         if (spaceTeamProjects != null) {
-            try (JsonWriter writer = new JsonWriter(new FileWriter(teamProjectsFile))) {
-                GSON_SPACE_PROJECT.toJson(spaceTeamProjects, spaceTeamProjects.getClass(), writer);
-            } catch (Exception ex) {
-                System.out.print("FAILED TO SAVE: " + SPACE_TEAM_PROJECTS_JSON);
-                ex.printStackTrace();
-            }
+            aNBT.setString(SPACE_TEAM_PROJECTS_NBT, GSON_SPACE_PROJECT.toJson(spaceTeamProjects));
         }
 
         if (spaceTeams != null) {
-            try (JsonWriter writer = new JsonWriter(new FileWriter(spaceTeamsFile))) {
-                GSON_TEAMS.toJson(spaceTeams, spaceTeams.getClass(), writer);
-            } catch (Exception ex) {
-                System.out.print("FAILED TO SAVE: " + SPACE_TEAMS_JSON);
-                ex.printStackTrace();
-            }
+            aNBT.setString(SPACE_TEAMS_NBT, GSON_TEAMS.toJson(spaceTeams));
         }
     }
 
@@ -178,6 +192,54 @@ public class SpaceProjectWorldSavedData extends WorldSavedData {
     public void onWorldLoad(WorldEvent.Load aEvent) {
         if (!aEvent.world.isRemote && aEvent.world.provider.dimensionId == 0) {
             loadInstance(aEvent.world);
+        }
+    }
+
+    /**
+     * gson doesn't want to cast Strings to UUIDs by default, thus we need a deserializer.
+     *
+     * @author Tctcl
+     */
+    private static class SpaceTeamAdapter
+        implements JsonSerializer<HashMap<UUID, UUID>>, JsonDeserializer<HashMap<UUID, UUID>> {
+
+        @Override
+        public JsonElement serialize(HashMap<UUID, UUID> src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonArray map = new JsonArray();
+            for (Entry<UUID, UUID> entry : src.entrySet()) {
+                JsonObject teamMap = new JsonObject();
+
+                teamMap.addProperty(
+                    "MEMBER_UUID",
+                    entry.getKey()
+                        .toString());
+                teamMap.addProperty(
+                    "LEADER_UUID",
+                    entry.getValue()
+                        .toString());
+
+                map.add(teamMap);
+            }
+
+            return map;
+        }
+
+        @Override
+        public HashMap<UUID, UUID> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException {
+            HashMap<UUID, UUID> map = new HashMap<>();
+            JsonArray jsonArray = json.getAsJsonArray();
+            for (JsonElement element : jsonArray) {
+                JsonObject jsonObject = element.getAsJsonObject();
+                UUID memberUuid = UUID.fromString(
+                    jsonObject.get("MEMBER_UUID")
+                        .getAsString());
+                UUID leaderUuid = UUID.fromString(
+                    jsonObject.get("LEADER_UUID")
+                        .getAsString());
+                map.put(memberUuid, leaderUuid);
+            }
+            return map;
         }
     }
 

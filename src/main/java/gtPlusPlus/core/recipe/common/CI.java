@@ -4,19 +4,21 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
-import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.ExternalMaterials;
+import gregtech.api.util.GTModHandler;
+import gregtech.api.util.GTOreDictUnificator;
+import gregtech.api.util.GTUtility;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.core.item.chemistry.AgriculturalChem;
 import gtPlusPlus.core.item.chemistry.GenericChem;
-import gtPlusPlus.core.material.ALLOY;
-import gtPlusPlus.core.material.ELEMENT;
 import gtPlusPlus.core.material.Material;
-import gtPlusPlus.core.recipe.LOADER_Machine_Components;
+import gtPlusPlus.core.material.MaterialsAlloy;
+import gtPlusPlus.core.material.MaterialsElements;
+import gtPlusPlus.core.recipe.LoaderMachineComponents;
 import gtPlusPlus.core.util.Utils;
 import gtPlusPlus.core.util.math.MathUtils;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
@@ -29,11 +31,11 @@ public class CI {
     public static ItemStack _NULL = ItemUtils.getErrorStack(1);
 
     // bits
-    public static long bits = GT_ModHandler.RecipeBits.NOT_REMOVABLE | GT_ModHandler.RecipeBits.REVERSIBLE
-        | GT_ModHandler.RecipeBits.BUFFERED;
-    public static long bitsd = GT_ModHandler.RecipeBits.DISMANTLEABLE | GT_ModHandler.RecipeBits.NOT_REMOVABLE
-        | GT_ModHandler.RecipeBits.REVERSIBLE
-        | GT_ModHandler.RecipeBits.BUFFERED;
+    public static long bits = GTModHandler.RecipeBits.NOT_REMOVABLE | GTModHandler.RecipeBits.REVERSIBLE
+        | GTModHandler.RecipeBits.BUFFERED;
+    public static long bitsd = GTModHandler.RecipeBits.DISMANTLEABLE | GTModHandler.RecipeBits.NOT_REMOVABLE
+        | GTModHandler.RecipeBits.REVERSIBLE
+        | GTModHandler.RecipeBits.BUFFERED;
 
     // Circuits
     public static Object circuitPrimitive;
@@ -180,8 +182,8 @@ public class CI {
     public static ItemStack explosiveITNT;
 
     public static Materials[] tieredMaterials = new Materials[] { Materials.Iron, Materials.Steel, Materials.Aluminium,
-        Materials.StainlessSteel, Materials.Titanium, Materials.TungstenSteel, Materials.Chrome, Materials.Iridium,
-        Materials.Osmium, Materials.Neutronium };
+        Materials.StainlessSteel, Materials.Titanium, Materials.TungstenSteel,
+        ExternalMaterials.getRhodiumPlatedPalladium(), Materials.Iridium, Materials.Osmium, Materials.Neutronium };
 
     public static void preInit() {
 
@@ -253,10 +255,6 @@ public class CI {
         }
     }
 
-    public static ItemStack getNumberedCircuit(int Meta) {
-        return ItemUtils.getGregtechCircuit(Meta);
-    }
-
     private static Object getMaterialFromTier(int tier) {
         if (tier == 0) {
             return Materials.Wood;
@@ -267,17 +265,17 @@ public class CI {
         } else if (tier == 3) {
             return Materials.Steel;
         } else if (tier == 4) {
-            return ALLOY.EGLIN_STEEL;
+            return MaterialsAlloy.EGLIN_STEEL;
         } else if (tier == 5) {
             return Materials.Aluminium;
         } else if (tier == 6) {
-            return ALLOY.MARAGING250;
+            return MaterialsAlloy.MARAGING250;
         } else if (tier == 7) {
-            return ALLOY.TANTALLOY_61;
+            return MaterialsAlloy.TANTALLOY_61;
         } else if (tier == 8) {
-            return ALLOY.INCONEL_792;
+            return MaterialsAlloy.INCONEL_792;
         } else if (tier == 9) {
-            return ALLOY.ZERON_100;
+            return MaterialsAlloy.ZERON_100;
         } else if (tier == 10) {
             return Materials.NaquadahEnriched;
         } else if (tier == 11) {
@@ -407,34 +405,39 @@ public class CI {
         gearboxCasing_Tier_4 = ItemList.Casing_Gearbox_TungstenSteel.get(1);
 
         // Machine Components
-        LOADER_Machine_Components.initialise();
+        LoaderMachineComponents.initialise();
     }
 
     public static ItemStack emptyCells(int i) {
         return ItemUtils.getEmptyCell(i);
     }
 
-    private static final Material[] aMaterial_Main = new Material[] { ALLOY.POTIN, ALLOY.TUMBAGA, ALLOY.EGLIN_STEEL,
-        ALLOY.INCONEL_625, ALLOY.INCOLOY_DS, ALLOY.NITINOL_60, ALLOY.ZERON_100, ALLOY.PIKYONIUM,
-        ELEMENT.STANDALONE.ADVANCED_NITINOL, ALLOY.ABYSSAL, ALLOY.QUANTUM, ELEMENT.STANDALONE.HYPOGEN };
+    private static final Material[] aMaterial_Main = new Material[] { MaterialsAlloy.POTIN, MaterialsAlloy.TUMBAGA,
+        MaterialsAlloy.EGLIN_STEEL, MaterialsAlloy.TANTALUM_CARBIDE, MaterialsAlloy.INCOLOY_DS,
+        MaterialsAlloy.INCONEL_625, MaterialsAlloy.ZERON_100, MaterialsAlloy.PIKYONIUM,
+        MaterialsElements.STANDALONE.ADVANCED_NITINOL, MaterialsAlloy.ABYSSAL, MaterialsAlloy.QUANTUM,
+        MaterialsElements.STANDALONE.HYPOGEN };
 
-    private static final Material[] aMaterial_Secondary = new Material[] { ALLOY.STEEL, ALLOY.SILICON_CARBIDE,
-        ALLOY.BLOODSTEEL, ALLOY.TANTALUM_CARBIDE, ALLOY.INCONEL_792, ALLOY.ARCANITE, ALLOY.LAFIUM, ALLOY.CINOBITE,
-        ALLOY.TITANSTEEL, ALLOY.OCTIRON, ELEMENT.STANDALONE.CELESTIAL_TUNGSTEN, ELEMENT.STANDALONE.HYPOGEN };
+    private static final Material[] aMaterial_Secondary = new Material[] { MaterialsAlloy.STEEL,
+        MaterialsAlloy.SILICON_CARBIDE, MaterialsAlloy.BLOODSTEEL, MaterialsAlloy.TANTALUM_CARBIDE,
+        MaterialsAlloy.INCONEL_792, MaterialsAlloy.ARCANITE, MaterialsAlloy.LAFIUM, MaterialsAlloy.CINOBITE,
+        MaterialsAlloy.TITANSTEEL, MaterialsAlloy.OCTIRON, MaterialsElements.STANDALONE.CELESTIAL_TUNGSTEN,
+        MaterialsElements.STANDALONE.HYPOGEN };
 
-    private static final Material[] aMaterial_Tertiary = new Material[] { ELEMENT.getInstance().LEAD,
-        ELEMENT.getInstance().ALUMINIUM, ELEMENT.STANDALONE.BLACK_METAL, ELEMENT.getInstance().TITANIUM,
-        ALLOY.HASTELLOY_N, ALLOY.ENERGYCRYSTAL, ALLOY.TRINIUM_NAQUADAH_CARBON, ALLOY.TRINIUM_REINFORCED_STEEL, // Arceus
-        ALLOY.TITANSTEEL, ELEMENT.STANDALONE.ASTRAL_TITANIUM, ELEMENT.STANDALONE.CELESTIAL_TUNGSTEN,
-        ELEMENT.STANDALONE.HYPOGEN };
+    private static final Material[] aMaterial_Tertiary = new Material[] { MaterialsElements.getInstance().LEAD,
+        MaterialsElements.getInstance().ALUMINIUM, MaterialsElements.STANDALONE.BLACK_METAL,
+        MaterialsElements.getInstance().TITANIUM, MaterialsAlloy.HASTELLOY_N, MaterialsAlloy.ENERGYCRYSTAL,
+        MaterialsAlloy.TRINIUM_NAQUADAH_CARBON, MaterialsAlloy.TRINIUM_REINFORCED_STEEL, // Arceus
+        MaterialsAlloy.TITANSTEEL, MaterialsElements.STANDALONE.ASTRAL_TITANIUM,
+        MaterialsElements.STANDALONE.CELESTIAL_TUNGSTEN, MaterialsElements.STANDALONE.HYPOGEN };
 
     private static final Materials[] aMaterial_Cables = new Materials[] { Materials.Tin, Materials.Cobalt,
         Materials.AnnealedCopper, Materials.Gold, Materials.Titanium, Materials.Nichrome, Materials.Platinum,
         Materials.YttriumBariumCuprate, Materials.Naquadah, Materials.Duranium, Materials.SuperconductorUHV, };
 
-    private static final Materials[] aMaterial_Circuits = new Materials[] { Materials.Primitive, Materials.Basic,
-        Materials.Good, Materials.Advanced, Materials.Data, Materials.Data, Materials.Elite, Materials.Master,
-        Materials.Ultimate, Materials.SuperconductorUHV, Materials.Infinite, };
+    private static final Materials[] aMaterial_Circuits = new Materials[] { Materials.ULV, Materials.LV, Materials.MV,
+        Materials.HV, Materials.EV, Materials.IV, Materials.LuV, Materials.ZPM, Materials.UV, Materials.UHV,
+        Materials.UEV, };
 
     private static final Material[][] aMaster = new Material[][] { aMaterial_Main, aMaterial_Secondary,
         aMaterial_Tertiary };
@@ -452,19 +455,11 @@ public class CI {
     }
 
     public static FluidStack getTieredFluid(int aTier, int aAmount, int aType) {
-        // Weird Legacy handling
-        /*
-         * ItemStack aCell = getTieredComponent(OrePrefixes.liquid, aTier, 1); FluidStack a =
-         * GT_Utility.getFluidForFilledItem(aCell, true); if (a == null) { a = aMaster[aType][aTier].getFluid(aAmount);
-         * }
-         */
-
-        // Modern Handling
         FluidStack a = aMaster[aType][aTier].getFluidStack(aAmount);
         if (a == null) {
             ItemStack aCell = getTieredComponent(OrePrefixes.liquid, aTier, 1);
             if (aCell != null) {
-                a = GT_Utility.getFluidForFilledItem(aCell, true);
+                a = GTUtility.getFluidForFilledItem(aCell, true);
                 a.amount = aAmount;
             }
         }
@@ -527,11 +522,7 @@ public class CI {
         }
 
         if (aPrefix == OrePrefixes.circuit) {
-            /*
-             * if (aTier == 4) { return ItemUtils.getSimpleStack(CI.getDataStick(), aAmount); } else if (aTier == 5) {
-             * return ItemUtils.getSimpleStack(CI.getDataOrb(), aAmount); }
-             */
-            return ItemUtils.getOrePrefixStack(OrePrefixes.circuit, aMaterial_Circuits[aTier], aAmount);
+            return GTOreDictUnificator.get(OrePrefixes.circuit, aMaterial_Circuits[aTier], aAmount);
         }
 
         // Check for Cables first, catch SuperConductor case and swap to wire.
@@ -585,11 +576,11 @@ public class CI {
             } else if (aTier == 4) {
                 return ItemUtils.getOrePrefixStack(aPrefix, Materials.TungstenSteel, aAmount);
             } else if (aTier == 5) {
-                return ItemUtils.getOrePrefixStack(aPrefix, ALLOY.MARAGING350, aAmount);
+                return ItemUtils.getOrePrefixStack(aPrefix, MaterialsAlloy.MARAGING350, aAmount);
             } else if (aTier == 6) {
-                return ItemUtils.getOrePrefixStack(aPrefix, ALLOY.STABALLOY, aAmount);
+                return ItemUtils.getOrePrefixStack(aPrefix, MaterialsAlloy.STABALLOY, aAmount);
             } else if (aTier == 7) {
-                return ItemUtils.getOrePrefixStack(aPrefix, ALLOY.HASTELLOY_X, aAmount);
+                return ItemUtils.getOrePrefixStack(aPrefix, MaterialsAlloy.HASTELLOY_X, aAmount);
             } else if (aTier == 8) {
                 return ItemUtils.getOrePrefixStack(aPrefix, Materials.Ultimate, aAmount);
             } else if (aTier == 9) {
@@ -940,7 +931,7 @@ public class CI {
         if (i > 8) {
             i = 8;
         }
-        return ItemUtils.simpleMetaStack(GregTech_API.sBlockCasings5, i, 1);
+        return ItemUtils.simpleMetaStack(GregTechAPI.sBlockCasings5, i, 1);
     }
 
     public static ItemStack getNumberedBioCircuit(int i) {
@@ -978,7 +969,7 @@ public class CI {
 
     /**
      * Aluminium + Silver Catalyst
-     * 
+     *
      * @param aAmount - Stacksize
      * @return - A Catalyst stack of given size
      */
@@ -988,7 +979,7 @@ public class CI {
 
     /**
      * Iridium + Ruthenium Catalyst
-     * 
+     *
      * @param aAmount - Stacksize
      * @return - A Catalyst stack of given size
      */
@@ -998,7 +989,7 @@ public class CI {
 
     /**
      * Platinum + Rhodium Catalyst
-     * 
+     *
      * @param aAmount - Stacksize
      * @return - A Catalyst stack of given size
      */

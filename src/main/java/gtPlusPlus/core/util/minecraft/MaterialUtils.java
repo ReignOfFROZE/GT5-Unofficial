@@ -1,5 +1,6 @@
 package gtPlusPlus.core.util.minecraft;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,16 +14,15 @@ import gregtech.api.enums.Element;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.TextureSet;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gtPlusPlus.api.objects.Logger;
-import gtPlusPlus.api.objects.data.AutoMap;
 import gtPlusPlus.api.objects.data.TypeCounter;
 import gtPlusPlus.core.client.CustomTextureSet.TextureSets;
 import gtPlusPlus.core.item.base.BaseItemComponent;
 import gtPlusPlus.core.item.base.BaseItemComponent.ComponentTypes;
 import gtPlusPlus.core.item.base.foil.BaseItemFoil;
 import gtPlusPlus.core.item.base.wire.BaseItemFineWire;
-import gtPlusPlus.core.lib.CORE;
+import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.core.material.Material;
 import gtPlusPlus.core.material.MaterialStack;
 import gtPlusPlus.core.material.state.MaterialState;
@@ -73,7 +73,7 @@ public class MaterialUtils {
             int radioactivity = 0;
             if (material.isRadioactive()) {
                 ItemStack aDustStack = ItemUtils.getOrePrefixStack(OrePrefixes.dust, material, 1);
-                radioactivity = aDustStack != null ? GT_Utility.getRadioactivityLevel(aDustStack) : 0;
+                radioactivity = aDustStack != null ? GTUtility.getRadioactivityLevel(aDustStack) : 0;
                 if (radioactivity == 0) {
                     long aProtons = material.getProtons();
                     radioactivity = (int) Math.min(Math.max((aProtons / 30), 1), 9);
@@ -206,6 +206,7 @@ public class MaterialUtils {
         return aMeltingPoint < 1000 ? 0 : (MathUtils.roundToClosestInt(aMeltingPoint / 1000f));
     }
 
+    @Deprecated // use TierEU enum
     public static int getVoltageForTier(int aTier) {
         // aTier += 1; - Probably some logic to this, idk.
 
@@ -233,8 +234,7 @@ public class MaterialUtils {
     private static Materials getMaterialByName(String materialName) {
         for (Materials m : Materials.values()) {
             if (MaterialUtils.getMaterialName(m)
-                .toLowerCase()
-                .equals(materialName.toLowerCase())) {
+                .equalsIgnoreCase(materialName)) {
                 return m;
             }
         }
@@ -243,7 +243,7 @@ public class MaterialUtils {
 
     public static String getMaterialName(Materials mat) {
         String mName = mat.mDefaultLocalName;
-        if (mName == null || mName.equals("")) {
+        if (mName == null || mName.isEmpty()) {
             mName = mat.mName;
         }
         return mName;
@@ -274,7 +274,7 @@ public class MaterialUtils {
                     + "' & fallback '"
                     + aFallbackMaterialName
                     + "', returning _NULL.");
-            CORE.crash();
+            GTPPCore.crash();
         }
         return g;
     }
@@ -291,15 +291,15 @@ public class MaterialUtils {
         return m;
     }
 
-    public static AutoMap<Material> getCompoundMaterialsRecursively(Material aMat) {
+    public static ArrayList<Material> getCompoundMaterialsRecursively(Material aMat) {
         return getCompoundMaterialsRecursively_Speiger(aMat);
     }
 
-    public static AutoMap<Material> getCompoundMaterialsRecursively_Speiger(Material toSearch) {
-        AutoMap<Material> resultList = new AutoMap<>();
+    public static ArrayList<Material> getCompoundMaterialsRecursively_Speiger(Material toSearch) {
+        ArrayList<Material> resultList = new ArrayList<>();
         if (toSearch.getComposites()
             .isEmpty()) {
-            resultList.put(toSearch);
+            resultList.add(toSearch);
             return resultList;
         }
         final int HARD_LIMIT = 1000;
@@ -314,7 +314,7 @@ public class MaterialUtils {
             Material current = toCheck.remove();
             if (current.getComposites()
                 .isEmpty()) {
-                resultList.put(current);
+                resultList.add(current);
             } else {
                 for (MaterialStack entry : current.getComposites()) {
                     toCheck.add(entry.getStackMaterial());

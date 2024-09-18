@@ -1,15 +1,17 @@
 package gtPlusPlus.api.objects.minecraft;
 
+import java.util.ArrayList;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+import gregtech.api.interfaces.IRecipeMutableAccess;
 import gtPlusPlus.api.objects.Logger;
-import gtPlusPlus.api.objects.data.AutoMap;
 import gtPlusPlus.api.objects.data.Pair;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
 
-public class ShapedRecipe {
+public class ShapedRecipe implements IRecipeMutableAccess {
 
     private static final String CHARS = "abcdefghijklmnop";
     public ShapedOreRecipe mRecipe;
@@ -75,7 +77,7 @@ public class ShapedRecipe {
                 }
 
                 // Build a Pair for each slot
-                AutoMap<Pair<Character, Object>> aRecipePairs = new AutoMap<>();
+                ArrayList<Pair<Character, Object>> aRecipePairs = new ArrayList<>();
                 int aCharSlot = 0;
                 int aMemSlot = 0;
                 int aInfoSlot = 0;
@@ -90,7 +92,7 @@ public class ShapedRecipe {
                             }
                             mInfo = ((ItemStack) stack).getDisplayName();
                         }
-                        aRecipePairs.put(new Pair<>(CHARS.charAt(aCharSlot), stack));
+                        aRecipePairs.add(new Pair<>(CHARS.charAt(aCharSlot), stack));
                         Logger.RECIPE(
                             "Storing '" + CHARS.charAt(aCharSlot)
                                 + "' with an object of type "
@@ -102,7 +104,7 @@ public class ShapedRecipe {
                         aCharSlot++;
                         aLoggingInfo[aInfoSlot++] = mInfo;
                     } else {
-                        aRecipePairs.put(new Pair<>(' ', (ItemStack) null));
+                        aRecipePairs.add(new Pair<>(' ', (ItemStack) null));
                         Logger.RECIPE("Storing ' ' with an object of type null");
                         aChar[aMemSlot++] = ' ';
                         aLoggingInfo[aInfoSlot++] = "Empty";
@@ -154,7 +156,7 @@ public class ShapedRecipe {
                                 }
                                 mInfo = ((ItemStack) stack).getDisplayName();
                             }
-                            aRecipePairs.put(new Pair<>(CHARS.charAt(aCharSlot), stack));
+                            aRecipePairs.add(new Pair<>(CHARS.charAt(aCharSlot), stack));
                             Logger.RECIPE(
                                 "Registering Pair of '" + CHARS.charAt(aCharSlot)
                                     + "' and a "
@@ -210,7 +212,7 @@ public class ShapedRecipe {
                     Logger.RECIPE("+ = + = + = +");
                     for (int r = 0; r < 9; r++) {
                         if (aChar[r] != ' ') {
-                            Logger.RECIPE("" + aChar[r] + " : " + aLoggingInfo[r]);
+                            Logger.RECIPE(aChar[r] + " : " + aLoggingInfo[r]);
                         }
                     }
 
@@ -247,5 +249,20 @@ public class ShapedRecipe {
             Logger.RECIPE("[Fix][1] Error thrown when making a ShapedOreRecipe object.");
             t.printStackTrace();
         }
+    }
+
+    @Override
+    public ItemStack gt5u$getRecipeOutputItem() {
+        return ((IRecipeMutableAccess) mRecipe).gt5u$getRecipeOutputItem();
+    }
+
+    @Override
+    public void gt5u$setRecipeOutputItem(ItemStack newItem) {
+        ((IRecipeMutableAccess) mRecipe).gt5u$setRecipeOutputItem(newItem);
+    }
+
+    @Override
+    public Object gt5u$getRecipeInputs() {
+        return ((IRecipeMutableAccess) mRecipe).gt5u$getRecipeInputs();
     }
 }

@@ -1,7 +1,5 @@
 package gregtech.mixin;
 
-import static gregtech.mixin.TargetedMod.EXTRA_UTILITIES;
-import static gregtech.mixin.TargetedMod.THAUMCRAFT;
 import static gregtech.mixin.TargetedMod.VANILLA;
 
 import java.util.ArrayList;
@@ -14,13 +12,18 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.bartimaeusnek.bartworks.common.configs.ConfigHandler;
-
+import bartworks.common.configs.Configuration;
 import cpw.mods.fml.relauncher.FMLLaunchHandler;
 
 public enum Mixin {
 
     // Minecraft
+    SoundManagerMixin(new Builder("Seeking sound playback")
+        .addMixinClasses("minecraft.SoundManagerMixin", "minecraft.SoundManagerInnerMixin")
+        .addTargetedMod(VANILLA)
+        .setApplyIf(() -> true)
+        .setPhase(Phase.EARLY)
+        .setSide(Side.CLIENT)),
     WorldMixin(new Builder("Block update detection").addMixinClasses("minecraft.WorldMixin")
         .addTargetedMod(VANILLA)
         .setApplyIf(() -> true)
@@ -40,33 +43,24 @@ public enum Mixin {
     CacheCraftingManagerRecipes(
         new Builder("Cache CraftingManager recipes").addMixinClasses("minecraft.CraftingManagerMixin")
             .addTargetedMod(VANILLA)
-            .setApplyIf(() -> ConfigHandler.enabledPatches[3])
+            .setApplyIf(() -> Configuration.mixins.enableCraftingManagerRecipeCaching)
             .setPhase(Phase.EARLY)
             .setSide(Side.BOTH)),
-    BlockStemMixin(new Builder("Stem Crop Block Accessor").addMixinClasses("minecraft.BlockStemMixin")
+    VanillaAccessors(new Builder("Adds various accessors")
+        .addMixinClasses(
+            "minecraft.VanillaShapedRecipeMixin",
+            "minecraft.VanillaShapelessRecipeMixin",
+            "minecraft.ForgeShapedRecipeMixin",
+            "minecraft.ForgeShapelessRecipeMixin",
+            "minecraft.PotionMixin")
         .addTargetedMod(VANILLA)
         .setApplyIf(() -> true)
         .setPhase(Phase.EARLY)
         .setSide(Side.BOTH)),
-    // Extra utilities
-    RemoveLastMilleniumRain(new Builder("Remove rain from the Last Millenium (Extra Utilities)")
-        .addMixinClasses("xu.WorldProviderEndOfTimeMixin")
-        .addTargetedMod(EXTRA_UTILITIES)
-        .setApplyIf(() -> ConfigHandler.enabledPatches[0])
-        .setPhase(Phase.LATE)
-        .setSide(Side.BOTH)),
-    RemoveLastMilleniumCreatures(new Builder("Remove creatures from the Last Millenium (Extra Utilities)")
-        .addMixinClasses("xu.ChunkProviderEndOfTimeMixin")
-        .addTargetedMod(EXTRA_UTILITIES)
-        .setApplyIf(() -> ConfigHandler.enabledPatches[1])
-        .setPhase(Phase.LATE)
-        .setSide(Side.BOTH)),
-    // Thaumcraft
-    PatchWandPedestalVisDuplication(new Builder("Fix wand pedestal vis duplication (Thaumcraft)")
-        .addMixinClasses("thaumcraft.TileWandPedestalMixin")
-        .addTargetedMod(THAUMCRAFT)
-        .setApplyIf(() -> ConfigHandler.enabledPatches[2])
-        .setPhase(Phase.LATE)
+    BlockStemMixin(new Builder("Stem Crop Block Accessor").addMixinClasses("minecraft.BlockStemMixin")
+        .addTargetedMod(VANILLA)
+        .setApplyIf(() -> true)
+        .setPhase(Phase.EARLY)
         .setSide(Side.BOTH));
 
     public static final Logger LOGGER = LogManager.getLogger("GregTech-Mixin");

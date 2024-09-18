@@ -1,7 +1,5 @@
 package gtPlusPlus.core.tileentities.machines;
 
-import static gregtech.api.enums.Mods.Forestry;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,16 +25,16 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
-import gregtech.api.util.GT_Utility;
-import gtPlusPlus.api.objects.data.AutoMap;
+import forestry.lepidopterology.entities.EntityButterfly;
+import gregtech.api.enums.Mods;
+import gregtech.api.util.GTUtility;
 import gtPlusPlus.api.objects.minecraft.BTF_FluidTank;
 import gtPlusPlus.core.inventories.InventoryPestKiller;
-import gtPlusPlus.core.material.MISC_MATERIALS;
+import gtPlusPlus.core.material.MaterialMisc;
 import gtPlusPlus.core.recipe.common.CI;
 import gtPlusPlus.core.util.math.MathUtils;
 import gtPlusPlus.core.util.minecraft.EntityUtils;
 import gtPlusPlus.core.util.minecraft.FluidUtils;
-import gtPlusPlus.core.util.reflect.ReflectionUtils;
 
 public class TileEntityPestKiller extends TileEntity implements ISidedInventory, IFluidHandler {
 
@@ -52,12 +50,12 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
     private boolean mNeedsUpdate = false;
     private String mCustomName;
 
-    private static final AutoMap<Class<?>> mEntityMap = new AutoMap<>();
+    private static final ArrayList<Class<?>> mEntityMap = new ArrayList<>();
 
     static {
-        mEntityMap.put(EntityBat.class);
-        if (Forestry.isModLoaded()) {
-            mEntityMap.put(ReflectionUtils.getClass("forestry.lepidopterology.entities.EntityButterfly"));
+        mEntityMap.add(EntityBat.class);
+        if (Mods.Forestry.isModLoaded()) {
+            mEntityMap.add(EntityButterfly.class);
         }
     }
 
@@ -103,7 +101,7 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
             // code block
         }
         int aChunkCount = 0;
-        AutoMap<Entity> entities = new AutoMap<>();
+        ArrayList<Entity> entities = new ArrayList<>();
         if (min != 0 && max != 0) {
             for (int x = min; x < max; x++) {
                 for (int z = min; z < max; z++) {
@@ -118,7 +116,7 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
                                         for (Class<?> C : mEntityMap) {
                                             if (e.getClass()
                                                 .equals(C) || C.isAssignableFrom(e.getClass())) {
-                                                entities.put((Entity) e);
+                                                entities.add((Entity) e);
                                             }
                                         }
                                     }
@@ -139,7 +137,7 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
                                 for (Class<?> C : mEntityMap) {
                                     if (e.getClass()
                                         .equals(C) || C.isAssignableFrom(e.getClass())) {
-                                        entities.put((Entity) e);
+                                        entities.add((Entity) e);
                                     }
                                 }
                             }
@@ -186,7 +184,7 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
             if (f != null) {
                 if (f.isFluidEqual(FluidUtils.getWildcardFluidStack("formaldehyde", 1))) {
                     return 1;
-                } else if (f.isFluidEqual(MISC_MATERIALS.HYDROGEN_CYANIDE.getFluidStack(1))) {
+                } else if (f.isFluidEqual(MaterialMisc.HYDROGEN_CYANIDE.getFluidStack(1))) {
                     return 2;
                 }
             }
@@ -330,7 +328,7 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
         if (this.getInventory()
             .getInventory()[0] == null) {
             return true;
-        } else if (GT_Utility.areStacksEqual(
+        } else if (GTUtility.areStacksEqual(
             aStack,
             this.getInventory()
                 .getInventory()[0])) {
@@ -471,7 +469,7 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
             ArrayList<ItemStack> t2Cells = OreDictionary.getOres("cellHydrogenCyanide");
             didFill = addFluid(t1Cells, aInput, FluidUtils.getWildcardFluidStack("formaldehyde", 1000));
             if (!didFill) {
-                didFill = addFluid(t2Cells, aInput, MISC_MATERIALS.HYDROGEN_CYANIDE.getFluidStack(1000));
+                didFill = addFluid(t2Cells, aInput, MaterialMisc.HYDROGEN_CYANIDE.getFluidStack(1000));
             }
         }
 
@@ -495,7 +493,7 @@ public class TileEntityPestKiller extends TileEntity implements ISidedInventory,
 
     public boolean addFluid(ArrayList<ItemStack> inputs, ItemStack aInput, FluidStack aFluidForInput) {
         for (ItemStack a : inputs) {
-            if (GT_Utility.areStacksEqual(a, aInput)) {
+            if (GTUtility.areStacksEqual(a, aInput)) {
                 if (mTank.getFluid() == null || mTank.getFluid()
                     .isFluidEqual(aFluidForInput)) {
                     boolean didFill = fill(ForgeDirection.UNKNOWN, aFluidForInput, true) > 0;

@@ -1,10 +1,6 @@
 package gregtech.api.metatileentity;
 
-import static gregtech.api.enums.GT_Values.COMPASS_DIRECTIONS;
-import static gregtech.api.enums.GT_Values.GT;
-import static gregtech.api.enums.GT_Values.NW;
-import static gregtech.api.enums.GT_Values.SIDE_DOWN;
-import static gregtech.api.enums.GT_Values.SIDE_UP;
+import static gregtech.api.enums.GTValues.NW;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +14,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -26,7 +21,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -53,10 +47,10 @@ import com.gtnewhorizons.modularui.common.widget.TextWidget;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
-import gregtech.GT_Mod;
+import gregtech.GTMod;
 import gregtech.api.enums.Dyes;
-import gregtech.api.enums.GT_Values;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.enums.GTValues;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.gui.modularui.GUITextureSet;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
 import gregtech.api.interfaces.modularui.IAddGregtechLogo;
@@ -66,11 +60,11 @@ import gregtech.api.interfaces.tileentity.IGTEnet;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.interfaces.tileentity.IHasWorldObjectAndCoords;
 import gregtech.api.interfaces.tileentity.IIC2Enet;
-import gregtech.api.net.GT_Packet_Block_Event;
-import gregtech.api.net.GT_Packet_SetConfigurationCircuit;
-import gregtech.api.util.GT_TooltipDataCache;
-import gregtech.api.util.GT_Util;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.net.GTPacketBlockEvent;
+import gregtech.api.net.GTPacketSetConfigurationCircuit;
+import gregtech.api.util.GTTooltipDataCache;
+import gregtech.api.util.GTUtil;
+import gregtech.api.util.GTUtility;
 import gregtech.common.gui.modularui.uifactory.SelectItemUIFactory;
 import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
@@ -106,15 +100,13 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
 
     private final ChunkCoordinates mReturnedCoordinates = new ChunkCoordinates();
 
-    public static ForgeDirection getSideForPlayerPlacing(Entity aPlayer, ForgeDirection defaultFacing,
+    public static ForgeDirection getSideForPlayerPlacing(Entity player, ForgeDirection defaultFacing,
         boolean[] aAllowedFacings) {
-        if (aPlayer != null) {
-            if (aPlayer.rotationPitch >= 65 && aAllowedFacings[SIDE_UP]) return ForgeDirection.UP;
-            if (aPlayer.rotationPitch <= -65 && aAllowedFacings[SIDE_DOWN]) return ForgeDirection.DOWN;
-            final byte rFacing = COMPASS_DIRECTIONS[MathHelper.floor_double(0.5D + 4.0F * aPlayer.rotationYaw / 360.0F)
-                & 0x3];
-            if (aAllowedFacings[rFacing]) return ForgeDirection.getOrientation(rFacing);
-        }
+
+        final ForgeDirection facingFromPlayer = GTUtility.getSideFromPlayerFacing(player);
+        if (facingFromPlayer != ForgeDirection.UNKNOWN && aAllowedFacings[facingFromPlayer.ordinal()])
+            return facingFromPlayer;
+
         for (final ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) if (aAllowedFacings[dir.ordinal()]) return dir;
         return defaultFacing;
     }
@@ -160,18 +152,18 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final int getOffsetX(ForgeDirection side, int aMultiplier) {
-        return xCoord + side.offsetX * aMultiplier;
+    public final int getOffsetX(ForgeDirection side, int multiplier) {
+        return xCoord + side.offsetX * multiplier;
     }
 
     @Override
-    public final short getOffsetY(ForgeDirection side, int aMultiplier) {
-        return (short) (yCoord + side.offsetY * aMultiplier);
+    public final short getOffsetY(ForgeDirection side, int multiplier) {
+        return (short) (yCoord + side.offsetY * multiplier);
     }
 
     @Override
-    public final int getOffsetZ(ForgeDirection side, int aMultiplier) {
-        return zCoord + side.offsetZ * aMultiplier;
+    public final int getOffsetZ(ForgeDirection side, int multiplier) {
+        return zCoord + side.offsetZ * multiplier;
     }
 
     @Override
@@ -193,20 +185,6 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    @Deprecated
-    public final boolean openGUI(EntityPlayer aPlayer) {
-        return openGUI(aPlayer, 0);
-    }
-
-    @Override
-    @Deprecated
-    public final boolean openGUI(EntityPlayer aPlayer, int aID) {
-        if (aPlayer == null) return false;
-        aPlayer.openGui(GT, aID, worldObj, xCoord, yCoord, zCoord);
-        return true;
-    }
-
-    @Override
     public boolean isInvalidTileEntity() {
         return isInvalid();
     }
@@ -218,8 +196,8 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final BiomeGenBase getBiome(int aX, int aZ) {
-        return worldObj.getBiomeGenForCoords(aX, aZ);
+    public final BiomeGenBase getBiome(int x, int z) {
+        return worldObj.getBiomeGenForCoords(x, z);
     }
 
     @Override
@@ -228,8 +206,8 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final Block getBlockOffset(int aX, int aY, int aZ) {
-        return getBlock(xCoord + aX, yCoord + aY, zCoord + aZ);
+    public final Block getBlockOffset(int x, int y, int z) {
+        return getBlock(xCoord + x, yCoord + y, zCoord + z);
     }
 
     @Override
@@ -238,13 +216,13 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final Block getBlockAtSideAndDistance(ForgeDirection side, int aDistance) {
-        return getBlock(getOffsetX(side, aDistance), getOffsetY(side, aDistance), getOffsetZ(side, aDistance));
+    public final Block getBlockAtSideAndDistance(ForgeDirection side, int distance) {
+        return getBlock(getOffsetX(side, distance), getOffsetY(side, distance), getOffsetZ(side, distance));
     }
 
     @Override
-    public final byte getMetaIDOffset(int aX, int aY, int aZ) {
-        return getMetaID(xCoord + aX, yCoord + aY, zCoord + aZ);
+    public final byte getMetaIDOffset(int x, int y, int z) {
+        return getMetaID(xCoord + x, yCoord + y, zCoord + z);
     }
 
     @Override
@@ -253,13 +231,13 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final byte getMetaIDAtSideAndDistance(ForgeDirection side, int aDistance) {
-        return getMetaID(getOffsetX(side, aDistance), getOffsetY(side, aDistance), getOffsetZ(side, aDistance));
+    public final byte getMetaIDAtSideAndDistance(ForgeDirection side, int distance) {
+        return getMetaID(getOffsetX(side, distance), getOffsetY(side, distance), getOffsetZ(side, distance));
     }
 
     @Override
-    public final byte getLightLevelOffset(int aX, int aY, int aZ) {
-        return getLightLevel(xCoord + aX, yCoord + aY, zCoord + aZ);
+    public final byte getLightLevelOffset(int x, int y, int z) {
+        return getLightLevel(xCoord + x, yCoord + y, zCoord + z);
     }
 
     @Override
@@ -268,13 +246,13 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final byte getLightLevelAtSideAndDistance(ForgeDirection side, int aDistance) {
-        return getLightLevel(getOffsetX(side, aDistance), getOffsetY(side, aDistance), getOffsetZ(side, aDistance));
+    public final byte getLightLevelAtSideAndDistance(ForgeDirection side, int distance) {
+        return getLightLevel(getOffsetX(side, distance), getOffsetY(side, distance), getOffsetZ(side, distance));
     }
 
     @Override
-    public final boolean getOpacityOffset(int aX, int aY, int aZ) {
-        return getOpacity(xCoord + aX, yCoord + aY, zCoord + aZ);
+    public final boolean getOpacityOffset(int x, int y, int z) {
+        return getOpacity(xCoord + x, yCoord + y, zCoord + z);
     }
 
     @Override
@@ -283,13 +261,13 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final boolean getOpacityAtSideAndDistance(ForgeDirection side, int aDistance) {
-        return getOpacity(getOffsetX(side, aDistance), getOffsetY(side, aDistance), getOffsetZ(side, aDistance));
+    public final boolean getOpacityAtSideAndDistance(ForgeDirection side, int distance) {
+        return getOpacity(getOffsetX(side, distance), getOffsetY(side, distance), getOffsetZ(side, distance));
     }
 
     @Override
-    public final boolean getSkyOffset(int aX, int aY, int aZ) {
-        return getSky(xCoord + aX, yCoord + aY, zCoord + aZ);
+    public final boolean getSkyOffset(int x, int y, int z) {
+        return getSky(xCoord + x, yCoord + y, zCoord + z);
     }
 
     @Override
@@ -298,13 +276,13 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final boolean getSkyAtSideAndDistance(ForgeDirection side, int aDistance) {
-        return getSky(getOffsetX(side, aDistance), getOffsetY(side, aDistance), getOffsetZ(side, aDistance));
+    public final boolean getSkyAtSideAndDistance(ForgeDirection side, int distance) {
+        return getSky(getOffsetX(side, distance), getOffsetY(side, distance), getOffsetZ(side, distance));
     }
 
     @Override
-    public final boolean getAirOffset(int aX, int aY, int aZ) {
-        return getAir(xCoord + aX, yCoord + aY, zCoord + aZ);
+    public final boolean getAirOffset(int x, int y, int z) {
+        return getAir(xCoord + x, yCoord + y, zCoord + z);
     }
 
     @Override
@@ -313,31 +291,31 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final boolean getAirAtSideAndDistance(ForgeDirection side, int aDistance) {
-        return getAir(getOffsetX(side, aDistance), getOffsetY(side, aDistance), getOffsetZ(side, aDistance));
+    public final boolean getAirAtSideAndDistance(ForgeDirection side, int distance) {
+        return getAir(getOffsetX(side, distance), getOffsetY(side, distance), getOffsetZ(side, distance));
     }
 
     @Override
-    public final TileEntity getTileEntityOffset(int aX, int aY, int aZ) {
-        return getTileEntity(xCoord + aX, yCoord + aY, zCoord + aZ);
+    public final TileEntity getTileEntityOffset(int x, int y, int z) {
+        return getTileEntity(xCoord + x, yCoord + y, zCoord + z);
     }
 
     @Override
-    public final TileEntity getTileEntityAtSideAndDistance(ForgeDirection side, int aDistance) {
-        if (aDistance == 1) return getTileEntityAtSide(side);
-        return getTileEntity(getOffsetX(side, aDistance), getOffsetY(side, aDistance), getOffsetZ(side, aDistance));
+    public final TileEntity getTileEntityAtSideAndDistance(ForgeDirection side, int distance) {
+        if (distance == 1) return getTileEntityAtSide(side);
+        return getTileEntity(getOffsetX(side, distance), getOffsetY(side, distance), getOffsetZ(side, distance));
     }
 
     @Override
-    public final IInventory getIInventory(int aX, int aY, int aZ) {
-        final TileEntity tTileEntity = getTileEntity(aX, aY, aZ);
+    public final IInventory getIInventory(int x, int y, int z) {
+        final TileEntity tTileEntity = getTileEntity(x, y, z);
         if (tTileEntity instanceof IInventory) return (IInventory) tTileEntity;
         return null;
     }
 
     @Override
-    public final IInventory getIInventoryOffset(int aX, int aY, int aZ) {
-        final TileEntity tTileEntity = getTileEntityOffset(aX, aY, aZ);
+    public final IInventory getIInventoryOffset(int x, int y, int z) {
+        final TileEntity tTileEntity = getTileEntityOffset(x, y, z);
         if (tTileEntity instanceof IInventory) return (IInventory) tTileEntity;
         return null;
     }
@@ -350,22 +328,22 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final IInventory getIInventoryAtSideAndDistance(ForgeDirection side, int aDistance) {
-        final TileEntity tTileEntity = getTileEntityAtSideAndDistance(side, aDistance);
+    public final IInventory getIInventoryAtSideAndDistance(ForgeDirection side, int distance) {
+        final TileEntity tTileEntity = getTileEntityAtSideAndDistance(side, distance);
         if (tTileEntity instanceof IInventory) return (IInventory) tTileEntity;
         return null;
     }
 
     @Override
-    public final IFluidHandler getITankContainer(int aX, int aY, int aZ) {
-        final TileEntity tTileEntity = getTileEntity(aX, aY, aZ);
+    public final IFluidHandler getITankContainer(int x, int y, int z) {
+        final TileEntity tTileEntity = getTileEntity(x, y, z);
         if (tTileEntity instanceof IFluidHandler) return (IFluidHandler) tTileEntity;
         return null;
     }
 
     @Override
-    public final IFluidHandler getITankContainerOffset(int aX, int aY, int aZ) {
-        final TileEntity tTileEntity = getTileEntityOffset(aX, aY, aZ);
+    public final IFluidHandler getITankContainerOffset(int x, int y, int z) {
+        final TileEntity tTileEntity = getTileEntityOffset(x, y, z);
         if (tTileEntity instanceof IFluidHandler) return (IFluidHandler) tTileEntity;
         return null;
     }
@@ -378,22 +356,22 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final IFluidHandler getITankContainerAtSideAndDistance(ForgeDirection side, int aDistance) {
-        final TileEntity tTileEntity = getTileEntityAtSideAndDistance(side, aDistance);
+    public final IFluidHandler getITankContainerAtSideAndDistance(ForgeDirection side, int distance) {
+        final TileEntity tTileEntity = getTileEntityAtSideAndDistance(side, distance);
         if (tTileEntity instanceof IFluidHandler) return (IFluidHandler) tTileEntity;
         return null;
     }
 
     @Override
-    public final IGregTechTileEntity getIGregTechTileEntity(int aX, int aY, int aZ) {
-        final TileEntity tTileEntity = getTileEntity(aX, aY, aZ);
+    public final IGregTechTileEntity getIGregTechTileEntity(int x, int y, int z) {
+        final TileEntity tTileEntity = getTileEntity(x, y, z);
         if (tTileEntity instanceof IGregTechTileEntity) return (IGregTechTileEntity) tTileEntity;
         return null;
     }
 
     @Override
-    public final IGregTechTileEntity getIGregTechTileEntityOffset(int aX, int aY, int aZ) {
-        final TileEntity tTileEntity = getTileEntityOffset(aX, aY, aZ);
+    public final IGregTechTileEntity getIGregTechTileEntityOffset(int x, int y, int z) {
+        final TileEntity tTileEntity = getTileEntityOffset(x, y, z);
         if (tTileEntity instanceof IGregTechTileEntity) return (IGregTechTileEntity) tTileEntity;
         return null;
     }
@@ -406,16 +384,16 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final IGregTechTileEntity getIGregTechTileEntityAtSideAndDistance(ForgeDirection side, int aDistance) {
-        final TileEntity tTileEntity = getTileEntityAtSideAndDistance(side, aDistance);
+    public final IGregTechTileEntity getIGregTechTileEntityAtSideAndDistance(ForgeDirection side, int distance) {
+        final TileEntity tTileEntity = getTileEntityAtSideAndDistance(side, distance);
         if (tTileEntity instanceof IGregTechTileEntity) return (IGregTechTileEntity) tTileEntity;
         return null;
     }
 
     @Override
-    public final Block getBlock(int aX, int aY, int aZ) {
-        if (ignoreUnloadedChunks && crossedChunkBorder(aX, aZ) && !worldObj.blockExists(aX, aY, aZ)) return Blocks.air;
-        return worldObj.getBlock(aX, aY, aZ);
+    public final Block getBlock(int x, int y, int z) {
+        if (ignoreUnloadedChunks && crossedChunkBorder(x, z) && !worldObj.blockExists(x, y, z)) return Blocks.air;
+        return worldObj.getBlock(x, y, z);
     }
 
     public Block getBlock(ChunkCoordinates aCoords) {
@@ -426,39 +404,39 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public final byte getMetaID(int aX, int aY, int aZ) {
-        if (ignoreUnloadedChunks && crossedChunkBorder(aX, aZ) && !worldObj.blockExists(aX, aY, aZ)) return 0;
-        return (byte) worldObj.getBlockMetadata(aX, aY, aZ);
+    public final byte getMetaID(int x, int y, int z) {
+        if (ignoreUnloadedChunks && crossedChunkBorder(x, z) && !worldObj.blockExists(x, y, z)) return 0;
+        return (byte) worldObj.getBlockMetadata(x, y, z);
     }
 
     @Override
-    public final byte getLightLevel(int aX, int aY, int aZ) {
-        if (ignoreUnloadedChunks && crossedChunkBorder(aX, aZ) && !worldObj.blockExists(aX, aY, aZ)) return 0;
-        return (byte) (worldObj.getLightBrightness(aX, aY, aZ) * 15);
+    public final byte getLightLevel(int x, int y, int z) {
+        if (ignoreUnloadedChunks && crossedChunkBorder(x, z) && !worldObj.blockExists(x, y, z)) return 0;
+        return (byte) (worldObj.getLightBrightness(x, y, z) * 15);
     }
 
     @Override
-    public final boolean getSky(int aX, int aY, int aZ) {
-        if (ignoreUnloadedChunks && crossedChunkBorder(aX, aZ) && !worldObj.blockExists(aX, aY, aZ)) return true;
-        return worldObj.canBlockSeeTheSky(aX, aY, aZ);
+    public final boolean getSky(int x, int y, int z) {
+        if (ignoreUnloadedChunks && crossedChunkBorder(x, z) && !worldObj.blockExists(x, y, z)) return true;
+        return worldObj.canBlockSeeTheSky(x, y, z);
     }
 
     @Override
-    public final boolean getOpacity(int aX, int aY, int aZ) {
-        if (ignoreUnloadedChunks && crossedChunkBorder(aX, aZ) && !worldObj.blockExists(aX, aY, aZ)) return false;
-        return GT_Utility.isOpaqueBlock(worldObj, aX, aY, aZ);
+    public final boolean getOpacity(int x, int y, int z) {
+        if (ignoreUnloadedChunks && crossedChunkBorder(x, z) && !worldObj.blockExists(x, y, z)) return false;
+        return GTUtility.isOpaqueBlock(worldObj, x, y, z);
     }
 
     @Override
-    public final boolean getAir(int aX, int aY, int aZ) {
-        if (ignoreUnloadedChunks && crossedChunkBorder(aX, aZ) && !worldObj.blockExists(aX, aY, aZ)) return true;
-        return GT_Utility.isBlockAir(worldObj, aX, aY, aZ);
+    public final boolean getAir(int x, int y, int z) {
+        if (ignoreUnloadedChunks && crossedChunkBorder(x, z) && !worldObj.blockExists(x, y, z)) return true;
+        return GTUtility.isBlockAir(worldObj, x, y, z);
     }
 
     @Override
-    public TileEntity getTileEntity(int aX, int aY, int aZ) {
-        if (ignoreUnloadedChunks && crossedChunkBorder(aX, aZ) && !worldObj.blockExists(aX, aY, aZ)) return null;
-        return worldObj.getTileEntity(aX, aY, aZ);
+    public TileEntity getTileEntity(int x, int y, int z) {
+        if (ignoreUnloadedChunks && crossedChunkBorder(x, z) && !worldObj.blockExists(x, y, z)) return null;
+        return worldObj.getTileEntity(x, y, z);
     }
 
     @Override
@@ -492,8 +470,8 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound aNBT) {
-        super.writeToNBT(aNBT);
+    public void writeToNBT(NBTTagCompound nbt) {
+        super.writeToNBT(nbt);
     }
 
     @Override
@@ -562,21 +540,21 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     public final void sendBlockEvent(byte aID, byte aValue) {
         NW.sendPacketToAllPlayersInRange(
             worldObj,
-            new GT_Packet_Block_Event(xCoord, (short) yCoord, zCoord, aID, aValue),
+            new GTPacketBlockEvent(xCoord, (short) yCoord, zCoord, aID, aValue),
             xCoord,
             zCoord);
     }
 
-    protected boolean crossedChunkBorder(int aX, int aZ) {
-        return aX >> 4 != xCoord >> 4 || aZ >> 4 != zCoord >> 4;
+    protected boolean crossedChunkBorder(int x, int z) {
+        return x >> 4 != xCoord >> 4 || z >> 4 != zCoord >> 4;
     }
 
-    public final boolean crossedChunkBorder(ChunkCoordinates aCoords) {
-        return aCoords.posX >> 4 != xCoord >> 4 || aCoords.posZ >> 4 != zCoord >> 4;
+    public final boolean crossedChunkBorder(ChunkCoordinates coords) {
+        return coords.posX >> 4 != xCoord >> 4 || coords.posZ >> 4 != zCoord >> 4;
     }
 
     public final void setOnFire() {
-        GT_Utility.setCoordsOnFire(worldObj, xCoord, yCoord, zCoord, false);
+        GTUtility.setCoordsOnFire(worldObj, xCoord, yCoord, zCoord, false);
     }
 
     public final void setToFire() {
@@ -601,11 +579,6 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     @Nullable
     public List<ItemStack> getItemsForHoloGlasses() {
         return null;
-    }
-
-    @Deprecated
-    public String trans(String aKey, String aEnglish) {
-        return GT_Utility.trans(aKey, aEnglish);
     }
 
     protected Supplier<Boolean> getValidator() {
@@ -658,7 +631,7 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
         return null;
     }
 
-    protected GT_TooltipDataCache mTooltipCache = new GT_TooltipDataCache();
+    protected GTTooltipDataCache mTooltipCache = new GTTooltipDataCache();
 
     // Tooltip localization keys
     public static final String BATTERY_SLOT_TOOLTIP = "GT5U.machines.battery_slot.tooltip",
@@ -693,7 +666,7 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     }
 
     protected void addTitleToUI(ModularWindow.Builder builder, String title) {
-        if (GT_Mod.gregtechproxy.mTitleTabStyle == 2) {
+        if (GTMod.gregtechproxy.mTitleTabStyle == 2) {
             addTitleItemIconStyle(builder, title);
         } else {
             addTitleTextStyle(builder, title);
@@ -718,7 +691,7 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
         final TextWidget text = new TextWidget(title).setDefaultColor(getTitleColor())
             .setTextAlignment(Alignment.CenterLeft)
             .setMaxWidth(titleWidth);
-        if (GT_Mod.gregtechproxy.mTitleTabStyle == 1) {
+        if (GTMod.gregtechproxy.mTitleTabStyle == 1) {
             tab.setDrawable(getGUITextureSet().getTitleTabAngular())
                 .setPos(0, -(titleHeight + TAB_PADDING) + 1)
                 .setSize(getGUIWidth(), titleHeight + TAB_PADDING * 2);
@@ -879,9 +852,9 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
                     }
                 } else {
                     final List<ItemStack> tCircuits = ccs.getConfigurationCircuits();
-                    final int index = GT_Utility.findMatchingStackInList(tCircuits, cursorStack);
+                    final int index = GTUtility.findMatchingStackInList(tCircuits, cursorStack);
                     if (index < 0) {
-                        int curIndex = GT_Utility
+                        int curIndex = GTUtility
                             .findMatchingStackInList(tCircuits, inv.getStackInSlot(ccs.getCircuitSlot())) + 1;
                         if (clickData.mouseButton == 0) {
                             curIndex += 1;
@@ -921,7 +894,7 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
         })
             .disableShiftInsert()
             .setHandlePhantomActionClient(true)
-            .setBackground(getGUITextureSet().getItemSlot(), GT_UITextures.OVERLAY_SLOT_INT_CIRCUIT)
+            .setBackground(getGUITextureSet().getItemSlot(), GTUITextures.OVERLAY_SLOT_INT_CIRCUIT)
             .setGTTooltip(() -> mTooltipCache.getData("GT5U.machines.select_circuit.tooltip"))
             .setTooltipShowUpDelay(TOOLTIP_DELAY)
             .setPos(ccs.getCircuitSlotX() - 1, ccs.getCircuitSlotY() - 1));
@@ -940,7 +913,7 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
                 getStackForm(0),
                 this::onCircuitSelected,
                 circuits,
-                GT_Utility.findMatchingStackInList(circuits, inv.getStackInSlot(ccs.getCircuitSlot())))
+                GTUtility.findMatchingStackInList(circuits, inv.getStackInSlot(ccs.getCircuitSlot())))
                     .setAnotherWindow(true, dialogOpened)
                     .setGuiTint(getGUIColorization())
                     .setCurrentGetter(() -> inv.getStackInSlot(ccs.getCircuitSlot()))
@@ -953,7 +926,7 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
 
         if (!(this instanceof IInventory inv)) return;
 
-        GT_Values.NW.sendToServer(new GT_Packet_SetConfigurationCircuit(this, selected));
+        GTValues.NW.sendToServer(new GTPacketSetConfigurationCircuit(this, selected));
         // we will not do any validation on client side
         // it doesn't get to actually decide what inventory contains anyway
         inv.setInventorySlotContents(ccs.getCircuitSlot(), selected);
@@ -970,7 +943,7 @@ public abstract class BaseTileEntity extends TileEntity implements IHasWorldObje
     protected Supplier<Integer> COLOR_TEXT_RED = () -> getTextColorOrDefault("text_red", 0xff0000);
 
     public int getGUIColorization() {
-        return GT_Util.getRGBaInt(Dyes.dyeWhite.getRGBA());
+        return GTUtil.getRGBaInt(Dyes.dyeWhite.getRGBA());
     }
 
     public ItemStack getStackForm(long aAmount) {

@@ -15,14 +15,14 @@ import com.gtnewhorizons.modularui.api.math.Pos2d;
 import gregtech.api.recipe.BasicUIPropertiesBuilder;
 import gregtech.api.recipe.NEIRecipePropertiesBuilder;
 import gregtech.api.recipe.RecipeMapFrontend;
-import gregtech.api.util.GT_Recipe;
+import gregtech.api.util.GTRecipe;
 import gregtech.api.util.MethodsReturnNonnullByDefault;
 import gregtech.common.gui.modularui.UIHelper;
-import gregtech.nei.GT_NEI_DefaultHandler;
+import gregtech.nei.GTNEIDefaultHandler;
 import gregtech.nei.RecipeDisplayInfo;
 import gregtech.nei.formatter.INEISpecialInfoFormatter;
-import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.GregtechMetaTileEntityTreeFarm;
-import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.GregtechMetaTileEntityTreeFarm.Mode;
+import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.MTETreeFarm;
+import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.MTETreeFarm.Mode;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -80,15 +80,15 @@ public class TGSFrontend extends RecipeMapFrontend {
 
     @Override
     public List<String> handleNEIItemTooltip(ItemStack stack, List<String> currentTip,
-        GT_NEI_DefaultHandler.CachedDefaultRecipe neiCachedRecipe) {
+        GTNEIDefaultHandler.CachedDefaultRecipe neiCachedRecipe) {
 
         /*
          * This gets a little complicated, because we want to assign tooltips to inputs/outputs based on which mode
          * (saw, shears, etc.) they correspond to. But CachedDefaultRecipe does not retain this information for us. This
          * is because some recipes don't output any items for some modes. For example, if a recipe only yields logs and
-         * leaves, then the outputs of GT_Recipe will be {log, null, leaves}. However, in CachedDefaultRecipe this gets
+         * leaves, then the outputs of GTRecipe will be {log, null, leaves}. However, in CachedDefaultRecipe this gets
          * condensed to just {log, leaves}, with null values omitted. So to figure out which item came from which mode,
-         * we need to step through both of these arrays simultaneously and match non-null inputs/outputs in GT_Recipe to
+         * we need to step through both of these arrays simultaneously and match non-null inputs/outputs in GTRecipe to
          * inputs/outputs in CachedDefaultRecipe.
          */
 
@@ -99,15 +99,16 @@ public class TGSFrontend extends RecipeMapFrontend {
             return currentTip;
         }
 
-        GT_Recipe.GT_Recipe_WithAlt recipe = (GT_Recipe.GT_Recipe_WithAlt) neiCachedRecipe.mRecipe;
+        GTRecipe.GTRecipe_WithAlt recipe = (GTRecipe.GTRecipe_WithAlt) neiCachedRecipe.mRecipe;
 
         // Inputs
         int slot = 0;
-        for (int mode = 0; mode < Mode.values().length; ++mode) {
+        final Mode[] MODE_VALUES = Mode.values();
+        for (int mode = 0; mode < MODE_VALUES.length; ++mode) {
             if (mode < recipe.mOreDictAlt.length && recipe.mOreDictAlt[mode] != null) {
                 // There is a valid input in this mode.
                 if (slot < neiCachedRecipe.mInputs.size() && stack == neiCachedRecipe.mInputs.get(slot).item) {
-                    int toolMultiplier = GregtechMetaTileEntityTreeFarm.getToolMultiplier(stack, Mode.values()[mode]);
+                    int toolMultiplier = MTETreeFarm.getToolMultiplier(stack, MODE_VALUES[mode]);
                     currentTip.add(EnumChatFormatting.YELLOW + tooltipInputs[mode]);
                     if (toolMultiplier > 0) {
                         currentTip.add(EnumChatFormatting.YELLOW + tooltipMultiplier + " " + toolMultiplier + "x");
@@ -120,7 +121,7 @@ public class TGSFrontend extends RecipeMapFrontend {
 
         // Outputs
         slot = 0;
-        for (int mode = 0; mode < Mode.values().length; ++mode) {
+        for (int mode = 0; mode < MODE_VALUES.length; ++mode) {
             if (mode < recipe.mOutputs.length && recipe.mOutputs[mode] != null) {
                 // There is a valid output in this mode.
                 if (slot < neiCachedRecipe.mOutputs.size() && stack == neiCachedRecipe.mOutputs.get(slot).item) {

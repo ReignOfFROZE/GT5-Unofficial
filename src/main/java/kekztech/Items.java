@@ -1,13 +1,10 @@
 package kekztech;
 
-import java.util.Arrays;
-
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
-import common.items.MetaItem_CraftingComponent;
-
-import util.Util;
+import kekztech.common.items.MetaItemCraftingComponent;
+import kekztech.util.Util;
 
 public enum Items {
 
@@ -46,18 +43,20 @@ public enum Items {
     }
 
     public static void registerOreDictNames() {
-        Arrays.stream(Items.values())
-            .filter(e -> e.getOreDictName() != null)
-            .forEach(Items::registerOreDict);
+        for (Items e : Items.values()) {
+            if (e.getOreDictName() != null) {
+                e.registerOreDict();
+            }
+        }
     }
 
     public ItemStack getNonOreDictedItemStack(int amount) {
-        return new ItemStack(MetaItem_CraftingComponent.getInstance(), amount, this.getMetaID());
+        return new ItemStack(MetaItemCraftingComponent.getInstance(), amount, this.getMetaID());
     }
 
     public ItemStack getOreDictedItemStack(int amount) {
         return this.getOreDictName() != null ? Util.getStackofAmountFromOreDict(this.getOreDictName(), amount)
-            : new ItemStack(MetaItem_CraftingComponent.getInstance(), amount, this.getMetaID());
+            : new ItemStack(MetaItemCraftingComponent.getInstance(), amount, this.getMetaID());
     }
 
     public String getOreDictName() {

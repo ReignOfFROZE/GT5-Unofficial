@@ -68,8 +68,16 @@ GT5U.LHE.steam=(in steam)
 GT5U.LHE.superheated=Superheated
 GT5U.LHE.threshold=threshold
 
+GT5U.DTPF.convergencebutton=Allow Convergence
+GT5U.DTPF.convergencebuttontooltip.0=Requires Transdimensional Aligment Matrix in controller slot
+GT5U.DTPF.convergencebuttontooltip.1=Right Click to open catalyst selection menu
+GT5U.DTPF.catalysttier=Catalyst Tier
+GT5U.DTPF.catalystinfotooltip=Tier of additional catalyst to use for recipes without catalyst in them, from 1-Crude to 5-Stellar
+
 GT5U.fusion.req=EU Required
 GT5U.fusion.plasma=Plasma Output
+
+GT5U.tpm.parallelwindow=Open Parallel Configuration Window
 
 GT5U.EBF.heat=Heat capacity
 GT5U.coil.None=None
@@ -104,6 +112,7 @@ gt.recipe.brewer=Brewery
 gt.recipe.brewer.description=Brewing your Drinks
 gt.recipe.metalbender=Bending Machine
 gt.recipe.metalbender.description=Boo, he's bad! We want BENDER!!!
+gt.recipe.neutroniumcompressor=Neutronium Compressor
 gt.recipe.canner=Canner
 gt.recipe.canner.description=Unmobile Food Canning Machine GTA4
 gt.recipe.centrifuge=Centrifuge
@@ -222,6 +231,14 @@ gt.recipe.largeboilerfakefuels=Large Boiler
 gt.recipe.nanoforge=Nano Forge
 gt.recipe.pcbfactory=PCB Factory
 gt.recipe.ic2nuke=Nuclear Fission
+gt.recipe.purificationplantclarifier=Clarifier
+gt.recipe.purificationplantflocculation=Flocculation
+gt.recipe.purificationplantphadjustment=pH Neutralization
+gt.recipe.purificationplantozonation=Ozonation
+gt.recipe.purificationplantplasmaheating=Temperature Fluctuation
+gt.recipe.purificationplantuvtreatment=High Energy Laser Treatment
+gt.recipe.purificationplantdegasifier=Degassing
+gt.recipe.purificationplantquarkextractor=Baryonic Perfection
 
 # Recipe categories
 gt.recipe.category.arc_furnace_recycling=Arc Furnace Recycling
@@ -310,6 +327,38 @@ GT5U.machines.stalled_vent.tooltip=§4Stalled: Cannot vent steam!
 GT5U.machines.stalled_vent.tooltip.1=§7Right-click with a wrench to
 GT5U.machines.stalled_vent.tooltip.2=§7point this machine's steam
 GT5U.machines.stalled_vent.tooltip.3=§7vent towards an empty space.
+GT5U.GTPP_MULTI_ARC_FURNACE.mode.0=Electric
+GT5U.GTPP_MULTI_ARC_FURNACE.mode.1=Plasma
+GT5U.GTPP_MULTI_CUTTING_MACHINE.mode.0=Cutting
+GT5U.GTPP_MULTI_CUTTING_MACHINE.mode.1=Slicing
+GT5U.GTPP_MULTI_WASH_PLANT.mode.0=Ore Washer
+GT5U.GTPP_MULTI_WASH_PLANT.mode.1=Simple Washer
+GT5U.GTPP_MULTI_WASH_PLANT.mode.2=Chemical Bath
+GT5U.GTPP_MULTI_INDUSTRIAL_PLATE_PRESS.mode.0=Bending
+GT5U.GTPP_MULTI_INDUSTRIAL_PLATE_PRESS.mode.1=Forming Press
+GT5U.INDUSTRIAL_ELECTROMAGNETIC_SEPARATOR.mode.0=Separator
+GT5U.INDUSTRIAL_ELECTROMAGNETIC_SEPARATOR.mode.1=Polarizer
+GT5U.GTPP_MULTI_INDUSTRIAL_MULTI_MACHINE.mode.0=Metal
+GT5U.GTPP_MULTI_INDUSTRIAL_MULTI_MACHINE.mode.1=Fluid
+GT5U.GTPP_MULTI_INDUSTRIAL_MULTI_MACHINE.mode.2=Misc
+GT5U.MULTI_CANNER.mode.0=Canner
+GT5U.MULTI_CANNER.mode.1=Fluid Canner
+GT5U.BLACKHOLE.mode.0=Compressor
+GT5U.BLACKHOLE.mode.1=Singularity Compressor
+GT5U.GTPP_MULTI_INDUSTRIAL_DEHYDRATOR.mode.0=Vacuum Furnace
+GT5U.GTPP_MULTI_INDUSTRIAL_DEHYDRATOR.mode.1=Dehydrator
+GT5U.GTPP_MULTI_MASS_FABRICATOR.mode.0=Mass Fabricator
+GT5U.GTPP_MULTI_MASS_FABRICATOR.mode.1=Recycler
+GT5U.GTPP_MULTI_ADV_DISTILLATION_TOWER.mode.0=Distillation Tower
+GT5U.GTPP_MULTI_ADV_DISTILLATION_TOWER.mode.1=Distillery
+GT5U.GTPP_MULTI_PRECISE_ASSEMBLER.mode.0=Precise
+GT5U.GTPP_MULTI_PRECISE_ASSEMBLER.mode.1=Normal
+GT5U.GTPP_MULTI_PACKAGER.mode.0=Packager
+GT5U.GTPP_MULTI_PACKAGER.mode.1=Unpackager
+GT5U.MULTI_MACHINE_CHANGE=Now running in %s mode
+GT5U.MULTI_MACHINE_CONFIG.SAVE=Saved Multiblock Hatch Configuration
+GT5U.MULTI_MACHINE_CONFIG.LOAD=Loaded Multiblock Hatch Configuration
+GT5U.MULTI_MACHINE_CONFIG.LOAD.FAIL=Failed to load Multiblock Hatch Configuration
 GT5U.machines.oreprocessor1=§eRunning Mode:
 GT5U.machines.oreprocessor2=§cTime: %s s
 GT5U.machines.oreprocessor.void=§eVoid Stone Dust: %s
@@ -382,6 +431,8 @@ GT5U.machines.stocking_bus.auto_pull.tooltip.1=Click to toggle automatic item pu
 GT5U.machines.stocking_bus.auto_pull.tooltip.2=Right-Click to edit additional parameters.
 GT5U.machines.stocking_bus.min_stack_size=Min Stack Size
 GT5U.machines.stocking_bus.refresh_time=Slot Refresh Time (Ticks)
+GT5U.machines.stocking_bus.force_check=Recipe Check on change
+GT5U.machines.stocking_bus.hatch_warning=Requires a fresh structure check to apply (Reboot/Replace controller)
 GT5U.machines.stocking_bus.auto_pull_toggle.enabled=Automatic Item Pull Enabled
 GT5U.machines.stocking_bus.auto_pull_toggle.disabled=Automatic Item Pull Disabled
 GT5U.machines.stocking_hatch.auto_pull.tooltip.1=Click to toggle automatic fluid pulling from ME.
@@ -391,12 +442,22 @@ GT5U.machines.stocking_hatch.auto_pull_toggle.enabled=Automatic Fluid Pull Enabl
 GT5U.machines.stocking_hatch.auto_pull_toggle.disabled=Automatic Fluid Pull Disabled
 GT5U.machines.stocking_bus.saved=Saved Config to Data Stick
 GT5U.machines.stocking_bus.loaded=Loaded Config From Data Stick
+GT5U.machines.output_bus.saved=Saved Config to Data Stick
+GT5U.machines.output_bus.loaded=Loaded Config From Data Stick
+GT5U.machines.output_bus.invalid=Invalid Data Stick config
 GT5U.machines.dronecentre.shutdown=You cannot control machine when drone centre shut down!
 GT5U.machines.dronecentre.turnon=Successfully turn on all machines!
 GT5U.machines.dronecentre.turnoff=Successfully turn off all machines!
 GT5U.machines.dronecentre.noconnection=No valid connection
 GT5U.machines.dronecentre.enableRender=Enable Drone Render
 GT5U.machines.dronecentre.disableRender=Disable Drone Render
+GT5U.machines.betterjukebox.attenuationDistance.tooltip=Sound attenuation distance: %d blocks
+GT5U.machines.betterjukebox.p2pAttenuationDistance.tooltip=P2P sound attenuation distance: %d blocks
+GT5U.machines.betterjukebox.loop.tooltip=Loop mode (keep discs in input inventory)
+GT5U.machines.betterjukebox.shuffle.tooltip=Shuffle mode (play random discs instead of in order)
+GT5U.machines.betterjukebox.headphonesbound=Headphones bound to jukebox
+GT5U.machines.betterjukebox.headphonesunbound=Shift-click on an electric jukebox to bind headphones
+GT5U.machines.laser_hatch.amperage=Amperage
 
 GT5U.recipe_filter.empty_representation_slot.tooltip=§7Click with a machine to set filter
 GT5U.recipe_filter.representation_slot.tooltip=§7Click to clear
@@ -414,8 +475,10 @@ GT5U.gui.button.voiding_mode_item=§7Void Excess §6Items
 GT5U.gui.button.voiding_mode_fluid=§7Void Excess §9Fluids
 GT5U.gui.button.voiding_mode_all=§7Void Excess §6Items §7and §9Fluids
 GT5U.gui.button.input_separation=Input Separation
+GT5U.gui.button.mode_switch=Mode Switch
 GT5U.gui.button.batch_mode=Batch Mode
 GT5U.gui.button.lock_recipe=Lock Recipe
+GT5U.gui.button.structure_update=Update Structure
 GT5U.gui.button.down_tier=Down Tier
 GT5U.gui.button.tier=Tier:
 GT5U.gui.button.forbidden=§4Cannot change mode for this machine
@@ -451,6 +514,9 @@ GT5U.gui.text.no_lubricant=§7No lubricant found
 GT5U.gui.text.fuel_quality_too_high=§7Fuel quality too high to run without boost
 GT5U.gui.text.no_data_sticks=§7No Data Sticks found
 GT5U.gui.text.bio_upgrade_missing=§7Recipe needs Bio Upgrade to start
+GT5U.gui.text.electromagnet_missing=§7Needs an Electromagnet to run
+GT5U.gui.text.electromagnet_insufficient=§7Electromagnet too weak to handle multi-amp energy hatches
+GT5U.gui.text.laser_insufficient=§7Laser source is too weak to run this recipe
 GT5U.gui.text.cleanroom_running=§aCleanroom running
 GT5U.gui.text.no_machine=§7No valid processing machine
 GT5U.gui.text.machine_mismatch=§7Machine doesn't match to locked recipe
@@ -465,9 +531,12 @@ GT5U.gui.text.drill_exhausted=§dDrill has exhausted all resources
 GT5U.gui.text.drill_generic_finished=§7Mining pipes have been retracted
 GT5U.gui.text.drill_retract_pipes_finished=§7Operation aborted
 GT5U.gui.text.backfiller_no_concrete=§7No liquid concrete
+GT5U.gui.text.no_black_hole=§7Requires an active black hole
+GT5U.gui.text.unstable_black_hole=§7Black hole is unstable
 GT5U.gui.text.backfiller_finished=§aWork complete
 GT5U.gui.text.backfiller_working=§aPouring concrete
 GT5U.gui.text.backfiller_current_area=§7Filling at y-level: §a%s
+GT5U.gui.text.overheated=§7HIP Unit overheated!
 GT5U.gui.text.pump_fluid_type=Fluid: §a%s
 GT5U.gui.text.pump_rate.1=Pumping rate: %s§r
 GT5U.gui.text.pump_rate.2= L/t
@@ -484,6 +553,7 @@ GT5U.gui.text.internal_error=§4Recipe was found, but had internal error
 GT5U.gui.text.drill_ores_left_chunk=Ores left in current chunk: §a%s
 GT5U.gui.text.drill_ores_left_layer=Ores left at y-level %s: §a%s
 GT5U.gui.text.drill_chunks_left=Drilling chunk: §a%s / %s
+GT5U.gui.text.drill_current_vein=Current Vein: §a%s
 GT5U.gui.text.drill_offline_reason=Drill Offline: %s
 GT5U.gui.text.drill_offline_generic=Drill Offline
 GT5U.gui.text.stocking_bus_fail_extraction=§4Failed to extract expected amount of items from stocking bus. This can be caused by attaching multiple storage buses to the same inventory.
@@ -493,16 +563,50 @@ GT5U.gui.text.drone_operating=§aDrone operating normally!
 GT5U.gui.text.drone_title=Drone Control Centre
 GT5U.gui.text.drone_custom_name=Custom Machine Name
 GT5U.gui.text.drone_search=Search machine name
-GT5U.gui.text.out_of_fluid=§cNo following fluids supplied: §b%s§f x §6%s L
-GT5U.gui.text.out_of_item=§cNo following items supplied: §b%s§f x §6%s
-GT5U.gui.text.out_of_stuff=§cNo following stuffs supplied: §b%s§f x §6%s
-GT5U.gui.text.power_loss=§cShut down due to power loss.
-GT5U.gui.text.pollution_fail=§cFailed to output the pollution.
-GT5U.gui.text.structure_incomplete=§7Shut down due to incomplete structure.
-GT5U.gui.text.no_repair=§7Shut down due to machine damage.
-GT5U.gui.text.no_machine_part=§7No correct machine part in controller slot.
-
+GT5U.gui.text.shutdown_duration=§4Shut down §e%s §4h §e%s §4min §e%s §4s ago.
+GT5U.gui.text.out_of_fluid=§4No following fluids supplied: §b%s§f x §6%s L
+GT5U.gui.text.out_of_item=§4No following items supplied: §b%s§f x §6%s
+GT5U.gui.text.out_of_stuff=§4No following stuffs supplied: §b%s§f x §6%s
+GT5U.gui.text.power_loss=§4Shut down due to power loss.
+GT5U.gui.text.pollution_fail=§4Failed to output the pollution.
+GT5U.gui.text.structure_incomplete=§4Shut down due to incomplete structure.
+GT5U.gui.text.no_repair=§4Shut down due to machine damage.
+GT5U.gui.text.no_machine_part=No correct machine part in controller slot.
+GT5U.gui.text.missing_item=§7Missing required item: §b%s§f
+GT5U.gui.text.ph_sensor=pH threshold
+GT5U.gui.text.critical_ph_value=pH exceeded critical value.
+GT5U.gui.text.heat_sensor=Heat threshold
 GT5U.item.programmed_circuit.select.header=Reprogram Circuit
+
+GT5U.gui.config.client=Client
+GT5U.gui.config.client.color_modulation=Color Modulation
+GT5U.gui.config.client.color_modulation.cable_insulation=Cable Insulation
+GT5U.gui.config.client.color_modulation.construction_foam=Construction Foam
+GT5U.gui.config.client.color_modulation.machine_metal=Machine Metal (Default GUI Color)
+GT5U.gui.config.client.interface=Interface
+GT5U.gui.config.client.preference=Preference
+GT5U.gui.config.client.render=Render
+GT5U.gui.config.client.waila=Waila
+GT5U.gui.config.client.nei=NEI
+GT5U.gui.config.client.nei.recipe_categories=Recipe Categories
+GT5U.gui.config.gregtech=Gregtech
+GT5U.gui.config.gregtech.debug=Debug
+GT5U.gui.config.gregtech.features=Features
+GT5U.gui.config.gregtech.general=General
+GT5U.gui.config.gregtech.harvest_level=Harvest Level
+GT5U.gui.config.gregtech.machines=Machines
+GT5U.gui.config.gregtech.ore_drop_behavior=Ore Drop Behavior
+GT5U.gui.config.gregtech.pollution=Pollution
+GT5U.gui.config.machine_stats=Machine Stats
+GT5U.gui.config.machine_stats.bronze_solar_boiler=Bronze Solar Boiler
+GT5U.gui.config.machine_stats.steel_solar_boiler=Steel Solar Boiler
+GT5U.gui.config.machine_stats.machines=Machines
+GT5U.gui.config.machine_stats.microwave_energy_transmitter=Microwave Energy Transmitter
+GT5U.gui.config.machine_stats.mass_fabricator=Mass Fabricator
+GT5U.gui.config.machine_stats.teleporter=Teleporter
+GT5U.gui.config.worldgen=Worldgen
+GT5U.gui.config.worldgen.end_asteroids=End Asteroids
+GT5U.gui.config.worldgen.general=General
 
 # Note to translators: this translation entry is supposed to be a number indicating how many taunts you define here
 # Game will randomly display one of them
@@ -532,15 +636,24 @@ GT5U.hatch.infiniteCacheFluid.false=ME Output hatch will stop accepting fluid wh
 GT5U.hatch.additionalConnection.true=ME channels connect to any side
 GT5U.hatch.additionalConnection.false=ME channels connect to front side only
 
+GT5U.bus.filterTooltip.empty=§aDrag item from NEI to set output filter
+GT5U.bus.filterTooltip.full=§aClick to clear output filter
+
 GT5U.multiblock.pollution=Pollution reduced to
 GT5U.multiblock.energy=Stored Energy
 GT5U.multiblock.Progress=Progress
 GT5U.multiblock.efficiency=Efficiency
 GT5U.multiblock.problems=Problems
 GT5U.multiblock.mei=Max Energy Income
+GT5U.multiblock.maxtier=Max Tier
 GT5U.multiblock.usage=Probably uses
-GT5U.multiblock.parallelism=Max parallelism
-GT5U.multiblock.curparallelism=Current parallelism
+GT5U.multiblock.parallelism=Max Parallel
+GT5U.multiblock.curparallelism=Current Parallel
+GT5U.multiblock.euModifier=EU Modifier
+GT5U.multiblock.speed=Speed
+GT5U.multiblock.fluidPipeTier=Fluid Pipe Tier
+GT5U.multiblock.itemPipeTier=Item Pipe Tier
+GT5U.multiblock.coilLevel=Heating Coil Level
 
 # NEI recipe handlers
 GT5U.nei.heat_capacity=Heat Capacity: %s K (%s)
@@ -612,6 +725,8 @@ GT5U.interface.coverTabs.east=East
 
 GT5U.steam_variant.bronze=Bronze
 GT5U.steam_variant.steel=Steel
+
+GT5U.biomes.humidity=Humidity:
 
 # NEI options
 nei.options.tools.dump.gt5u=GT5u
@@ -1180,7 +1295,7 @@ achievement.gt.blockmachines.debug.tt.maintenance.desc=Pickup this item to see t
 for.bees.species.clay=Clay
 for.bees.species.slimeball=Slimeball
 for.bees.species.peat=Peat
-for.bees.species.stickyresin=Stickyresin
+for.bees.species.stickyresin=Sticky Resin
 for.bees.species.coal=Coal
 for.bees.species.oil=Oil
 for.bees.species.apatite=Apatite
@@ -1264,7 +1379,7 @@ for.bees.species.naga=Naga
 for.bees.species.lich=Lich
 for.bees.species.hydra=Hydra
 for.bees.species.urghast=Ur Ghast
-for.bees.species.snowqueen=Snowqueen
+for.bees.species.snowqueen=Snow Queen
 for.bees.species.space=Space
 for.bees.species.meteoriciron=Meteoric Iron
 for.bees.species.desh=Desh
@@ -1317,13 +1432,28 @@ for.bees.species.infinity=Infinity
 for.bees.species.enddust=End Dust
 for.bees.species.stardust=Stardust
 for.bees.species.ectoplasma=Ectoplasma
-for.bees.species.arcaneshard=Arcaneshard
+for.bees.species.arcaneshards=Arcane Shard
 for.bees.species.dragonessence=Dragon Essence
 for.bees.species.enderman=Enderman
+for.bees.species.endermanhead=Enderman Head
 for.bees.species.silverfish=Silverfish
+for.bees.species.rareearth=Rare Earth
+for.bees.species.neodymium=Neodymium
+for.bees.species.europium=Europium
+for.bees.species.fireessence=Fire Essence
+for.bees.species.unknownwater=Unknown Liquid
+for.bees.species.nethershard=Nether Shard
+for.bees.species.endshard=Ender Shard
+for.bees.species.dragonblood=Dragonblood
+
+for.description.machinist=The Machinist Queen, born from the synergy of active machinery and roaring fire. It manufactures essential components needed to build and expand an apiarists empire.||Diddy & Noila
+
+for.bees.authority.machinist=Diddy & Noila
 
 for.mutation.condition.biomeid=Required Biome
 for.mutation.condition.dim=Required Dimension
+
+for.flowers.flaming=Fire
 
 itemGroup.GTtools=Prebuild Tools
 
@@ -1338,6 +1468,7 @@ gregtech.speedAccelerated=Accelerated
 gregtech.lifeBlink=Blink
 gregtech.lifeEon=Eon
 gregtech.effectTreetwister=Treetwister
+gregtech.effectMachineBoost=Machine Booster
 
 entity.gregtech.GT_Entity_Arrow.name= a GregTech arrow
 
@@ -1410,7 +1541,7 @@ fluid.Monomethylhydrazine=Monomethylhydrazine
 fluid.binnibacteriafluid=binnibacteriafluid
 fluid.barnadafisarboriatorisfluid=barnadafisarboriatorisfluid
 fluid.GelatinMixture=GelatinMixture
-fluid.sludge=Sludge
+fluid.sludge=sludge
 fluid.Formaldehyde=Formaldehyde
 fluid.tcetieisfucusserratusfluid=tcetieisfucusserratusfluid
 fluid.MeatExtract=MeatExtract
@@ -1526,6 +1657,17 @@ GT5U.gui.text.machine_locked_to_different_recipe=§7Machine is already locked to
 GT5U.gui.text.no_output_for_sapling=§7This sapling yields no outputs
 GT5U.gui.text.no_tools=§7Missing applicable tools
 
+# Cover Overflow Valve
+GTPP.chat.text.cover_overflow_valve_overflow_point=Overflow Point: %d L
+GTPP.gui.text.cover_overflow_valve_overflow_point=Overflow Point
+GTPP.gui.text.cover_overflow_valve_voiding_rate=Voiding Rate
+GTPP.gui.text.cover_overflow_valve_allow_fluid_input=Allow Fluid Input
+GTPP.gui.text.cover_overflow_valve_block_fluid_input=Block Fluid Input
+GTPP.gui.text.cover_overflow_valve_allow_fluid_output=Allow Fluid Output
+GTPP.gui.text.cover_overflow_valve_block_fluid_output=Block Fluid Output
+GTPP.gui.text.cover_overflow_valve_liter=L
+GTPP.gui.text.cover_overflow_valve_l_per_update=L/update
+
 GTPP.EBF.heat=Heat capacity
 
 GTPP.machines.tier=Tier
@@ -1548,7 +1690,7 @@ GTPP.multiblock.multimachine.fluid=Fluid Mode. Does fermenter (circuit 20), flui
 GTPP.multiblock.multimachine.misc=Misc. Mode. Does precision laser engraver (circuit 20), autoclave (circuit 21) and fluid solidifier (circuit 22).
 
 
-GTPP.waila.steam.use=Probably uses: §e%s§r L/t Steam
+GTPP.waila.steam.use=Probably uses: §e%s§r L/s Steam
 
 GTPP.CC.machinetier=Control Core Tier
 GTPP.CC.discount=EU Discount

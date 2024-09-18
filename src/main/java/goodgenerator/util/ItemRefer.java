@@ -7,7 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import ic2.core.Ic2Items;
 
 public final class ItemRefer {
@@ -124,9 +124,11 @@ public final class ItemRefer {
     public static ItemRefer YOTTank_Cell_T10 = getItemStack(yottaFluidTankCell, 9);
     public static ItemRefer SC_Turbine_Casing = getItemStack(supercriticalFluidTurbineCasing);
     public static ItemRefer Pressure_Resistant_Wall = getItemStack(pressureResistantWalls);
+    public static ItemRefer Imprecise_Electronic_Unit = getItemStack(impreciseUnitCasing, 0);
     public static ItemRefer Precise_Electronic_Unit_T1 = getItemStack(preciseUnitCasing, 0);
     public static ItemRefer Precise_Electronic_Unit_T2 = getItemStack(preciseUnitCasing, 1);
     public static ItemRefer Precise_Electronic_Unit_T3 = getItemStack(preciseUnitCasing, 2);
+    public static ItemRefer Precise_Electronic_Unit_T4 = getItemStack(preciseUnitCasing, 3);
     public static ItemRefer Compact_Fusion_Coil_T0 = getItemStack(compactFusionCoil, 0);
     public static ItemRefer Compact_Fusion_Coil_T1 = getItemStack(compactFusionCoil, 1);
     public static ItemRefer Compact_Fusion_Coil_T2 = getItemStack(compactFusionCoil, 2);
@@ -169,6 +171,14 @@ public final class ItemRefer {
     public static ItemRefer Compassline_Casing_UMV = getItemStack(componentAssemblylineCasing, 11);
     public static ItemRefer Compassline_Casing_UXV = getItemStack(componentAssemblylineCasing, 12);
     public static ItemRefer Compassline_Casing_MAX = getItemStack(componentAssemblylineCasing, 13);
+
+    public static ItemRefer AntimatterForge = getItemStack(AMForge);
+    public static ItemRefer AntimatterGenerator = getItemStack(AMGenerator);
+    public static ItemRefer AntimatterContainmentCasing = getItemStack(antimatterContainmentCasing);
+    public static ItemRefer GravityStabilizationCasing = getItemStack(gravityStabilizationCasing);
+    public static ItemRefer MagneticFluxCasing = getItemStack(magneticFluxCasing);
+    public static ItemRefer ProtomatterActivationCoil = getItemStack(protomatterActivationCoil);
+    public static ItemRefer AntimatterAnnihilationMatrix = getItemStack(antimatterAnnihilationMatrix);
 
     private Item mItem = null;
     private Block mBlock = null;
@@ -215,7 +225,7 @@ public final class ItemRefer {
     public ItemStack get(int amount) {
         if (mItem != null) return new ItemStack(mItem, amount, mMeta);
         if (mBlock != null) return new ItemStack(mBlock, amount, mMeta);
-        if (mItemStack != null) return GT_Utility.copyAmount(amount, mItemStack);
+        if (mItemStack != null) return GTUtility.copyAmount(amount, mItemStack);
         return new ItemStack(_null_, amount, 0);
     }
 }

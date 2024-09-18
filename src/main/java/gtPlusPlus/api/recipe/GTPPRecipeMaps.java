@@ -1,5 +1,7 @@
 package gtPlusPlus.api.recipe;
 
+import static gregtech.api.util.GTRecipeConstants.LFTR_OUTPUT_POWER;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -7,28 +9,28 @@ import net.minecraft.util.StatCollector;
 
 import com.gtnewhorizons.modularui.common.widget.ProgressBar;
 
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMapBackend;
 import gregtech.api.recipe.RecipeMapBuilder;
 import gregtech.api.recipe.maps.FluidOnlyFrontend;
 import gregtech.api.recipe.maps.FuelBackend;
 import gregtech.api.recipe.maps.LargeNEIFrontend;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.util.GTUtility;
 import gregtech.nei.formatter.FuelSpecialValueFormatter;
 import gregtech.nei.formatter.HeatingCoilSpecialValueFormatter;
 import gregtech.nei.formatter.SimpleSpecialValueFormatter;
 import gtPlusPlus.core.util.math.MathUtils;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
-import gtPlusPlus.xmod.gregtech.api.gui.GTPP_UITextures;
-import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.GregtechMetaTileEntityTreeFarm;
+import gtPlusPlus.xmod.gregtech.api.gui.GTPPUITextures;
+import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.MTETreeFarm;
 
 public class GTPPRecipeMaps {
 
     public static final RecipeMap<RecipeMapBackend> cokeOvenRecipes = RecipeMapBuilder.of("gtpp.recipe.cokeoven")
         .maxIO(2, 9, 1, 1)
         .minInputs(1, 0)
-        .progressBar(GT_UITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
+        .progressBar(GTUITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
         .build();
     public static final RecipeMap<RecipeMapBackend> multiblockMassFabricatorRecipes = RecipeMapBuilder
         .of("gtpp.recipe.matterfab2")
@@ -41,26 +43,29 @@ public class GTPPRecipeMaps {
             recipeInfo -> Collections.singletonList(
                 StatCollector.translateToLocalFormatted(
                     "GT5U.nei.fuel",
-                    GT_Utility.formatNumbers(recipeInfo.recipe.mSpecialValue * 3000L))))
+                    GTUtility.formatNumbers(recipeInfo.recipe.mSpecialValue * 3000L))))
         .build();
     public static final RecipeMap<RecipeMapBackend> quantumForceTransformerRecipes = RecipeMapBuilder
         .of("gtpp.recipe.quantumforcesmelter")
         .maxIO(6, 6, 6, 6)
         .minInputs(1, 0)
-        .progressBar(GT_UITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
         .neiSpecialInfoFormatter(new SimpleSpecialValueFormatter("GT5U.nei.tier"))
-        .frontend(LargeNEIFrontend::new)
+        .frontend(QuantumForceTransformerFrontend::new)
+        .disableOptimize()
         .build();
     public static final RecipeMap<RecipeMapBackend> chemicalDehydratorRecipes = RecipeMapBuilder
         .of("gtpp.recipe.chemicaldehydrator")
         .maxIO(2, 9, 1, 1)
-        .progressBar(GT_UITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
+        .progressBar(GTUITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
+        .disableOptimize()
         .build();
     public static final RecipeMap<RecipeMapBackend> vacuumFurnaceRecipes = RecipeMapBuilder.of("gtpp.recipe.vacfurnace")
         .maxIO(9, 9, 3, 3)
         .minInputs(1, 0)
         .neiSpecialInfoFormatter(HeatingCoilSpecialValueFormatter.INSTANCE)
         .frontend(LargeNEIFrontend::new)
+        .disableOptimize()
         .build();
     public static final RecipeMap<RecipeMapBackend> alloyBlastSmelterRecipes = RecipeMapBuilder
         .of("gtpp.recipe.alloyblastsmelter")
@@ -74,15 +79,16 @@ public class GTPPRecipeMaps {
         .minInputs(0, 2)
         .frontend(FluidOnlyFrontend::new)
         .neiSpecialInfoFormatter(recipeInfo -> {
-            final long eut = recipeInfo.recipe.mSpecialValue;
+            final long eut = recipeInfo.recipe.getMetadataOrDefault(LFTR_OUTPUT_POWER, 0);
             final int duration = recipeInfo.recipe.mDuration;
             return Arrays.asList(
-                StatCollector.translateToLocalFormatted("gtpp.nei.lftr.power", GT_Utility.formatNumbers(eut)),
+                StatCollector.translateToLocalFormatted("gtpp.nei.lftr.power", GTUtility.formatNumbers(eut)),
                 StatCollector
                     .translateToLocalFormatted("gtpp.nei.lftr.dynamo", MathUtils.formatNumbers(duration * eut)),
                 StatCollector
                     .translateToLocalFormatted("gtpp.nei.lftr.total", MathUtils.formatNumbers(duration * eut * 4)));
         })
+        .disableOptimize()
         .build();
     public static final RecipeMap<RecipeMapBackend> nuclearSaltProcessingPlantRecipes = RecipeMapBuilder
         .of("gtpp.recipe.nuclearsaltprocessingplant")
@@ -93,33 +99,35 @@ public class GTPPRecipeMaps {
         .maxIO(3, 1, 0, 0)
         .minInputs(1, 0)
         .frontend(MillingFrontend::new)
+        .disableOptimize()
         .build();
     public static final RecipeMap<RecipeMapBackend> fissionFuelProcessingRecipes = RecipeMapBuilder
         .of("gtpp.recipe.fissionfuel")
         .maxIO(0, 0, 6, 1)
         .frontend(FluidOnlyFrontend::new)
+        .disableOptimize()
         .build();
     public static final RecipeMap<RecipeMapBackend> coldTrapRecipes = RecipeMapBuilder.of("gtpp.recipe.coldtrap")
         .maxIO(2, 9, 1, 1)
-        .progressBar(GT_UITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
+        .progressBar(GTUITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
         .build();
     public static final RecipeMap<RecipeMapBackend> reactorProcessingUnitRecipes = RecipeMapBuilder
         .of("gtpp.recipe.reactorprocessingunit")
         .maxIO(2, 9, 1, 1)
-        .progressBar(GT_UITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
+        .progressBar(GTUITextures.PROGRESSBAR_SIFT, ProgressBar.Direction.DOWN)
         .build();
     public static final RecipeMap<RecipeMapBackend> simpleWasherRecipes = RecipeMapBuilder
         .of("gtpp.recipe.simplewasher")
         .maxIO(1, 1, 1, 0)
         .slotOverlays(
-            (index, isFluid, isOutput, isSpecial) -> !isFluid && !isOutput ? GT_UITextures.OVERLAY_SLOT_CAULDRON : null)
-        .progressBar(GT_UITextures.PROGRESSBAR_ARROW_MULTIPLE)
+            (index, isFluid, isOutput, isSpecial) -> !isFluid && !isOutput ? GTUITextures.OVERLAY_SLOT_CAULDRON : null)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
         .build();
     public static final RecipeMap<RecipeMapBackend> molecularTransformerRecipes = RecipeMapBuilder
         .of("gtpp.recipe.moleculartransformer")
         .maxIO(1, 1, 0, 0)
         .slotOverlays(
-            (index, isFluid, isOutput, isSpecial) -> !isFluid && !isOutput ? GT_UITextures.OVERLAY_SLOT_MICROSCOPE
+            (index, isFluid, isOutput, isSpecial) -> !isFluid && !isOutput ? GTUITextures.OVERLAY_SLOT_MICROSCOPE
                 : null)
         .neiHandlerInfo(
             builder -> builder
@@ -131,16 +139,16 @@ public class GTPPRecipeMaps {
         .slotOverlays((index, isFluid, isOutput, isSpecial) -> {
             if (isFluid) {
                 if (isOutput) {
-                    return GT_UITextures.OVERLAY_SLOT_VIAL_2;
+                    return GTUITextures.OVERLAY_SLOT_VIAL_2;
                 }
-                return GT_UITextures.OVERLAY_SLOT_MOLECULAR_3;
+                return GTUITextures.OVERLAY_SLOT_MOLECULAR_3;
             }
             if (isOutput) {
-                return GT_UITextures.OVERLAY_SLOT_VIAL_1;
+                return GTUITextures.OVERLAY_SLOT_VIAL_1;
             }
-            return GT_UITextures.OVERLAY_SLOT_MOLECULAR_1;
+            return GTUITextures.OVERLAY_SLOT_MOLECULAR_1;
         })
-        .progressBar(GTPP_UITextures.PROGRESSBAR_FLUID_REACTOR, ProgressBar.Direction.CIRCULAR_CW)
+        .progressBar(GTPPUITextures.PROGRESSBAR_FLUID_REACTOR, ProgressBar.Direction.CIRCULAR_CW)
         .progressBarPos(82, 24)
         .neiSpecialInfoFormatter(recipeInfo -> {
             int tier = recipeInfo.recipe.mSpecialValue + 1;
@@ -149,6 +157,7 @@ public class GTPPRecipeMaps {
                 .singletonList(StatCollector.translateToLocalFormatted("GT5U.nei.tier", tier + " - " + materialName));
         })
         .frontend(ChemicalPlantFrontend::new)
+        .disableOptimize()
         .build();
     public static final RecipeMap<FuelBackend> rtgFuels = RecipeMapBuilder
         .of("gtpp.recipe.RTGgenerators", FuelBackend::new)
@@ -175,8 +184,8 @@ public class GTPPRecipeMaps {
     public static final RecipeMap<RecipeMapBackend> fishPondRecipes = RecipeMapBuilder.of("gtpp.recipe.fishpond")
         .maxIO(1, 1, 0, 0)
         .slotOverlays(
-            (index, isFluid, isOutput, isSpecial) -> !isFluid && !isOutput ? GT_UITextures.OVERLAY_SLOT_CAULDRON : null)
-        .progressBar(GT_UITextures.PROGRESSBAR_ARROW_MULTIPLE)
+            (index, isFluid, isOutput, isSpecial) -> !isFluid && !isOutput ? GTUITextures.OVERLAY_SLOT_CAULDRON : null)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
         .build();
     public static final RecipeMap<RecipeMapBackend> spargeTowerFakeRecipes = RecipeMapBuilder
         .of("gtpp.recipe.spargetower")
@@ -190,18 +199,18 @@ public class GTPPRecipeMaps {
     public static final RecipeMap<RecipeMapBackend> centrifugeNonCellRecipes = RecipeMapBuilder
         .of("gtpp.recipe.multicentrifuge")
         .maxIO(6, 6, 6, 6)
-        .progressBar(GT_UITextures.PROGRESSBAR_EXTRACT)
+        .progressBar(GTUITextures.PROGRESSBAR_EXTRACT)
         .frontend(LargeNEIFrontend::new)
         .build();
     public static final RecipeMap<RecipeMapBackend> electrolyzerNonCellRecipes = RecipeMapBuilder
         .of("gtpp.recipe.multielectro")
         .maxIO(6, 6, 6, 6)
-        .progressBar(GT_UITextures.PROGRESSBAR_EXTRACT)
+        .progressBar(GTUITextures.PROGRESSBAR_EXTRACT)
         .frontend(LargeNEIFrontend::new)
         .build();
     public static final RecipeMap<RecipeMapBackend> mixerNonCellRecipes = RecipeMapBuilder.of("gtpp.recipe.multimixer")
         .maxIO(9, 9, 6, 6)
-        .progressBar(GT_UITextures.PROGRESSBAR_MIXER, ProgressBar.Direction.CIRCULAR_CW)
+        .progressBar(GTUITextures.PROGRESSBAR_MIXER, ProgressBar.Direction.CIRCULAR_CW)
         .frontend(LargeNEIFrontend::new)
         .build();
     public static final RecipeMap<RecipeMapBackend> chemicalDehydratorNonCellRecipes = RecipeMapBuilder
@@ -217,14 +226,11 @@ public class GTPPRecipeMaps {
     public static final RecipeMap<RecipeMapBackend> flotationCellRecipes = RecipeMapBuilder
         .of("gtpp.recipe.flotationcell")
         .maxIO(6, 0, 1, 1)
+        .disableOptimize()
         .build();
     public static final RecipeMap<RecipeMapBackend> treeGrowthSimulatorFakeRecipes = RecipeMapBuilder
         .of("gtpp.recipe.treefarm")
-        .maxIO(
-            GregtechMetaTileEntityTreeFarm.Mode.values().length,
-            GregtechMetaTileEntityTreeFarm.Mode.values().length,
-            0,
-            0)
+        .maxIO(MTETreeFarm.Mode.values().length, MTETreeFarm.Mode.values().length, 0, 0)
         .minInputs(1, 0)
         .useSpecialSlot()
         .frontend(TGSFrontend::new)

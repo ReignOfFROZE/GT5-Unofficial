@@ -11,8 +11,6 @@ import java.util.function.UnaryOperator;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.gtnewhorizons.modularui.api.drawable.FallbackableUITexture;
 import com.gtnewhorizons.modularui.api.drawable.IDrawable;
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
@@ -22,11 +20,11 @@ import com.gtnewhorizons.modularui.common.widget.ProgressBar;
 
 import codechicken.nei.recipe.HandlerInfo;
 import gregtech.api.gui.modularui.FallbackableSteamTexture;
-import gregtech.api.gui.modularui.GT_UITextures;
+import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.gui.modularui.SteamTexture;
 import gregtech.api.objects.overclockdescriber.OverclockDescriber;
-import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_RecipeBuilder;
+import gregtech.api.util.GTRecipe;
+import gregtech.api.util.GTRecipeBuilder;
 import gregtech.api.util.MethodsReturnNonnullByDefault;
 import gregtech.nei.formatter.INEISpecialInfoFormatter;
 
@@ -86,7 +84,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
         this.unlocalizedName = unlocalizedName;
         this.backendCreator = backendCreator;
         this.uiPropertiesBuilder = BasicUIProperties.builder()
-            .progressBarTexture(GT_UITextures.fallbackableProgressbar(unlocalizedName, GT_UITextures.PROGRESSBAR_ARROW))
+            .progressBarTexture(GTUITextures.fallbackableProgressbar(unlocalizedName, GTUITextures.PROGRESSBAR_ARROW))
             .neiTransferRectId(unlocalizedName);
     }
 
@@ -121,7 +119,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * Changes how recipes are emitted by a particular recipe builder. Can emit multiple recipe per builder.
      */
     public RecipeMapBuilder<B> recipeEmitter(
-        Function<? super GT_RecipeBuilder, ? extends Iterable<? extends GT_Recipe>> recipeEmitter) {
+        Function<? super GTRecipeBuilder, ? extends Iterable<? extends GTRecipe>> recipeEmitter) {
         backendPropertiesBuilder.recipeEmitter(recipeEmitter);
         return this;
     }
@@ -132,7 +130,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * Recipes added via one of the overloads of addRecipe will NOT be affected by this function.
      */
     public RecipeMapBuilder<B> recipeEmitterSingle(
-        Function<? super GT_RecipeBuilder, ? extends GT_Recipe> recipeEmitter) {
+        Function<? super GTRecipeBuilder, ? extends GTRecipe> recipeEmitter) {
         return recipeEmitter(recipeEmitter.andThen(Collections::singletonList));
     }
 
@@ -144,7 +142,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * Unlike {@link #recipeEmitter(Function)}, this one does not clear the existing recipe being emitted, if any
      */
     public RecipeMapBuilder<B> combineRecipeEmitter(
-        Function<? super GT_RecipeBuilder, ? extends Iterable<? extends GT_Recipe>> recipeEmitter) {
+        Function<? super GTRecipeBuilder, ? extends Iterable<? extends GTRecipe>> recipeEmitter) {
         backendPropertiesBuilder.combineRecipeEmitter(recipeEmitter);
         return this;
     }
@@ -158,7 +156,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * Unlike {@link #recipeEmitter(Function)}, this one does not clear the existing recipe being emitted, if any
      */
     public RecipeMapBuilder<B> combineRecipeEmitterSingle(
-        Function<? super GT_RecipeBuilder, ? extends GT_Recipe> recipeEmitter) {
+        Function<? super GTRecipeBuilder, ? extends GTRecipe> recipeEmitter) {
         return combineRecipeEmitter(recipeEmitter.andThen(Collections::singletonList));
     }
 
@@ -168,7 +166,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * <p>
      * Recipes added via one of the overloads of addRecipe will NOT be affected by this function.
      */
-    public RecipeMapBuilder<B> recipeTransformer(Function<? super GT_Recipe, ? extends GT_Recipe> recipeTransformer) {
+    public RecipeMapBuilder<B> recipeTransformer(Function<? super GTRecipe, ? extends GTRecipe> recipeTransformer) {
         backendPropertiesBuilder.recipeTransformer(recipeTransformer);
         return this;
     }
@@ -179,7 +177,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * <p>
      * Recipes added via one of the overloads of addRecipe will NOT be affected by this function.
      */
-    public RecipeMapBuilder<B> recipeTransformer(Consumer<GT_Recipe> recipeTransformer) {
+    public RecipeMapBuilder<B> recipeTransformer(Consumer<GTRecipe> recipeTransformer) {
         return recipeTransformer(withIdentityReturn(recipeTransformer));
     }
 
@@ -193,7 +191,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * The supplied function will be given the output of existing handler when a recipe is added.
      */
     public RecipeMapBuilder<B> chainRecipeTransformer(
-        Function<? super GT_Recipe, ? extends GT_Recipe> recipeTransformer) {
+        Function<? super GTRecipe, ? extends GTRecipe> recipeTransformer) {
         backendPropertiesBuilder.chainRecipeTransformer(recipeTransformer);
         return this;
     }
@@ -207,14 +205,8 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * Unlike {@link #recipeTransformer(Function)}, this one will not replace the existing special handler.
      * The supplied function will be given the output of existing handler when a recipe is added.
      */
-    public RecipeMapBuilder<B> chainRecipeTransformer(Consumer<GT_Recipe> recipeTransformer) {
+    public RecipeMapBuilder<B> chainRecipeTransformer(Consumer<GTRecipe> recipeTransformer) {
         return chainRecipeTransformer(withIdentityReturn(recipeTransformer));
-    }
-
-    public RecipeMapBuilder<B> recipeConfigFile(String category, Function<? super GT_Recipe, String> keyConvertor) {
-        if (StringUtils.isBlank(category)) throw new IllegalArgumentException();
-        backendPropertiesBuilder.recipeConfigFile(category, keyConvertor);
-        return this;
     }
 
     // endregion
@@ -258,7 +250,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
      * By default, it's set to {@code GT_UITextures.PROGRESSBAR_ARROW, ProgressBar.Direction.RIGHT}.
      */
     public RecipeMapBuilder<B> progressBar(UITexture texture, ProgressBar.Direction direction) {
-        return progressBarWithFallback(GT_UITextures.fallbackableProgressbar(unlocalizedName, texture), direction);
+        return progressBarWithFallback(GTUITextures.fallbackableProgressbar(unlocalizedName, texture), direction);
     }
 
     /**
@@ -446,7 +438,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
     }
 
     /**
-     * Sets formatter for special description for the recipe, mainly {@link gregtech.api.util.GT_Recipe#mSpecialValue}.
+     * Sets formatter for special description for the recipe, mainly {@link GTRecipe#mSpecialValue}.
      */
     public RecipeMapBuilder<B> neiSpecialInfoFormatter(INEISpecialInfoFormatter neiSpecialInfoFormatter) {
         neiPropertiesBuilder.neiSpecialInfoFormatter(neiSpecialInfoFormatter);
@@ -486,7 +478,7 @@ public final class RecipeMapBuilder<B extends RecipeMapBackend> {
     /**
      * Sets custom comparator for NEI recipe sort.
      */
-    public RecipeMapBuilder<B> neiRecipeComparator(Comparator<GT_Recipe> comparator) {
+    public RecipeMapBuilder<B> neiRecipeComparator(Comparator<GTRecipe> comparator) {
         neiPropertiesBuilder.recipeComparator(comparator);
         return this;
     }

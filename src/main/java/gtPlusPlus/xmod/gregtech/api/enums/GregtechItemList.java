@@ -1,21 +1,21 @@
 package gtPlusPlus.xmod.gregtech.api.enums;
 
-import static gregtech.api.enums.GT_Values.W;
+import static gregtech.api.enums.GTValues.W;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import gregtech.api.util.GT_ModHandler;
-import gregtech.api.util.GT_OreDictUnificator;
-import gregtech.api.util.GT_Utility;
-import gtPlusPlus.xmod.gregtech.api.interfaces.GregtechItemContainer;
+import gregtech.api.util.GTModHandler;
+import gregtech.api.util.GTOreDictUnificator;
+import gregtech.api.util.GTUtility;
+import gtPlusPlus.xmod.gregtech.api.interfaces.IGregtechItemContainer;
 
 /**
  * Class containing all non-OreDict Items of GregTech.
  */
-public enum GregtechItemList implements GregtechItemContainer {
+public enum GregtechItemList implements IGregtechItemContainer {
 
     /**
      * Items
@@ -242,6 +242,9 @@ public enum GregtechItemList implements GregtechItemContainer {
     Industrial_Electrolyzer,
     Casing_Electrolyzer,
 
+    // Industrial Electromagnetic Separator
+    Industrial_Electromagnetic_Separator,
+
     // Industrial Maceration Stack
     Industrial_MacerationStack,
     Casing_MacerationStack,
@@ -405,6 +408,9 @@ public enum GregtechItemList implements GregtechItemContainer {
     Casing_Vacuum_Furnace,
     Controller_Vacuum_Furnace,
 
+    // Water pump
+    WaterPump,
+
     // Large Rocket Engine
     Casing_RocketEngine,
     Controller_RocketEngine,
@@ -447,7 +453,11 @@ public enum GregtechItemList implements GregtechItemContainer {
     Controller_SteamWasherMulti,
     // Big Steam Centrifuge
     Controller_SteamCentrifugeMulti,
+    // Bit Steam Forge Hammer
+    Controller_SteamForgeHammerMulti,
     // Big Steam Compressor
+    Controller_SteamMixerMulti,
+    // Big Steam Mixer
     Controller_SteamCompressorMulti,
 
     // Industrial Rock Breaker
@@ -767,16 +777,16 @@ public enum GregtechItemList implements GregtechItemContainer {
     GT_Dehydrator_ZPM,
 
     // Fluid Storage Tanks
-    GT_FluidTank_ULV,
-    GT_FluidTank_LV,
-    GT_FluidTank_MV,
-    GT_FluidTank_HV,
-    GT_FluidTank_EV,
-    GT_FluidTank_IV,
-    GT_FluidTank_LuV,
-    GT_FluidTank_ZPM,
-    GT_FluidTank_UV,
-    GT_FluidTank_MAX,
+    GTFluidTank_ULV,
+    GTFluidTank_LV,
+    GTFluidTank_MV,
+    GTFluidTank_HV,
+    GTFluidTank_EV,
+    GTFluidTank_IV,
+    GTFluidTank_LuV,
+    GTFluidTank_ZPM,
+    GTFluidTank_UV,
+    GTFluidTank_MAX,
 
     // GT RTG
     RTG,
@@ -796,11 +806,11 @@ public enum GregtechItemList implements GregtechItemContainer {
      */
 
     // Fluid Void Covers
-    Cover_Overflow_LV,
-    Cover_Overflow_MV,
-    Cover_Overflow_HV,
-    Cover_Overflow_EV,
-    Cover_Overflow_IV,
+    Cover_Overflow_Valve_LV,
+    Cover_Overflow_Valve_MV,
+    Cover_Overflow_Valve_HV,
+    Cover_Overflow_Valve_EV,
+    Cover_Overflow_Valve_IV,
 
     // Item Void Covers
     Cover_Overflow_Item_ULV,
@@ -817,7 +827,12 @@ public enum GregtechItemList implements GregtechItemContainer {
     SimpleDustWasher_IV,
     SimpleDustWasher_ZPM,
 
-    ;
+    // Redstone Utilities
+    RedstoneButtonPanel,
+    RedstoneCircuitBlock,
+    RedstoneLamp,
+    RedstoneStrengthDisplay,
+    RedstoneStrengthScale;
 
     public static final GregtechItemList[] DYE_ONLY_ITEMS = { Energy_Buffer_1by1_EV, Energy_Buffer_1by1_EV };
     private ItemStack mStack;
@@ -830,14 +845,14 @@ public enum GregtechItemList implements GregtechItemContainer {
             return this;
         }
         final ItemStack aStack = new ItemStack(aItem, 1, 0);
-        this.mStack = GT_Utility.copyAmount(1, aStack);
+        this.mStack = GTUtility.copyAmount(1, aStack);
         return this;
     }
 
     @Override
     public GregtechItemList set(final ItemStack aStack) {
         this.mHasNotBeenSet = false;
-        this.mStack = GT_Utility.copyAmount(1, aStack);
+        this.mStack = GTUtility.copyAmount(1, aStack);
         return this;
     }
 
@@ -846,7 +861,7 @@ public enum GregtechItemList implements GregtechItemContainer {
         if (this.mHasNotBeenSet) {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
-        if (GT_Utility.isStackInvalid(this.mStack)) {
+        if (GTUtility.isStackInvalid(this.mStack)) {
             return null;
         }
         return this.mStack.getItem();
@@ -872,15 +887,15 @@ public enum GregtechItemList implements GregtechItemContainer {
 
     @Override
     public boolean isStackEqual(final Object aStack, final boolean aWildcard, final boolean aIgnoreNBT) {
-        if (GT_Utility.isStackInvalid(aStack)) {
+        if (GTUtility.isStackInvalid(aStack)) {
             return false;
         }
-        return GT_Utility
+        return GTUtility
             .areUnificationsEqual((ItemStack) aStack, aWildcard ? this.getWildcard(1) : this.get(1), aIgnoreNBT);
     }
 
     public static Block getBlockFromStack(Object aStack) {
-        if (GT_Utility.isStackInvalid(aStack)) return Blocks.air;
+        if (GTUtility.isStackInvalid(aStack)) return Blocks.air;
         return Block.getBlockFromItem(((ItemStack) aStack).getItem());
     }
 
@@ -889,10 +904,10 @@ public enum GregtechItemList implements GregtechItemContainer {
         if (this.mHasNotBeenSet) {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
-        if (GT_Utility.isStackInvalid(this.mStack)) {
-            return GT_Utility.copyAmount(aAmount, aReplacements);
+        if (GTUtility.isStackInvalid(this.mStack)) {
+            return GTUtility.copyAmount(aAmount, aReplacements);
         }
-        return GT_Utility.copyAmount(aAmount, GT_OreDictUnificator.get(this.mStack));
+        return GTUtility.copyAmount(aAmount, GTOreDictUnificator.get(this.mStack));
     }
 
     @Override
@@ -900,10 +915,10 @@ public enum GregtechItemList implements GregtechItemContainer {
         if (this.mHasNotBeenSet) {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
-        if (GT_Utility.isStackInvalid(this.mStack)) {
-            return GT_Utility.copyAmount(aAmount, aReplacements);
+        if (GTUtility.isStackInvalid(this.mStack)) {
+            return GTUtility.copyAmount(aAmount, aReplacements);
         }
-        return GT_Utility.copyAmountAndMetaData(aAmount, W, GT_OreDictUnificator.get(this.mStack));
+        return GTUtility.copyAmountAndMetaData(aAmount, W, GTOreDictUnificator.get(this.mStack));
     }
 
     @Override
@@ -911,10 +926,10 @@ public enum GregtechItemList implements GregtechItemContainer {
         if (this.mHasNotBeenSet) {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
-        if (GT_Utility.isStackInvalid(this.mStack)) {
-            return GT_Utility.copyAmount(aAmount, aReplacements);
+        if (GTUtility.isStackInvalid(this.mStack)) {
+            return GTUtility.copyAmount(aAmount, aReplacements);
         }
-        return GT_Utility.copyAmountAndMetaData(aAmount, 0, GT_OreDictUnificator.get(this.mStack));
+        return GTUtility.copyAmountAndMetaData(aAmount, 0, GTOreDictUnificator.get(this.mStack));
     }
 
     @Override
@@ -922,31 +937,31 @@ public enum GregtechItemList implements GregtechItemContainer {
         if (this.mHasNotBeenSet) {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
-        if (GT_Utility.isStackInvalid(this.mStack)) {
-            return GT_Utility.copyAmount(aAmount, aReplacements);
+        if (GTUtility.isStackInvalid(this.mStack)) {
+            return GTUtility.copyAmount(aAmount, aReplacements);
         }
-        return GT_Utility
-            .copyAmountAndMetaData(aAmount, this.mStack.getMaxDamage() - 1, GT_OreDictUnificator.get(this.mStack));
+        return GTUtility
+            .copyAmountAndMetaData(aAmount, this.mStack.getMaxDamage() - 1, GTOreDictUnificator.get(this.mStack));
     }
 
     @Override
     public ItemStack getWithName(final long aAmount, final String aDisplayName, final Object... aReplacements) {
         final ItemStack rStack = this.get(1, aReplacements);
-        if (GT_Utility.isStackInvalid(rStack)) {
+        if (GTUtility.isStackInvalid(rStack)) {
             return null;
         }
         rStack.setStackDisplayName(aDisplayName);
-        return GT_Utility.copyAmount(aAmount, rStack);
+        return GTUtility.copyAmount(aAmount, rStack);
     }
 
     @Override
     public ItemStack getWithCharge(final long aAmount, final int aEnergy, final Object... aReplacements) {
         final ItemStack rStack = this.get(1, aReplacements);
-        if (GT_Utility.isStackInvalid(rStack)) {
+        if (GTUtility.isStackInvalid(rStack)) {
             return null;
         }
-        GT_ModHandler.chargeElectricItem(rStack, aEnergy, Integer.MAX_VALUE, true, false);
-        return GT_Utility.copyAmount(aAmount, rStack);
+        GTModHandler.chargeElectricItem(rStack, aEnergy, Integer.MAX_VALUE, true, false);
+        return GTUtility.copyAmount(aAmount, rStack);
     }
 
     @Override
@@ -954,10 +969,10 @@ public enum GregtechItemList implements GregtechItemContainer {
         if (this.mHasNotBeenSet) {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
-        if (GT_Utility.isStackInvalid(this.mStack)) {
-            return GT_Utility.copyAmount(aAmount, aReplacements);
+        if (GTUtility.isStackInvalid(this.mStack)) {
+            return GTUtility.copyAmount(aAmount, aReplacements);
         }
-        return GT_Utility.copyAmountAndMetaData(aAmount, aMetaValue, GT_OreDictUnificator.get(this.mStack));
+        return GTUtility.copyAmountAndMetaData(aAmount, aMetaValue, GTOreDictUnificator.get(this.mStack));
     }
 
     @Override
@@ -966,7 +981,7 @@ public enum GregtechItemList implements GregtechItemContainer {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
         for (final Object tOreName : aOreNames) {
-            GT_OreDictUnificator.registerOre(tOreName, this.get(1));
+            GTOreDictUnificator.registerOre(tOreName, this.get(1));
         }
         return this;
     }
@@ -977,7 +992,7 @@ public enum GregtechItemList implements GregtechItemContainer {
             throw new IllegalAccessError("The Enum '" + this.name() + "' has not been set to an Item at this time!");
         }
         for (final Object tOreName : aOreNames) {
-            GT_OreDictUnificator.registerOre(tOreName, this.getWildcard(1));
+            GTOreDictUnificator.registerOre(tOreName, this.getWildcard(1));
         }
         return this;
     }

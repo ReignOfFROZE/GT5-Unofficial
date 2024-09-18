@@ -1,6 +1,6 @@
 package gregtech.api.metatileentity;
 
-import static gregtech.GT_Mod.GT_FML_LOGGER;
+import static gregtech.GTMod.GT_FML_LOGGER;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,8 +13,11 @@ import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 
 import appeng.api.crafting.ICraftingIconProvider;
-import gregtech.GT_Mod;
-import gregtech.api.GregTech_API;
+import appeng.api.implementations.tiles.ISoundP2PHandler;
+import appeng.me.cache.helpers.TunnelCollection;
+import appeng.parts.p2p.PartP2PSound;
+import gregtech.GTMod;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.gui.modularui.GUITextureSet;
 import gregtech.api.interfaces.IConfigurationCircuitSupport;
@@ -24,21 +27,21 @@ import gregtech.api.interfaces.modularui.IAddUIWidgets;
 import gregtech.api.interfaces.modularui.IBindPlayerInventoryUI;
 import gregtech.api.interfaces.modularui.IGetTitleColor;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.objects.GT_ItemStack;
-import gregtech.api.util.GT_Log;
-import gregtech.api.util.GT_Utility;
+import gregtech.api.objects.GTItemStack;
+import gregtech.api.util.GTLog;
+import gregtech.api.util.GTUtility;
 
 public abstract class CommonMetaTileEntity extends CoverableTileEntity
-    implements IGregTechTileEntity, ICraftingIconProvider {
+    implements IGregTechTileEntity, ICraftingIconProvider, ISoundP2PHandler {
 
     protected boolean mNeedsBlockUpdate = true, mNeedsUpdate = true, mSendClientData = false, mInventoryChanged = false;
 
     protected boolean createNewMetatileEntity(short aID) {
-        if (aID <= 0 || aID >= GregTech_API.METATILEENTITIES.length || GregTech_API.METATILEENTITIES[aID] == null) {
-            GT_Log.err.println("MetaID " + aID + " not loadable => locking TileEntity!");
+        if (aID <= 0 || aID >= GregTechAPI.METATILEENTITIES.length || GregTechAPI.METATILEENTITIES[aID] == null) {
+            GTLog.err.println("MetaID " + aID + " not loadable => locking TileEntity!");
         } else {
             if (hasValidMetaTileEntity()) getMetaTileEntity().setBaseMetaTileEntity(null);
-            GregTech_API.METATILEENTITIES[aID].newMetaEntity(this)
+            GregTechAPI.METATILEENTITIES[aID].newMetaEntity(this)
                 .setBaseMetaTileEntity(this);
             mTickTimer = 0;
             mID = aID;
@@ -50,7 +53,7 @@ public abstract class CommonMetaTileEntity extends CoverableTileEntity
     protected void saveMetaTileNBT(NBTTagCompound aNBT) {
         try {
             if (hasValidMetaTileEntity()) {
-                aNBT.setInteger("nbtVersion", GT_Mod.NBT_VERSION);
+                aNBT.setInteger("nbtVersion", GTMod.NBT_VERSION);
                 final NBTTagList tItemList = new NBTTagList();
                 for (int i = 0; i < getMetaTileEntity().getRealInventory().length; i++) {
                     final ItemStack tStack = getMetaTileEntity().getRealInventory()[i];
@@ -67,12 +70,12 @@ public abstract class CommonMetaTileEntity extends CoverableTileEntity
                     getMetaTileEntity().saveNBTData(aNBT);
                 } catch (Throwable e) {
                     GT_FML_LOGGER.error("Encountered CRITICAL ERROR while saving MetaTileEntity.");
-                    GT_Mod.logStackTrace(e);
+                    GTMod.logStackTrace(e);
                 }
             }
         } catch (Throwable e) {
             GT_FML_LOGGER.error("Encountered CRITICAL ERROR while saving MetaTileEntity.");
-            GT_Mod.logStackTrace(e);
+            GTMod.logStackTrace(e);
         }
     }
 
@@ -84,7 +87,7 @@ public abstract class CommonMetaTileEntity extends CoverableTileEntity
                 final NBTTagCompound tTag = tItemList.getCompoundTagAt(i);
                 final int tSlot = migrateInventoryIndex(tTag.getInteger("IntSlot"), nbtVersion);
                 if (tSlot >= 0 && tSlot < getMetaTileEntity().getRealInventory().length) {
-                    ItemStack loadedStack = GT_Utility.loadItem(tTag);
+                    ItemStack loadedStack = GTUtility.loadItem(tTag);
                     // We move away from fluid display item in TEs
                     if (loadedStack != null && loadedStack.getItem() == ItemList.Display_Fluid.getItem()) {
                         loadedStack = null;
@@ -97,7 +100,7 @@ public abstract class CommonMetaTileEntity extends CoverableTileEntity
                 getMetaTileEntity().loadNBTData(aNBT);
             } catch (Throwable e) {
                 GT_FML_LOGGER.error("Encountered Exception while loading MetaTileEntity.");
-                GT_Mod.logStackTrace(e);
+                GTMod.logStackTrace(e);
             }
         }
     }
@@ -172,7 +175,7 @@ public abstract class CommonMetaTileEntity extends CoverableTileEntity
     }
 
     @Override
-    public boolean allowCoverOnSide(ForgeDirection side, GT_ItemStack aCoverID) {
+    public boolean allowCoverOnSide(ForgeDirection side, GTItemStack aCoverID) {
         return hasValidMetaTileEntity() && getMetaTileEntity().allowCoverOnSide(side, aCoverID);
     }
 
@@ -231,7 +234,7 @@ public abstract class CommonMetaTileEntity extends CoverableTileEntity
 
     @Override
     public boolean useModularUI() {
-        return hasValidMetaTileEntity() && getMetaTileEntity().useModularUI();
+        return hasValidMetaTileEntity();
     }
 
     @Override
@@ -336,5 +339,34 @@ public abstract class CommonMetaTileEntity extends CoverableTileEntity
             addGregTechLogo(builder);
         }
         return builder.build();
+    }
+
+    @Override
+    public boolean allowSoundProxying(PartP2PSound p2p) {
+        if (hasValidMetaTileEntity() && getMetaTileEntity() instanceof ISoundP2PHandler metaHandler) {
+            return metaHandler.allowSoundProxying(p2p);
+        }
+        return ISoundP2PHandler.super.allowSoundProxying(p2p);
+    }
+
+    @Override
+    public void onSoundP2PAttach(PartP2PSound p2p) {
+        if (hasValidMetaTileEntity() && getMetaTileEntity() instanceof ISoundP2PHandler metaHandler) {
+            metaHandler.onSoundP2PAttach(p2p);
+        }
+    }
+
+    @Override
+    public void onSoundP2PDetach(PartP2PSound p2p) {
+        if (hasValidMetaTileEntity() && getMetaTileEntity() instanceof ISoundP2PHandler metaHandler) {
+            metaHandler.onSoundP2PDetach(p2p);
+        }
+    }
+
+    @Override
+    public void onSoundP2POutputUpdate(PartP2PSound p2p, TunnelCollection<PartP2PSound> outputs) {
+        if (hasValidMetaTileEntity() && getMetaTileEntity() instanceof ISoundP2PHandler metaHandler) {
+            metaHandler.onSoundP2POutputUpdate(p2p, outputs);
+        }
     }
 }

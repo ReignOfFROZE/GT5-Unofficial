@@ -1,13 +1,15 @@
 package gtPlusPlus.xmod.gregtech.registration.gregtech;
 
-import net.minecraftforge.fluids.FluidStack;
+import static gregtech.api.enums.MetaTileEntityIDs.Industrial_Solar_Tower;
+import static gregtech.api.enums.MetaTileEntityIDs.Solar_Tower_Reflector;
 
+import gregtech.api.enums.GTValues;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.api.recipe.GTPPRecipeMaps;
-import gtPlusPlus.core.material.MISC_MATERIALS;
+import gtPlusPlus.core.material.MaterialMisc;
 import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
-import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.GregtechMetaTileEntity_SolarTower;
-import gtPlusPlus.xmod.gregtech.common.tileentities.misc.TileEntitySolarHeater;
+import gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.production.MTESolarTower;
+import gtPlusPlus.xmod.gregtech.common.tileentities.misc.MTESolarHeater;
 
 public class GregtechSolarTower {
 
@@ -19,11 +21,11 @@ public class GregtechSolarTower {
     private static void run1() {
         // Solar Tower
         GregtechItemList.Industrial_Solar_Tower.set(
-            new GregtechMetaTileEntity_SolarTower(863, "solartower.controller.tier.single", "Solar Tower")
+            new MTESolarTower(Industrial_Solar_Tower.ID, "solartower.controller.tier.single", "Solar Tower")
                 .getStackForm(1L));
         GregtechItemList.Solar_Tower_Reflector.set(
-            new TileEntitySolarHeater(
-                864,
+            new MTESolarHeater(
+                Solar_Tower_Reflector.ID,
                 "solarreflector.simple.single",
                 "Solar Reflector",
                 8,
@@ -31,16 +33,12 @@ public class GregtechSolarTower {
                 0).getStackForm(1L));
 
         // NEI recipe
-        GTPPRecipeMaps.solarTowerRecipes.addRecipe(
-            false,
-            null,
-            null,
-            null,
-            null,
-            new FluidStack[] { MISC_MATERIALS.SOLAR_SALT_COLD.getFluidStack(1000) },
-            new FluidStack[] { MISC_MATERIALS.SOLAR_SALT_HOT.getFluidStack(1000) },
-            0,
-            0,
-            0);
+        GTValues.RA.stdBuilder()
+            .fluidInputs(MaterialMisc.SOLAR_SALT_COLD.getFluidStack(1000))
+            .fluidOutputs(MaterialMisc.SOLAR_SALT_HOT.getFluidStack(1000))
+            .duration(0)
+            .eut(0)
+            .noOptimize()
+            .addTo(GTPPRecipeMaps.solarTowerRecipes);
     }
 }

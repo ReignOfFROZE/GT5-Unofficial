@@ -3,6 +3,7 @@ package goodgenerator.loader;
 import static goodgenerator.util.StackUtils.getTotalItems;
 import static goodgenerator.util.StackUtils.mergeStacks;
 import static goodgenerator.util.StackUtils.multiplyAndSplitIntoStacks;
+import static gregtech.api.util.GTRecipeConstants.COAL_CASING_TIER;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,18 +21,18 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import goodgenerator.util.MyRecipeAdder;
-import gregtech.api.enums.GT_Values;
+import goodgenerator.api.recipe.GoodGeneratorRecipeMaps;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.MaterialsUEVplus;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.objects.ItemData;
 import gregtech.api.recipe.RecipeMaps;
-import gregtech.api.util.GT_OreDictUnificator;
-import gregtech.api.util.GT_Recipe;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.items.GT_IntegratedCircuit_Item;
+import gregtech.api.util.GTOreDictUnificator;
+import gregtech.api.util.GTRecipe;
+import gregtech.api.util.GTUtility;
+import gregtech.common.items.ItemIntegratedCircuit;
 
 public class ComponentAssemblyLineRecipeLoader {
 
@@ -41,8 +42,8 @@ public class ComponentAssemblyLineRecipeLoader {
     private static final String[] softBlacklistedDictPrefixes = { "Any", "crafting", "nanite" };
     private static final String moltenMHDCSM = "molten.magnetohydrodynamicallyconstrainedstarmatter";
 
-    private static LinkedHashMap<List<GT_Recipe>, Pair<ItemList, Integer>> allAssemblerRecipes;
-    private static LinkedHashMap<List<GT_Recipe.GT_Recipe_AssemblyLine>, Pair<ItemList, Integer>> allAsslineRecipes;
+    private static LinkedHashMap<List<GTRecipe>, Pair<ItemList, Integer>> allAssemblerRecipes;
+    private static LinkedHashMap<List<GTRecipe.RecipeAssemblyLine>, Pair<ItemList, Integer>> allAsslineRecipes;
 
     private static final HashMap<OrePrefixes, Double> magnetoConversionMultipliers = new HashMap<>();
     private static final HashMap<OrePrefixes, OrePrefixes> conversion = new HashMap<>();
@@ -87,14 +88,14 @@ public class ComponentAssemblyLineRecipeLoader {
     /** Normal assembler recipes (LV-IV) */
     private static void generateAssemblerRecipes() {
         allAssemblerRecipes.forEach((recipeList, info) -> {
-            for (GT_Recipe recipe : recipeList) {
+            for (GTRecipe recipe : recipeList) {
                 if (recipe != null) {
                     ArrayList<ItemStack> fixedInputs = new ArrayList<>();
                     ArrayList<FluidStack> fixedFluids = new ArrayList<>();
 
                     for (int j = 0; j < recipe.mInputs.length; j++) {
                         ItemStack input = recipe.mInputs[j];
-                        if (GT_Utility.isStackValid(input) && !(input.getItem() instanceof GT_IntegratedCircuit_Item))
+                        if (GTUtility.isStackValid(input) && !(input.getItem() instanceof ItemIntegratedCircuit))
                             fixedInputs.addAll(multiplyAndSplitIntoStacks(input, INPUT_MULTIPLIER));
                     }
                     for (int j = 0; j < recipe.mFluidInputs.length; j++) {
@@ -106,15 +107,18 @@ public class ComponentAssemblyLineRecipeLoader {
                     fixedInputs = compactItems(fixedInputs, info.getRight());
                     replaceIntoFluids(fixedInputs, fixedFluids, 64);
                     int tier = info.getRight();
-                    int energy = (int) Math.min(Integer.MAX_VALUE - 7, GT_Values.VP[tier - 1]);
-                    MyRecipeAdder.instance.addComponentAssemblyLineRecipe(
-                        fixedInputs.toArray(new ItemStack[0]),
-                        fixedFluids.toArray(new FluidStack[0]),
-                        info.getLeft()
-                            .get(OUTPUT_MULTIPLIER),
-                        recipe.mDuration * INPUT_MULTIPLIER,
-                        energy,
-                        info.getRight());
+                    int energy = (int) Math.min(Integer.MAX_VALUE - 7, GTValues.VP[tier - 1]);
+                    GTValues.RA.stdBuilder()
+                        .itemInputs(fixedInputs.toArray(new ItemStack[0]))
+                        .itemOutputs(
+                            info.getLeft()
+                                .get(OUTPUT_MULTIPLIER))
+                        .fluidInputs(fixedFluids.toArray(new FluidStack[0]))
+                        .duration(recipe.mDuration * INPUT_MULTIPLIER)
+                        .eut(energy)
+                        .metadata(COAL_CASING_TIER, info.getRight())
+                        .noOptimize()
+                        .addTo(GoodGeneratorRecipeMaps.componentAssemblyLineRecipes);
                 }
             }
         });
@@ -123,7 +127,7 @@ public class ComponentAssemblyLineRecipeLoader {
     /** Assembly Line Recipes (LuV+) **/
     private static void generateAsslineRecipes() {
         allAsslineRecipes.forEach((recipeList, info) -> {
-            for (GT_Recipe.GT_Recipe_AssemblyLine recipe : recipeList) {
+            for (GTRecipe.RecipeAssemblyLine recipe : recipeList) {
                 if (recipe != null) {
                     int componentCircuit = -1;
                     for (int i = 0; i < compPrefixes.length; i++) if (info.getLeft()
@@ -149,17 +153,17 @@ public class ComponentAssemblyLineRecipeLoader {
 
                     // First pass.
                     for (ItemStack input : recipe.mInputs) {
-                        if (GT_Utility.isStackValid(input)) {
+                        if (GTUtility.isStackValid(input)) {
                             int count = input.stackSize;
                             // Mulitplies the input by its multiplier, and adjusts the stacks accordingly
-                            if (!(input.getItem() instanceof GT_IntegratedCircuit_Item)) {
+                            if (!(input.getItem() instanceof ItemIntegratedCircuit)) {
 
-                                ItemData data = GT_OreDictUnificator.getAssociation(input);
+                                ItemData data = GTOreDictUnificator.getAssociation(input);
                                 // trying to fix some circuit oredicting issues
 
                                 if (data != null && data.mPrefix == OrePrefixes.circuit) fixedInputs.addAll(
                                     multiplyAndSplitIntoStacks(
-                                        GT_OreDictUnificator.get(data.mPrefix, data.mMaterial.mMaterial, count),
+                                        GTOreDictUnificator.get(data.mPrefix, data.mMaterial.mMaterial, count),
                                         INPUT_MULTIPLIER));
                                 else fixedInputs.addAll(multiplyAndSplitIntoStacks(input, INPUT_MULTIPLIER));
                             }
@@ -170,36 +174,49 @@ public class ComponentAssemblyLineRecipeLoader {
                     // If it overflows then it tries REALLY HARD to cram as much stuff into there.
                     if (fixedInputs.size() > (addProgrammedCircuit ? 8 : 9))
                         replaceIntoFluids(fixedInputs, fixedFluids, FLUID_CONVERSION_STACKSIZE_THRESHOLD / 2);
-                    if (addProgrammedCircuit) fixedInputs.add(GT_Utility.getIntegratedCircuit(componentCircuit));
+                    if (addProgrammedCircuit) fixedInputs.add(GTUtility.getIntegratedCircuit(componentCircuit));
 
                     addEternityForMHDCSM(fixedFluids);
-                    MyRecipeAdder.instance.addComponentAssemblyLineRecipe(
-                        fixedInputs.toArray(new ItemStack[0]),
-                        fixedFluids.toArray(new FluidStack[0]),
-                        info.getLeft()
-                            .get(OUTPUT_MULTIPLIER), // The component output
-                        recipe.mDuration * INPUT_MULTIPLIER, // Takes as long as this many
-                        recipe.mEUt,
-                        info.getRight()); // Casing tier
-
-                    // Add a second recipe using Styrene-Butadiene
-                    // Rubber instead of Silicone Rubber.
-                    // This relies on silicone rubber being first in
-                    // @allSyntheticRubber so it's quite fragile, but
-                    // it's also the least invasive change.
-                    if (swapSiliconeForStyreneButadiene(fixedFluids)) {
-                        MyRecipeAdder.instance.addComponentAssemblyLineRecipe(
-                            fixedInputs.toArray(new ItemStack[0]),
-                            fixedFluids.toArray(new FluidStack[0]),
-                            info.getLeft()
-                                .get(OUTPUT_MULTIPLIER), // The component output
-                            recipe.mDuration * INPUT_MULTIPLIER, // Takes as long as this many
-                            recipe.mEUt,
-                            info.getRight()); // Casing tier
+                    for (ArrayList<FluidStack> finalFluids : addFluidsForProtoHalkonite(fixedFluids)) {
+                        addFinalRecipes(info, fixedInputs, finalFluids, recipe);
                     }
                 }
             }
         });
+    }
+
+    private static void addFinalRecipes(Pair<ItemList, Integer> info, ArrayList<ItemStack> fixedInputs,
+        ArrayList<FluidStack> fixedFluids, GTRecipe.RecipeAssemblyLine recipe) {
+        GTValues.RA.stdBuilder()
+            .itemInputs(fixedInputs.toArray(new ItemStack[0]))
+            .itemOutputs(
+                info.getLeft()
+                    .get(OUTPUT_MULTIPLIER))
+            .fluidInputs(fixedFluids.toArray(new FluidStack[0]))
+            .duration(recipe.mDuration * INPUT_MULTIPLIER)
+            .eut(recipe.mEUt)
+            .metadata(COAL_CASING_TIER, info.getRight())
+            .noOptimize()
+            .addTo(GoodGeneratorRecipeMaps.componentAssemblyLineRecipes);
+
+        // Add a second recipe using Styrene-Butadiene
+        // Rubber instead of Silicone Rubber.
+        // This relies on silicone rubber being first in
+        // @allSyntheticRubber so it's quite fragile, but
+        // it's also the least invasive change.
+        if (swapSiliconeForStyreneButadiene(fixedFluids)) {
+            GTValues.RA.stdBuilder()
+                .itemInputs(fixedInputs.toArray(new ItemStack[0]))
+                .itemOutputs(
+                    info.getLeft()
+                        .get(OUTPUT_MULTIPLIER))
+                .fluidInputs(fixedFluids.toArray(new FluidStack[0]))
+                .duration(recipe.mDuration * INPUT_MULTIPLIER)
+                .eut(recipe.mEUt)
+                .metadata(COAL_CASING_TIER, info.getRight())
+                .noOptimize()
+                .addTo(GoodGeneratorRecipeMaps.componentAssemblyLineRecipes);
+        }
     }
 
     /**
@@ -215,15 +232,15 @@ public class ComponentAssemblyLineRecipeLoader {
             if (OreDictionary.getOreIDs(input).length > 0 && count > threshold) {
                 FluidStack foundFluidStack = tryConvertItemStackToFluidMaterial(input);
 
-                ItemData data = GT_OreDictUnificator.getAssociation(input);
+                ItemData data = GTOreDictUnificator.getAssociation(input);
 
                 // Prevents the uncraftable molten magnetic samarium from being converted into fluid during auto
                 // generation
                 if (data != null && data.mMaterial.mMaterial == Materials.SamariumMagnetic) {
-                    input = GT_OreDictUnificator.get(data.mPrefix, Materials.Samarium, 1);
+                    input = GTOreDictUnificator.get(data.mPrefix, Materials.Samarium, 1);
                     foundFluidStack = tryConvertItemStackToFluidMaterial(input);
                 } else if (data != null && data.mMaterial.mMaterial == Materials.TengamAttuned) {
-                    input = GT_OreDictUnificator.get(data.mPrefix, Materials.TengamPurified, 1);
+                    input = GTOreDictUnificator.get(data.mPrefix, Materials.TengamPurified, 1);
                     foundFluidStack = tryConvertItemStackToFluidMaterial(input);
                 }
 
@@ -245,7 +262,7 @@ public class ComponentAssemblyLineRecipeLoader {
                 }
             }
             if (!isConverted) {
-                newInputs.add(GT_Utility.copyAmountUnsafe(count, input));
+                newInputs.add(GTUtility.copyAmountUnsafe(count, input));
             }
         }
         inputs.clear();
@@ -289,10 +306,12 @@ public class ComponentAssemblyLineRecipeLoader {
             if (strippedOreDict.contains("Any")) continue;
             if (strippedOreDict.contains("PTMEG")) return FluidRegistry.getFluidStack(
                 "molten.silicone",
-                (int) (orePrefix.mMaterialAmount / (GT_Values.M / 144)) * input.stackSize);
+                (int) (orePrefix.mMaterialAmount / (GTValues.M / 144)) * input.stackSize);
+            if (strippedOreDict.contains("protohalkonite")) return MaterialsUEVplus.MoltenProtoHalkoniteBase
+                .getFluid((orePrefix.mMaterialAmount / (GTValues.M / 144)) * input.stackSize);
             return FluidRegistry.getFluidStack(
                 "molten." + strippedOreDict.toLowerCase(),
-                (int) (orePrefix.mMaterialAmount / (GT_Values.M / 144)) * input.stackSize);
+                (int) (orePrefix.mMaterialAmount / (GTValues.M / 144)) * input.stackSize);
         }
         return null;
     }
@@ -323,15 +342,15 @@ public class ComponentAssemblyLineRecipeLoader {
 
     /**
      * Transforms each {@code ItemStack}, if possible, into a more compact form. For example, a stack of 16 1x cables,
-     * when passed into the {@code items} array, will be converted into a single 16x cable. Also handles GraviStar and
-     * neutronium nanite conversion.
+     * when passed into the {@code items} array, will be converted into a single 16x cable. Also handles GraviStar
+     * and neutronium nanite conversion.
      */
     private static ArrayList<ItemStack> compactItems(List<ItemStack> items, int tier) {
         ArrayList<ItemStack> stacks = new ArrayList<>();
         HashMap<ItemStack, Integer> totals = getTotalItems(items);
         for (ItemStack itemstack : totals.keySet()) {
             int totalItems = totals.get(itemstack);
-            ItemData data = GT_OreDictUnificator.getAssociation(itemstack);
+            ItemData data = GTOreDictUnificator.getAssociation(itemstack);
             boolean isCompacted = false;
 
             for (String dict : Arrays.stream(OreDictionary.getOreIDs(itemstack))
@@ -351,20 +370,20 @@ public class ComponentAssemblyLineRecipeLoader {
 
             if (data != null && !isCompacted) {
                 OrePrefixes goInto = conversion.get(data.mPrefix);
-                if (goInto != null && GT_OreDictUnificator.get(goInto, data.mMaterial.mMaterial, 1) != null) {
+                if (goInto != null && GTOreDictUnificator.get(goInto, data.mMaterial.mMaterial, 1) != null) {
                     compactorHelper(data, goInto, stacks, totalItems);
                     isCompacted = true;
                 }
             }
-            if (GT_Utility.areStacksEqual(itemstack, ItemList.Gravistar.get(1)) && tier >= 9) {
+            if (GTUtility.areStacksEqual(itemstack, ItemList.Gravistar.get(1)) && tier >= 9) {
                 stacks.addAll(multiplyAndSplitIntoStacks(ItemList.NuclearStar.get(1), totalItems / 16));
                 isCompacted = true;
             }
-            if (GT_Utility
-                .areStacksEqual(itemstack, GT_OreDictUnificator.get(OrePrefixes.nanite, Materials.Neutronium, 1))) {
+            if (GTUtility
+                .areStacksEqual(itemstack, GTOreDictUnificator.get(OrePrefixes.nanite, Materials.Neutronium, 1))) {
                 stacks.addAll(
                     multiplyAndSplitIntoStacks(
-                        GT_OreDictUnificator.get(OrePrefixes.nanite, Materials.Gold, 1),
+                        GTOreDictUnificator.get(OrePrefixes.nanite, Materials.Gold, 1),
                         totalItems / 16));
                 isCompacted = true;
             }
@@ -380,7 +399,7 @@ public class ComponentAssemblyLineRecipeLoader {
         int materialRatio = (int) ((double) compactInto.mMaterialAmount / data.mPrefix.mMaterialAmount);
         output.addAll(
             multiplyAndSplitIntoStacks(
-                GT_OreDictUnificator.get(compactInto, data.mMaterial.mMaterial, 1),
+                GTOreDictUnificator.get(compactInto, data.mMaterial.mMaterial, 1),
                 total / materialRatio));
     }
 
@@ -392,21 +411,21 @@ public class ComponentAssemblyLineRecipeLoader {
         allAsslineRecipes = new LinkedHashMap<>();
         for (String compPrefix : compPrefixes) {
             for (int t = 1; t <= 13; t++) {
-                String vName = GT_Values.VN[t];
+                String vName = GTValues.VN[t];
                 ItemList currentComponent = ItemList.valueOf(compPrefix + vName);
                 if (currentComponent.hasBeenSet()) {
                     if (t < 6) {
-                        ArrayList<GT_Recipe> foundRecipes = new ArrayList<>();
-                        for (GT_Recipe recipe : RecipeMaps.assemblerRecipes.getAllRecipes()) {
-                            if (GT_Utility.areStacksEqual(currentComponent.get(1), recipe.mOutputs[0])) {
+                        ArrayList<GTRecipe> foundRecipes = new ArrayList<>();
+                        for (GTRecipe recipe : RecipeMaps.assemblerRecipes.getAllRecipes()) {
+                            if (GTUtility.areStacksEqual(currentComponent.get(1), recipe.mOutputs[0])) {
                                 foundRecipes.add(recipe);
                             }
                         }
                         allAssemblerRecipes.put(foundRecipes, Pair.of(currentComponent, t));
                     } else {
-                        ArrayList<GT_Recipe.GT_Recipe_AssemblyLine> foundRecipes = new ArrayList<>();
-                        for (GT_Recipe.GT_Recipe_AssemblyLine recipe : GT_Recipe.GT_Recipe_AssemblyLine.sAssemblylineRecipes) {
-                            if (GT_Utility.areStacksEqual(currentComponent.get(1), recipe.mOutput)) {
+                        ArrayList<GTRecipe.RecipeAssemblyLine> foundRecipes = new ArrayList<>();
+                        for (GTRecipe.RecipeAssemblyLine recipe : GTRecipe.RecipeAssemblyLine.sAssemblylineRecipes) {
+                            if (GTUtility.areStacksEqual(currentComponent.get(1), recipe.mOutput)) {
                                 foundRecipes.add(recipe);
                             }
                         }
@@ -430,7 +449,7 @@ public class ComponentAssemblyLineRecipeLoader {
 
     private static List<ItemStack> getMagnetoConversion(ItemStack item, int total) {
         ArrayList<ItemStack> stacks = new ArrayList<>();
-        ItemData data = GT_OreDictUnificator.getAssociation(item);
+        ItemData data = GTOreDictUnificator.getAssociation(item);
         if (data == null) {
             return stacks;
         }
@@ -438,7 +457,7 @@ public class ComponentAssemblyLineRecipeLoader {
             double multiplier = magnetoConversionMultipliers.get(data.mPrefix);
             stacks.addAll(
                 getWrappedCircuits(
-                    GT_OreDictUnificator.get(OrePrefixes.circuit, Materials.Infinite, 1),
+                    GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UHV, 1),
                     (int) (total * multiplier),
                     "circuitInfinite"));
         }
@@ -468,6 +487,105 @@ public class ComponentAssemblyLineRecipeLoader {
             // in their assline recipes and each CoAl recipe has 48x recipe inputs
             fluidInputs.add(MaterialsUEVplus.Eternity.getMolten(mhdcsmAmount - 576 * 48));
         }
+    }
+
+    /**
+     * Handles creating multiple recipes for Proto-Halkonite. It will generate one set of fluid inputs with
+     * the full amount of Infinity + Molten Proto-Halkonite Base, and another recipe with 50% Creon, 50% Mellion,
+     * and half the Molten Proto-Halkonite Base to simulate the Chemical Bath process.
+     */
+    private static ArrayList<ArrayList<FluidStack>> addFluidsForProtoHalkonite(ArrayList<FluidStack> fluidInputs) {
+        int phkIndex = -1;
+        int infinityIndex = -1;
+        int creonIndex = -1;
+        int mellionIndex = -1;
+        int superfluidIndex = -1;
+
+        for (int i = 0; i < fluidInputs.size(); i++) {
+            FluidStack stack = fluidInputs.get(i);
+            if (stack.getFluid()
+                .equals(FluidRegistry.getFluid("protohalkonitebase"))) {
+                phkIndex = i;
+            }
+            if (stack.getFluid()
+                .equals(FluidRegistry.getFluid("molten.infinity"))) {
+                infinityIndex = i;
+            }
+            if (stack.getFluid()
+                .equals(FluidRegistry.getFluid("molten.creon"))) {
+                creonIndex = i;
+            }
+            if (stack.getFluid()
+                .equals(FluidRegistry.getFluid("molten.mellion"))) {
+                mellionIndex = i;
+            }
+            if (stack.getFluid()
+                .equals(FluidRegistry.getFluid("dimensionallyshiftedsuperfluid"))) {
+                superfluidIndex = i;
+            }
+        }
+
+        ArrayList<ArrayList<FluidStack>> fixedFluidsRecipes = new ArrayList<>();
+
+        if (phkIndex != -1) {
+
+            int originalPhk = fluidInputs.get(phkIndex).amount;
+
+            // infinity recipe
+            ArrayList<FluidStack> infinityRecipe = new ArrayList<>(fluidInputs);
+            if (infinityIndex != -1) {
+                // add to the stack
+                int originalInfinity = infinityRecipe.get(infinityIndex).amount;
+                infinityRecipe.set(infinityIndex, Materials.Infinity.getMolten(originalInfinity + originalPhk));
+            } else {
+                // add a new stack
+                infinityRecipe.add(Materials.Infinity.getMolten(originalPhk));
+            }
+            fixedFluidsRecipes.add(infinityRecipe);
+
+            // creon + mellion recipe
+            ArrayList<FluidStack> creonMellionRecipe = new ArrayList<>(fluidInputs);
+            // adjust phk amount
+            creonMellionRecipe.set(phkIndex, MaterialsUEVplus.MoltenProtoHalkoniteBase.getFluid(originalPhk / 2));
+
+            if (creonIndex != -1) {
+                // add to the stack
+                int originalCreon = creonMellionRecipe.get(creonIndex).amount;
+                creonMellionRecipe.set(creonIndex, MaterialsUEVplus.Creon.getMolten(originalCreon + originalPhk / 2));
+            } else {
+                // add a new stack
+                creonMellionRecipe.add(MaterialsUEVplus.Creon.getMolten(originalPhk / 2));
+            }
+
+            if (mellionIndex != -1) {
+                // add to the stack
+                int originalMellion = creonMellionRecipe.get(mellionIndex).amount;
+                creonMellionRecipe
+                    .set(mellionIndex, MaterialsUEVplus.Mellion.getMolten(originalMellion + originalPhk / 2));
+            } else {
+                // add a new stack
+                creonMellionRecipe.add(MaterialsUEVplus.Mellion.getMolten(originalPhk / 2));
+            }
+            fixedFluidsRecipes.add(creonMellionRecipe);
+
+            // Add superfluid to each recipe to mirror the vacuum freezer cost
+            for (ArrayList<FluidStack> fluids : fixedFluidsRecipes) {
+                if (superfluidIndex != -1) {
+                    // add to the stack
+                    int originalSuperfluid = fluids.get(superfluidIndex).amount;
+                    fluids.set(
+                        superfluidIndex,
+                        MaterialsUEVplus.DimensionallyShiftedSuperfluid.getFluid(originalSuperfluid + originalPhk / 4));
+                } else {
+                    // add a new stack
+                    fluids.add(MaterialsUEVplus.DimensionallyShiftedSuperfluid.getFluid(originalPhk / 4));
+                }
+            }
+        } else {
+            fixedFluidsRecipes.add(fluidInputs);
+        }
+
+        return fixedFluidsRecipes;
     }
 
     private static boolean swapSiliconeForStyreneButadiene(ArrayList<FluidStack> fluidInputs) {

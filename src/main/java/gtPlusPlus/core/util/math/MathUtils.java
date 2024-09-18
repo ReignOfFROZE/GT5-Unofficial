@@ -1,18 +1,18 @@
 package gtPlusPlus.core.util.math;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
-import gregtech.api.enums.GT_Values;
+import gregtech.api.enums.GTValues;
 import gtPlusPlus.api.objects.Logger;
-import gtPlusPlus.api.objects.data.AutoMap;
-import gtPlusPlus.core.lib.CORE;
+import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.core.util.Utils;
 
 public class MathUtils {
 
-    static final Random rand = CORE.RANDOM;
+    static final Random rand = GTPPCore.RANDOM;
 
     /** Formats a number with group separator and at most 2 fraction digits. */
     private static final NumberFormat sNumberFormat = NumberFormat.getInstance();
@@ -273,7 +273,7 @@ public class MathUtils {
     }
 
     public static int safeInt(long number) {
-        return number > GT_Values.V[GT_Values.V.length - 1] ? safeInt(GT_Values.V[GT_Values.V.length - 1], 1)
+        return number > GTValues.V[GTValues.V.length - 1] ? safeInt(GTValues.V[GTValues.V.length - 1], 1)
             : number < Integer.MIN_VALUE ? Integer.MIN_VALUE : (int) number;
     }
 
@@ -291,7 +291,7 @@ public class MathUtils {
      * Averages
      */
 
-    public static byte getByteAverage(AutoMap<Byte> aDataSet) {
+    public static byte getByteAverage(ArrayList<Byte> aDataSet) {
         byte[] aNewSet = new byte[aDataSet.size()];
         for (int u = 0; u < aDataSet.size(); u++) {
             byte b = getSafeByte(aDataSet.get(u));
@@ -300,7 +300,7 @@ public class MathUtils {
         return getByteAverage(aNewSet);
     }
 
-    public static short getShortAverage(AutoMap<Short> aDataSet) {
+    public static short getShortAverage(ArrayList<Short> aDataSet) {
         short[] aNewSet = new short[aDataSet.size()];
         for (int u = 0; u < aDataSet.size(); u++) {
             short b = getSafeShort(aDataSet.get(u));
@@ -309,7 +309,7 @@ public class MathUtils {
         return getShortAverage(aNewSet);
     }
 
-    public static int getIntAverage(AutoMap<Integer> aDataSet) {
+    public static int getIntAverage(ArrayList<Integer> aDataSet) {
         int[] aNewSet = new int[aDataSet.size()];
         for (int u = 0; u < aDataSet.size(); u++) {
             int b = getSafeInt(aDataSet.get(u));
@@ -318,7 +318,7 @@ public class MathUtils {
         return getIntAverage(aNewSet);
     }
 
-    public static long getLongAverage(AutoMap<Long> aDataSet) {
+    public static long getLongAverage(ArrayList<Long> aDataSet) {
         long[] aNewSet = new long[aDataSet.size()];
         for (int u = 0; u < aDataSet.size(); u++) {
             long b = getSafeLong(aDataSet.get(u));
@@ -391,7 +391,7 @@ public class MathUtils {
 
     /**
      * Inverts the value, making Positives into Negatives and vice versa.
-     * 
+     *
      * @param aPositive - An int value, either positive or negative.
      * @return - Inverted int Value.
      */
@@ -484,7 +484,7 @@ public class MathUtils {
 
     /**
      * Balances a number within a range.
-     * 
+     *
      * @param aInput - The number to balance
      * @param aMin   - The minimum bounds
      * @param aMax   - The maximum bounds
