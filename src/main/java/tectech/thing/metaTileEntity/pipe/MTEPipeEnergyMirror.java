@@ -17,8 +17,6 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IColoredTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.logic.PowerLogic;
-import gregtech.api.logic.interfaces.PowerLogicHost;
 import gregtech.api.objects.GTRenderedTexture;
 import gregtech.common.GTClient;
 import tectech.TecTech;
@@ -31,7 +29,7 @@ import tectech.util.CommonValues;
 public class MTEPipeEnergyMirror extends MTEPipeEnergy {
 
     private static Textures.BlockIcons.CustomIcon EMpipe;
-    private ForgeDirection[] connectedSides = { null, null };
+    private final ForgeDirection[] connectedSides = { null, null };
     private ForgeDirection chainedFrontFacing = null;
 
     private boolean active;
@@ -105,15 +103,6 @@ public class MTEPipeEnergyMirror extends MTEPipeEnergy {
                         if (tTileEntity instanceof IColoredTileEntity) {
                             byte tColor = ((IColoredTileEntity) tTileEntity).getColorization();
                             if (tColor != aBaseMetaTileEntity.getColorization()) {
-                                continue;
-                            }
-                        }
-                        if (tTileEntity instanceof PowerLogicHost) {
-                            PowerLogic logic = ((PowerLogicHost) tTileEntity).getPowerLogic(oppositeSide);
-                            if (logic != null && logic.canUseLaser()) {
-                                mConnections |= 1 << side.ordinal();
-                                connectedSides[connectionCount] = side;
-                                connectionCount++;
                                 continue;
                             }
                         }
@@ -197,12 +186,6 @@ public class MTEPipeEnergyMirror extends MTEPipeEnergy {
                             return null;
                         }
                     } else {
-                        if (tGTTileEntity instanceof PowerLogicHost) {
-                            PowerLogic logic = ((PowerLogicHost) tGTTileEntity).getPowerLogic(opposite);
-                            if (logic == null || !logic.canUseLaser() || opposite != tGTTileEntity.getFrontFacing()) {
-                                return tGTTileEntity;
-                            }
-                        }
                         return null;
                     }
                 } else {

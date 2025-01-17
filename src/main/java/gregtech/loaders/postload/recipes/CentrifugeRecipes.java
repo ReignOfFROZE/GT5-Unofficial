@@ -338,13 +338,6 @@ public class CentrifugeRecipes implements Runnable {
             .addTo(centrifugeRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTOreDictUnificator.get(OrePrefixes.log, Materials.Wood, 1), GTUtility.getIntegratedCircuit(1))
-            .fluidOutputs(Materials.Methane.getGas(60))
-            .duration(10 * SECONDS)
-            .eut(20)
-            .addTo(centrifugeRecipes);
-
-        GTValues.RA.stdBuilder()
             .itemInputs(new ItemStack(Blocks.sand, 1, 1))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Iron, 1),
@@ -669,17 +662,6 @@ public class CentrifugeRecipes implements Runnable {
             .fluidOutputs(Materials.LPG.getFluid(370))
             .duration(20 * TICKS)
             .eut(5)
-            .addTo(centrifugeRecipes);
-
-        GTValues.RA.stdBuilder()
-            .itemOutputs(
-                GTOreDictUnificator.get(OrePrefixes.dust, Materials.Naquadah, 8),
-                GTOreDictUnificator.get(OrePrefixes.dust, Materials.ElectrumFlux, 8))
-            .outputChances(10000, 10000)
-            .fluidInputs(Materials.EnrichedNaquadria.getFluid(9216))
-            .fluidOutputs(Materials.FluidNaquadahFuel.getFluid(4806))
-            .duration(30 * SECONDS)
-            .eut(TierEU.RECIPE_UHV)
             .addTo(centrifugeRecipes);
 
         GTValues.RA.stdBuilder()

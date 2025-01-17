@@ -40,11 +40,7 @@ import static gregtech.api.enums.OrePrefixes.gemExquisite;
 import static gregtech.api.enums.OrePrefixes.gemFlawed;
 import static gregtech.api.enums.OrePrefixes.gemFlawless;
 import static gregtech.api.enums.OrePrefixes.ingot;
-import static gregtech.api.enums.OrePrefixes.ingotDouble;
 import static gregtech.api.enums.OrePrefixes.ingotHot;
-import static gregtech.api.enums.OrePrefixes.ingotQuadruple;
-import static gregtech.api.enums.OrePrefixes.ingotQuintuple;
-import static gregtech.api.enums.OrePrefixes.ingotTriple;
 import static gregtech.api.enums.OrePrefixes.lens;
 import static gregtech.api.enums.OrePrefixes.nugget;
 import static gregtech.api.enums.OrePrefixes.ore;
@@ -110,7 +106,6 @@ import bartworks.system.material.werkstoff_loaders.recipe.GemLoader;
 import bartworks.system.material.werkstoff_loaders.recipe.MetalLoader;
 import bartworks.system.material.werkstoff_loaders.recipe.MoltenCellLoader;
 import bartworks.system.material.werkstoff_loaders.recipe.MultipleMetalLoader;
-import bartworks.system.material.werkstoff_loaders.recipe.OreLoader;
 import bartworks.system.material.werkstoff_loaders.recipe.RawOreLoader;
 import bartworks.system.material.werkstoff_loaders.recipe.SimpleMetalLoader;
 import bartworks.system.material.werkstoff_loaders.recipe.ToolLoader;
@@ -128,7 +123,6 @@ import cpw.mods.fml.common.ProgressManager;
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.enums.Element;
 import gregtech.api.enums.FluidState;
-import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.SubTag;
@@ -320,6 +314,8 @@ public class WerkstoffLoader {
     public static final Werkstoff Ferberite = new Werkstoff(
         new short[] { 0xB0, 0xB0, 0xB0, 0 },
         "Ferberite",
+        Werkstoff.Types.getDefaultStatForType(Werkstoff.Types.COMPOUND)
+            .setElektrolysis(false),
         Werkstoff.Types.COMPOUND,
         new Werkstoff.GenerationFeatures(),
         11,
@@ -384,6 +380,8 @@ public class WerkstoffLoader {
     public static final Werkstoff Huebnerit = new Werkstoff(
         new short[] { 0x80, 0x60, 0x60, 0 },
         "Huebnerite",
+        Werkstoff.Types.getDefaultStatForType(Werkstoff.Types.COMPOUND)
+            .setElektrolysis(false),
         Werkstoff.Types.COMPOUND,
         new Werkstoff.GenerationFeatures(),
         17,
@@ -700,6 +698,7 @@ public class WerkstoffLoader {
             .onlyDust()
             .addMetalItems()
             .addMolten()
+            .addMetalCraftingSolidifierRecipes()
             .enforceUnification(),
         39,
         TextureSet.SET_METALLIC
@@ -1046,6 +1045,9 @@ public class WerkstoffLoader {
         new Werkstoff.GenerationFeatures().onlyDust()
             .addMolten()
             .addMetalItems()
+            .addCraftingMetalWorkingItems()
+            .addMetaSolidifierRecipes()
+            .addMetalCraftingSolidifierRecipes()
             .enforceUnification(),
         64,
         TextureSet.SET_METALLIC
@@ -1233,6 +1235,9 @@ public class WerkstoffLoader {
             .onlyDust()
             .addMetalItems()
             .addMolten()
+            .addCraftingMetalWorkingItems()
+            .addMetaSolidifierRecipes()
+            .addMetalCraftingSolidifierRecipes()
             .enforceUnification(),
         78,
         TextureSet.SET_METALLIC);
@@ -1342,7 +1347,9 @@ public class WerkstoffLoader {
             .addMixerRecipes((short) 1)
             .addSimpleMetalWorkingItems()
             .addCraftingMetalWorkingItems()
-            .addMultipleIngotMetalWorkingItems(),
+            .addMultipleIngotMetalWorkingItems()
+            .addMetaSolidifierRecipes()
+            .addMetalCraftingSolidifierRecipes(),
         88,
         TextureSet.SET_METALLIC,
         new Pair<>(Materials.Palladium, 3),
@@ -1378,7 +1385,9 @@ public class WerkstoffLoader {
             .addMixerRecipes((short) 1)
             .addSimpleMetalWorkingItems()
             .addCraftingMetalWorkingItems()
-            .addMultipleIngotMetalWorkingItems(),
+            .addMultipleIngotMetalWorkingItems()
+            .addMetaSolidifierRecipes()
+            .addMetalCraftingSolidifierRecipes(),
         90,
         TextureSet.SET_METALLIC,
         new Pair<>(WerkstoffLoader.Ruthenium, 2),
@@ -1408,7 +1417,9 @@ public class WerkstoffLoader {
             .addMixerRecipes()
             .addSimpleMetalWorkingItems()
             .addCraftingMetalWorkingItems()
-            .addMultipleIngotMetalWorkingItems(),
+            .addMultipleIngotMetalWorkingItems()
+            .addMetaSolidifierRecipes()
+            .addMetalCraftingSolidifierRecipes(),
         92,
         TextureSet.SET_SHINY,
         new Pair<>(Materials.TungstenSteel, 12),
@@ -1469,7 +1480,9 @@ public class WerkstoffLoader {
             .addCraftingMetalWorkingItems()
             .addMolten()
             .addSimpleMetalWorkingItems()
-            .addMultipleIngotMetalWorkingItems(),
+            .addMultipleIngotMetalWorkingItems()
+            .addMetaSolidifierRecipes()
+            .addMetalCraftingSolidifierRecipes(),
         96,
         TextureSet.SET_METALLIC,
         new Pair<>(Materials.Steel, 2),
@@ -1566,6 +1579,55 @@ public class WerkstoffLoader {
         104,
         TextureSet.SET_SHINY);
 
+    // Extracted from GalaxySpace
+    public static final Werkstoff LiquidHelium = new Werkstoff(
+        new short[] { 210, 230, 250 },
+        "Liquid Helium",
+        "He",
+        new Werkstoff.Stats().setBoilingPoint(4)
+            .setGas(false)
+            .setMeltingPoint(1),
+        Werkstoff.Types.MATERIAL,
+        new Werkstoff.GenerationFeatures().disable()
+            .addCells(),
+        11500,
+        TextureSet.SET_FLUID);
+
+    public static final Werkstoff HafniumCarbide = new Werkstoff(
+        new short[] { 125, 135, 125 },
+        "Hafnium Carbide",
+        "HfC",
+        new Werkstoff.Stats().setMass(192),
+        Werkstoff.Types.COMPOUND,
+        new Werkstoff.GenerationFeatures().onlyDust(),
+        11501,
+        TextureSet.SET_METALLIC);
+
+    public static final Werkstoff TantalumCarbideHafniumCarbideMixture = new Werkstoff(
+        new short[] { 75, 85, 75 },
+        "Tantalum Carbide / Hafnium Carbide Mixture",
+        subscriptNumbers("(TaC)4HfC"),
+        new Werkstoff.Stats(),
+        Werkstoff.Types.COMPOUND,
+        new Werkstoff.GenerationFeatures().onlyDust(),
+        11502,
+        TextureSet.SET_METALLIC);
+
+    public static final Werkstoff TantalumHafniumCarbide = new Werkstoff(
+        new short[] { 80, 90, 80 },
+        "Tantalum Hafnium Carbide",
+        subscriptNumbers("Ta4HfC5"),
+        new Werkstoff.Stats().setMass(192)
+            .setMass(962)
+            .setMeltingPoint(4263),
+        Werkstoff.Types.COMPOUND,
+        new Werkstoff.GenerationFeatures().onlyDust()
+            .addMetalItems()
+            .addMolten()
+            .setBlacklist(OrePrefixes.plate),
+        11503,
+        TextureSet.SET_METALLIC);
+
     public static HashMap<OrePrefixes, BWMetaGeneratedItems> items = new HashMap<>();
     public static HashBiMap<Werkstoff, Fluid> fluids = HashBiMap.create();
     public static HashBiMap<Werkstoff, Fluid> molten = HashBiMap.create();
@@ -1657,7 +1719,7 @@ public class WerkstoffLoader {
             }
 
             IWerkstoffRunnable[] werkstoffRunnables = { new ToolLoader(), new DustLoader(), new GemLoader(),
-                new SimpleMetalLoader(), new CasingLoader(), new AspectLoader(), new OreLoader(), new RawOreLoader(),
+                new SimpleMetalLoader(), new CasingLoader(), new AspectLoader(), new RawOreLoader(),
                 new CrushedLoader(), new CraftingMaterialLoader(), new CellLoader(), new MoltenCellLoader(),
                 new MultipleMetalLoader(), new MetalLoader(), new BlockLoader() };
 
@@ -1910,11 +1972,7 @@ public class WerkstoffLoader {
             WerkstoffLoader.items.put(plateTriple, new BWMetaGeneratedItems(plateTriple));
             WerkstoffLoader.items.put(plateQuadruple, new BWMetaGeneratedItems(plateQuadruple));
             WerkstoffLoader.items.put(plateQuintuple, new BWMetaGeneratedItems(plateQuintuple));
-            WerkstoffLoader.items.put(plateDense, new BWMetaGeneratedItems(plateDense));
-            WerkstoffLoader.items.put(ingotDouble, new BWMetaGeneratedItems(ingotDouble));
-            WerkstoffLoader.items.put(ingotTriple, new BWMetaGeneratedItems(ingotTriple));
-            WerkstoffLoader.items.put(ingotQuadruple, new BWMetaGeneratedItems(ingotQuadruple));
-            WerkstoffLoader.items.put(ingotQuintuple, new BWMetaGeneratedItems(ingotQuintuple));
+            WerkstoffLoader.items.put(plateDense, new BWMetaGeneratedItems(plateDense));;
         }
         ENABLED_ORE_PREFIXES.addAll(WerkstoffLoader.items.keySet());
         ENABLED_ORE_PREFIXES.add(ore);
@@ -1981,28 +2039,6 @@ public class WerkstoffLoader {
             }
         }
         addFakeItemDataToInWorldBlocksAndCleanUpFakeData();
-        addVanillaCasingsToGTOreDictUnificator();
-    }
-
-    public static void addVanillaCasingsToGTOreDictUnificator() {
-        GTOreDictUnificator
-            .addAssociation(OrePrefixes.blockCasing, Materials.Aluminium, ItemList.Casing_FrostProof.get(1L), false);
-        GTOreDictUnificator
-            .addAssociation(OrePrefixes.blockCasing, Materials.Nickel, ItemList.Casing_HeatProof.get(1L), false);
-        GTOreDictUnificator
-            .addAssociation(OrePrefixes.blockCasing, Materials.Lead, ItemList.Casing_RadiationProof.get(1L), false);
-        GTOreDictUnificator
-            .addAssociation(OrePrefixes.blockCasing, Materials.Steel, ItemList.Casing_SolidSteel.get(1L), false);
-        GTOreDictUnificator.addAssociation(
-            OrePrefixes.blockCasing,
-            Materials.TungstenSteel,
-            ItemList.Casing_RobustTungstenSteel.get(1L),
-            false);
-        GTOreDictUnificator.addAssociation(
-            OrePrefixes.blockCasing,
-            Materials.Polytetrafluoroethylene,
-            ItemList.Casing_Chemically_Inert.get(1L),
-            false);
     }
 
     /**

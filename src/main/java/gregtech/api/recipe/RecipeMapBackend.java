@@ -2,6 +2,8 @@ package gregtech.api.recipe;
 
 import static gregtech.api.util.GTRecipeBuilder.ENABLE_COLLISION_CHECK;
 import static gregtech.api.util.GTRecipeBuilder.handleInvalidRecipe;
+import static gregtech.api.util.GTRecipeBuilder.handleInvalidRecipeLowFluids;
+import static gregtech.api.util.GTRecipeBuilder.handleInvalidRecipeLowItems;
 import static gregtech.api.util.GTRecipeBuilder.handleRecipeCollision;
 import static gregtech.api.util.GTUtility.areStacksEqualOrNull;
 
@@ -25,7 +27,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import org.jetbrains.annotations.Unmodifiable;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 
 import gregtech.api.GregTechAPI;
@@ -52,11 +54,11 @@ public class RecipeMapBackend {
     /**
      * Recipe index based on items.
      */
-    private final SetMultimap<GTItemStack, GTRecipe> itemIndex = HashMultimap.create();
+    private final SetMultimap<GTItemStack, GTRecipe> itemIndex = LinkedHashMultimap.create();
     /**
      * Recipe index based on fluids.
      */
-    private final SetMultimap<String, GTRecipe> fluidIndex = HashMultimap.create();
+    private final SetMultimap<String, GTRecipe> fluidIndex = LinkedHashMultimap.create();
 
     /**
      * All the recipes belonging to this backend, indexed by recipe category.
@@ -172,14 +174,21 @@ public class RecipeMapBackend {
         Iterable<? extends GTRecipe> recipes = properties.recipeEmitter.apply(builder);
         Collection<GTRecipe> ret = new ArrayList<>();
         for (GTRecipe recipe : recipes) {
-            if (recipe.mFluidInputs.length < properties.minFluidInputs
-                || recipe.mInputs.length < properties.minItemInputs) {
+            if (recipe.mInputs.length < properties.minItemInputs) {
+                handleInvalidRecipeLowItems();
+                return Collections.emptyList();
+            }
+            if (recipe.mFluidInputs.length < properties.minFluidInputs) {
+                handleInvalidRecipeLowFluids();
                 return Collections.emptyList();
             }
             if (properties.recipeTransformer != null) {
                 recipe = properties.recipeTransformer.apply(recipe);
             }
-            if (recipe == null) continue;
+            if (recipe == null) {
+                handleInvalidRecipe();
+                continue;
+            }
             if (builder.isCheckForCollision() && ENABLE_COLLISION_CHECK && checkCollision(recipe)) {
                 handleCollision(recipe);
                 continue;

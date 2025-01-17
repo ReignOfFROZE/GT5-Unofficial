@@ -48,6 +48,7 @@ import static gregtech.api.util.GTRecipeConstants.ADDITIVE_AMOUNT;
 import static gregtech.api.util.GTRecipeConstants.COIL_HEAT;
 import static gregtech.api.util.GTRecipeConstants.FUEL_VALUE;
 import static gregtech.api.util.GTRecipeConstants.FUSION_THRESHOLD;
+import static gregtech.api.util.GTRecipeConstants.GLASS;
 import static gregtech.api.util.GTRecipeConstants.UniversalChemical;
 
 import java.util.Arrays;
@@ -167,6 +168,7 @@ public class AdditionalRecipes {
             }
         }
 
+        long energyUsageWithTransformModule = 1;
         for (ItemStack stack : BioItemList.getAllPetriDishes()) {
             BioData DNA = BioData.getBioDataFromNBTTag(
                 stack.getTagCompound()
@@ -175,6 +177,11 @@ public class AdditionalRecipes {
                 stack.getTagCompound()
                     .getCompoundTag("Plasmid"));
             if (!Objects.equals(DNA.getName(), Plasmid.getName())) {
+                if (DNA.getName() == "TCetiEis Fucus Serratus") {
+                    energyUsageWithTransformModule = TierEU.RECIPE_LuV;
+                } else if (DNA.getName() == "Escherichia koli") {
+                    energyUsageWithTransformModule = TierEU.RECIPE_EV;
+                }
                 GTValues.RA.stdBuilder()
                     .itemInputs(
                         BioItemList.getPetriDish(BioCulture.getBioCulture(DNA.getName())),
@@ -185,7 +192,7 @@ public class AdditionalRecipes {
                     .fluidInputs(FluidRegistry.getFluidStack("ic2distilledwater", 1000))
                     .special(BioItemList.mBioLabParts[3])
                     .duration(25 * SECONDS)
-                    .eut(TierEU.RECIPE_LuV)
+                    .eut(energyUsageWithTransformModule)
                     .ignoreCollision()
                     .fake()
                     .addTo(bioLabRecipes);
@@ -224,6 +231,7 @@ public class AdditionalRecipes {
                         .special(BioItemList.getPetriDish(bioCulture))
                         .fluidInputs(fluidStack)
                         .fluidOutputs(new FluidStack(bioCulture.getFluid(), 10))
+                        .metadata(GLASS, 3)
                         .duration(50 * SECONDS)
                         .eut(TierEU.RECIPE_MV)
                         .addTo(bacterialVatRecipes);
@@ -239,8 +247,6 @@ public class AdditionalRecipes {
                         .fluidInputs(new FluidStack(bioCulture.getFluid(), 1000))
                         .duration(25 * SECONDS)
                         .eut(TierEU.RECIPE_HV)
-                        .ignoreCollision()
-                        .fake()
                         .addTo(bioLabRecipes);
                 }
             }
@@ -274,7 +280,6 @@ public class AdditionalRecipes {
             .addTo(BartWorksRecipeMaps.acidGenFuels);
     }
 
-    @SuppressWarnings("deprecation")
     public static void run() {
         runBWRecipes();
 
@@ -485,8 +490,6 @@ public class AdditionalRecipes {
             .eut(0)
             .metadata(FUEL_VALUE, 125_000)
             .addTo(ultraHugeNaquadahReactorFuels);
-
-        LoadItemContainers.run();
 
         GTValues.RA.stdBuilder()
             .itemInputs(ItemList.Large_Fluid_Cell_TungstenSteel.get(1L), WerkstoffLoader.Tiberium.get(dust, 3))

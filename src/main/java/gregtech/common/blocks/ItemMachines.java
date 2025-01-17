@@ -153,6 +153,8 @@ public class ItemMachines extends ItemBlock implements IFluidContainerItem {
                 }
             }
         } catch (Throwable e) {
+            aList.add(String.format("§cAn exception was thrown while getting this item's info.§r"));
+            aList.add(e.getLocalizedMessage());
             GT_FML_LOGGER.error("addInformation", e);
         }
     }
@@ -179,7 +181,7 @@ public class ItemMachines extends ItemBlock implements IFluidContainerItem {
                 if (aList != null) aList.add(tTranslated);
             } else {
                 String tTranslated = GTLanguageManager.addStringLocalization(tKey, tDescLine);
-                if (aList != null) aList.add(tTranslated.equals("") ? tDescLine : tTranslated);
+                if (aList != null) aList.add(tTranslated.isEmpty() ? tDescLine : tTranslated);
             }
         }
     }

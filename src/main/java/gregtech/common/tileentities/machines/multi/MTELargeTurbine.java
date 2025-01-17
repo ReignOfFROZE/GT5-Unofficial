@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -41,24 +40,26 @@ import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 
-import gregtech.api.enums.Dyes;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.enums.SoundResource;
+import gregtech.api.interfaces.IHatchElement;
 import gregtech.api.interfaces.IIconContainer;
+import gregtech.api.interfaces.INEIPreviewModifier;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.items.MetaGeneratedTool;
 import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
 import gregtech.api.metatileentity.implementations.MTEHatchDynamo;
-import gregtech.api.metatileentity.implementations.MTEHatchMuffler;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GTUtility;
-import gregtech.api.util.LightingHelper;
+import gregtech.api.util.GTUtilityClient;
 import gregtech.api.util.TurbineStatCalculator;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.items.MetaGeneratedTool01;
-import gregtech.common.render.GTRenderUtil;
 
 public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELargeTurbine>
-    implements ISurvivalConstructable {
+    implements ISurvivalConstructable, INEIPreviewModifier {
 
     private static final String STRUCTURE_PIECE_MAIN = "main";
     private static final ClassValue<IStructureDefinition<MTELargeTurbine>> STRUCTURE_DEFINITION = new ClassValue<>() {
@@ -79,8 +80,7 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
                 .addElement(
                     'h',
                     lazy(
-                        t -> buildHatchAdder(MTELargeTurbine.class)
-                            .atLeast(Maintenance, InputHatch, OutputHatch, OutputBus, InputBus, Muffler)
+                        t -> buildHatchAdder(MTELargeTurbine.class).atLeast(t.getHatchElements())
                             .casingIndex(t.getCasingTextureIndex())
                             .dot(2)
                             .buildAndChain(t.getCasingBlock(), t.getCasingMeta())))
@@ -142,6 +142,13 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
         return false;
     }
 
+    @SuppressWarnings("unchecked")
+    protected IHatchElement<? super MTELargeTurbine>[] getHatchElements() {
+        if (getPollutionPerTick(null) == 0)
+            return new IHatchElement[] { Maintenance, InputHatch, OutputHatch, OutputBus, InputBus };
+        return new IHatchElement[] { Maintenance, InputHatch, OutputHatch, OutputBus, InputBus, Muffler };
+    }
+
     @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         return checkPiece(STRUCTURE_PIECE_MAIN, 2, 2, 1) && mMaintenanceHatches.size() == 1
@@ -173,57 +180,13 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
     @Override
     public boolean renderInWorld(IBlockAccess aWorld, int aX, int aY, int aZ, Block aBlock, RenderBlocks aRenderer) {
         if (!isNewStyleRendering() || !mFormed) return false;
-        int[] tABCCoord = new int[] { -1, -1, 0 };
-        int[] tXYZOffset = new int[3];
-        final ForgeDirection tFacing = getBaseMetaTileEntity().getFrontFacing();
-        final ExtendedFacing tExtendedFacing = getExtendedFacing();
-        final ForgeDirection tDirection = tExtendedFacing.getDirection();
-        final LightingHelper tLighting = new LightingHelper(aRenderer);
-
-        // for some reason +x and -z need this field set to true, but not any other sides
-        if (tFacing == ForgeDirection.NORTH || tFacing == ForgeDirection.EAST) aRenderer.field_152631_f = true;
-        final Block tBlock = getCasingBlock();
 
         IIconContainer[] tTextures;
         if (getBaseMetaTileEntity().isActive()) tTextures = getTurbineTextureActive();
         else if (hasTurbine()) tTextures = getTurbineTextureFull();
         else tTextures = getTurbineTextureEmpty();
-
-        assert tTextures != null && tTextures.length == tABCCoord.length;
-
-        for (int i = 0; i < 9; i++) {
-            if (i != 4) { // do not draw ourselves again.
-                tExtendedFacing.getWorldOffset(tABCCoord, tXYZOffset);
-                // since structure check passed, we can assume it is turbine casing
-                int tX = tXYZOffset[0] + aX;
-                int tY = tXYZOffset[1] + aY;
-                int tZ = tXYZOffset[2] + aZ;
-                // we skip the occlusion test, as we always require a working turbine to have a block of air before it
-                // so the front face cannot be occluded whatsoever in the most cases.
-                Tessellator.instance.setBrightness(
-                    tBlock.getMixedBrightnessForBlock(
-                        aWorld,
-                        aX + tDirection.offsetX,
-                        tY + tDirection.offsetY,
-                        aZ + tDirection.offsetZ));
-                tLighting.setupLighting(tBlock, tX, tY, tZ, tFacing)
-                    .setupColor(tFacing, Dyes._NULL.mRGBa);
-                GTRenderUtil.renderBlockIcon(
-                    aRenderer,
-                    tBlock,
-                    tX + tDirection.offsetX * 0.01,
-                    tY + tDirection.offsetY * 0.01,
-                    tZ + tDirection.offsetZ * 0.01,
-                    tTextures[i].getIcon(),
-                    tFacing);
-            }
-            if (++tABCCoord[0] == 2) {
-                tABCCoord[0] = -1;
-                tABCCoord[1]++;
-            }
-        }
-
-        aRenderer.field_152631_f = false;
+        GTUtilityClient
+            .renderTurbineOverlay(aWorld, aX, aY, aZ, aRenderer, getExtendedFacing(), getCasingBlock(), tTextures);
         return false;
     }
 
@@ -250,11 +213,13 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
         super.saveNBTData(aNBT);
+        aNBT.setBoolean("turbineFitting", looseFit);
     }
 
     @Override
     public void loadNBTData(NBTTagCompound aNBT) {
         super.loadNBTData(aNBT);
+        looseFit = aNBT.getBoolean("turbineFitting");
     }
 
     @Override
@@ -362,11 +327,6 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
 
     @Override
     public String[] getInfoData() {
-        int mPollutionReduction = 0;
-        for (MTEHatchMuffler tHatch : validMTEList(mMufflerHatches)) {
-            mPollutionReduction = Math.max(tHatch.calculatePollutionReduction(100), mPollutionReduction);
-        }
-
         String tRunning = mMaxProgresstime > 0
             ? EnumChatFormatting.GREEN + StatCollector.translateToLocal("GT5U.turbine.running.true")
                 + EnumChatFormatting.RESET
@@ -393,7 +353,7 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
             maxEnergy += tHatch.getBaseMetaTileEntity()
                 .getEUCapacity();
         }
-        String[] ret = new String[] {
+        return new String[] {
             // 8 Lines available for information panels
             tRunning + ": "
                 + EnumChatFormatting.RED
@@ -419,7 +379,8 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
                 + EnumChatFormatting.YELLOW
                 + GTUtility.formatNumbers(GTUtility.safeInt((long) realOptFlow))
                 + EnumChatFormatting.RESET
-                + " L/t"
+                + " L/" // based on processing time uses ticks or seconds (for plasma)
+                + (this.mMaxProgresstime == 1 ? 't' : 's')
                 + /* 4 */ EnumChatFormatting.YELLOW
                 + " ("
                 + (looseFit ? StatCollector.translateToLocal("GT5U.turbine.loose")
@@ -434,11 +395,10 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
                 "GT5U.turbine.dmg") + ": " + EnumChatFormatting.RED + tDura + EnumChatFormatting.RESET + "%", /* 7 */
             StatCollector.translateToLocal("GT5U.multiblock.pollution") + ": "
                 + EnumChatFormatting.GREEN
-                + mPollutionReduction
+                + getAveragePollutionPercentage()
                 + EnumChatFormatting.RESET
                 + " %" /* 8 */
         };
-        return ret;
     }
 
     public boolean hasTurbine() {
@@ -471,5 +431,16 @@ public abstract class MTELargeTurbine extends MTEEnhancedMultiBlockBase<MTELarge
     public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
         if (mMachine) return -1;
         return survivialBuildPiece(STRUCTURE_PIECE_MAIN, stackSize, 2, 2, 1, elementBudget, env, false, true);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    protected SoundResource getActivitySoundLoop() {
+        return SoundResource.GT_MACHINES_LARGE_TURBINES_LOOP;
+    }
+
+    @Override
+    public void onPreviewStructureComplete(@NotNull ItemStack trigger) {
+        mFormed = true;
     }
 }

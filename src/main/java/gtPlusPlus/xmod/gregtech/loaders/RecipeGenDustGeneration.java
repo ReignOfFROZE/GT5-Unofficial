@@ -1,8 +1,6 @@
 package gtPlusPlus.xmod.gregtech.loaders;
 
-import static gregtech.api.enums.GTValues.RA;
 import static gregtech.api.recipe.RecipeMaps.blastFurnaceRecipes;
-import static gregtech.api.recipe.RecipeMaps.maceratorRecipes;
 import static gregtech.api.recipe.RecipeMaps.mixerRecipes;
 import static gregtech.api.recipe.RecipeMaps.packagerRecipes;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
@@ -116,28 +114,6 @@ public class RecipeGenDustGeneration extends RecipeGenBase {
         final ItemStack[] inputStacks = material.getMaterialComposites();
         final ItemStack outputStacks = material.getDust(material.smallestStackSizeWhenProcessing);
 
-        // Macerate blocks back to dusts.
-        final ItemStack materialBlock = material.getBlock(1);
-        final ItemStack materialFrameBox = material.getFrameBox(1);
-
-        if (ItemUtils.checkForInvalidItems(materialBlock)) {
-            RA.stdBuilder()
-                .itemInputs(materialBlock)
-                .itemOutputs(material.getDust(9))
-                .eut(2)
-                .duration(20 * SECONDS)
-                .addTo(maceratorRecipes);
-        }
-
-        if (ItemUtils.checkForInvalidItems(materialFrameBox)) {
-            RA.stdBuilder()
-                .itemInputs(materialFrameBox)
-                .itemOutputs(material.getDust(2))
-                .eut(2)
-                .duration(20 * SECONDS)
-                .addTo(maceratorRecipes);
-        }
-
         if (ItemUtils.checkForInvalidItems(smallDust) && ItemUtils.checkForInvalidItems(tinyDust)) {
             generatePackagerRecipes(material);
         }
@@ -145,7 +121,6 @@ public class RecipeGenDustGeneration extends RecipeGenBase {
         ItemStack ingot = material.getIngot(1);
         if (ItemUtils.checkForInvalidItems(normalDust) && ItemUtils.checkForInvalidItems(ingot)) {
             addFurnaceRecipe(material);
-            addMacerationRecipe(material);
         }
 
         // Is this a composite?
@@ -355,29 +330,25 @@ public class RecipeGenDustGeneration extends RecipeGenBase {
         }
 
         // Add mixer Recipe
-        try {
-            if (oxygen == null) {
-                GTValues.RA.stdBuilder()
-                    .itemInputs(input1, input2, input3, input4)
-                    .itemOutputs(outputStacks)
-                    .duration((int) Math.max(material.getMass() * 2L * 1, 1))
-                    .eut(material.vVoltageMultiplier)
-                    .addTo(mixerRecipes);
-            } else {
-                GTValues.RA.stdBuilder()
-                    .itemInputs(input1, input2, input3, input4)
-                    .itemOutputs(outputStacks)
-                    .fluidInputs(oxygen)
-                    .duration((int) Math.max(material.getMass() * 2L * 1, 1))
-                    .eut(material.vVoltageMultiplier)
-                    .addTo(mixerRecipes);
-            }
-
-            Logger.WARNING("Dust Mixer Recipe: " + material.getLocalizedName() + " - Success");
-
-        } catch (Throwable t) {
-            t.printStackTrace();
+        if (oxygen == null) {
+            GTValues.RA.stdBuilder()
+                .itemInputs(input1, input2, input3, input4)
+                .itemOutputs(outputStacks)
+                .duration((int) Math.max(material.getMass() * 2L * 1, 1))
+                .eut(material.vVoltageMultiplier)
+                .addTo(mixerRecipes);
+        } else {
+            GTValues.RA.stdBuilder()
+                .itemInputs(input1, input2, input3, input4)
+                .itemOutputs(outputStacks)
+                .fluidInputs(oxygen)
+                .duration((int) Math.max(material.getMass() * 2L * 1, 1))
+                .eut(material.vVoltageMultiplier)
+                .addTo(mixerRecipes);
         }
+
+        Logger.WARNING("Dust Mixer Recipe: " + material.getLocalizedName() + " - Success");
+
         return true;
     }
 
@@ -400,49 +371,29 @@ public class RecipeGenDustGeneration extends RecipeGenBase {
         return true;
     }
 
-    private void addMacerationRecipe(Material aMatInfo) {
-        try {
-            Logger.MATERIALS("Adding Maceration recipe for " + aMatInfo.getLocalizedName() + " Ingot -> Dusts");
-            RA.stdBuilder()
-                .itemInputs(aMatInfo.getIngot(1))
-                .itemOutputs(aMatInfo.getDust(1))
-                .eut(2)
-                .duration(20 * SECONDS)
-                .addTo(maceratorRecipes);
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    }
-
     private void addFurnaceRecipe(Material aMatInfo) {
 
         ItemStack aDust = aMatInfo.getDust(1);
-        ItemStack aOutput;
-        try {
-            if (aMatInfo.requiresBlastFurnace()) {
-                aOutput = aMatInfo.getHotIngot(1);
-                if (ItemUtils.checkForInvalidItems(aOutput)) {
-                    if (addBlastFurnaceRecipe(aMatInfo, aDust, aOutput, aMatInfo.getMeltingPointK())) {
-                        Logger
-                            .MATERIALS("Successfully added a blast furnace recipe for " + aMatInfo.getLocalizedName());
-                    } else {
-                        Logger.MATERIALS("Failed to add a blast furnace recipe for " + aMatInfo.getLocalizedName());
-                    }
+        if (aMatInfo.requiresBlastFurnace()) {
+            ItemStack aOutput = aMatInfo.getHotIngot(1);
+            if (ItemUtils.checkForInvalidItems(aOutput)) {
+                if (addBlastFurnaceRecipe(aMatInfo, aDust, aOutput, aMatInfo.getMeltingPointK())) {
+                    Logger.MATERIALS("Successfully added a blast furnace recipe for " + aMatInfo.getLocalizedName());
                 } else {
                     Logger.MATERIALS("Failed to add a blast furnace recipe for " + aMatInfo.getLocalizedName());
                 }
             } else {
-                aOutput = aMatInfo.getIngot(1);
-                if (ItemUtils.checkForInvalidItems(aOutput)) {
-                    if (GTModHandler.addSmeltingAndAlloySmeltingRecipe(aDust, aOutput, false)) {
-                        Logger.MATERIALS("Successfully added a furnace recipe for " + aMatInfo.getLocalizedName());
-                    } else {
-                        Logger.MATERIALS("Failed to add a furnace recipe for " + aMatInfo.getLocalizedName());
-                    }
+                Logger.MATERIALS("Failed to add a blast furnace recipe for " + aMatInfo.getLocalizedName());
+            }
+        } else {
+            ItemStack aOutput = aMatInfo.getIngot(1);
+            if (ItemUtils.checkForInvalidItems(aOutput)) {
+                if (GTModHandler.addSmeltingAndAlloySmeltingRecipe(aDust, aOutput, false)) {
+                    Logger.MATERIALS("Successfully added a furnace recipe for " + aMatInfo.getLocalizedName());
+                } else {
+                    Logger.MATERIALS("Failed to add a furnace recipe for " + aMatInfo.getLocalizedName());
                 }
             }
-        } catch (Throwable t) {
-            t.printStackTrace();
         }
     }
 

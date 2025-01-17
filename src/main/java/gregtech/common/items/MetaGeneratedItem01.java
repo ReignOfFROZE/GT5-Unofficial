@@ -89,6 +89,7 @@ import static gregtech.common.items.IDMetaItem01.Battery_SU_MV_Mercury;
 import static gregtech.common.items.IDMetaItem01.Battery_SU_MV_Sulfuric_Acid;
 import static gregtech.common.items.IDMetaItem01.Black_Hole_Closer;
 import static gregtech.common.items.IDMetaItem01.Black_Hole_Opener;
+import static gregtech.common.items.IDMetaItem01.Black_Hole_Stabilizer;
 import static gregtech.common.items.IDMetaItem01.Book_Written_01;
 import static gregtech.common.items.IDMetaItem01.Book_Written_02;
 import static gregtech.common.items.IDMetaItem01.Book_Written_03;
@@ -160,6 +161,7 @@ import static gregtech.common.items.IDMetaItem01.Cover_SolarPanel_LuV;
 import static gregtech.common.items.IDMetaItem01.Cover_SolarPanel_MV;
 import static gregtech.common.items.IDMetaItem01.Cover_SolarPanel_UV;
 import static gregtech.common.items.IDMetaItem01.Cover_SolarPanel_ZPM;
+import static gregtech.common.items.IDMetaItem01.Cover_Wireless_Energy_LV;
 import static gregtech.common.items.IDMetaItem01.Crate_Empty;
 import static gregtech.common.items.IDMetaItem01.Duct_Tape;
 import static gregtech.common.items.IDMetaItem01.Electric_Motor_EV;
@@ -460,7 +462,6 @@ import static gregtech.common.items.IDMetaItem01.ZPM4;
 import static gregtech.common.items.IDMetaItem01.ZPM5;
 import static gregtech.common.items.IDMetaItem01.ZPM6;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -509,6 +510,7 @@ import gregtech.common.covers.CoverCrafting;
 import gregtech.common.covers.CoverDoesWork;
 import gregtech.common.covers.CoverDrain;
 import gregtech.common.covers.CoverEUMeter;
+import gregtech.common.covers.CoverEnergyWireless;
 import gregtech.common.covers.CoverFluidLimiter;
 import gregtech.common.covers.CoverFluidRegulator;
 import gregtech.common.covers.CoverFluidStorageMonitor;
@@ -582,10 +584,10 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
             null,
             OrePrefixes.ingot,
             OrePrefixes.ingotHot,
-            OrePrefixes.ingotDouble,
-            OrePrefixes.ingotTriple,
-            OrePrefixes.ingotQuadruple,
-            OrePrefixes.ingotQuintuple,
+            OrePrefixes.___placeholder___,
+            OrePrefixes.___placeholder___,
+            OrePrefixes.___placeholder___,
+            OrePrefixes.___placeholder___,
             OrePrefixes.plate,
             OrePrefixes.plateDouble,
             OrePrefixes.plateTriple,
@@ -1692,49 +1694,6 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
                 new TCAspects.TC_AspectStack(TCAspects.MACHINA, 512L),
                 new TCAspects.TC_AspectStack(TCAspects.MOTUS, 512L)));
 
-        GTModHandler.addCraftingRecipe(
-            ItemList.Electric_Motor_LV.get(1L),
-            GTModHandler.RecipeBits.DISMANTLEABLE | GTModHandler.RecipeBits.NOT_REMOVABLE
-                | GTModHandler.RecipeBits.REVERSIBLE,
-            new Object[] { "CWR", "WIW", "RWC", 'I', OrePrefixes.stick.get(Materials.IronMagnetic), 'R',
-                OrePrefixes.stick.get(Materials.AnyIron), 'W', OrePrefixes.wireGt01.get(Materials.AnyCopper), 'C',
-                OrePrefixes.cableGt01.get(Materials.Tin) });
-        GTModHandler.addCraftingRecipe(
-            ItemList.Electric_Motor_LV.get(1L),
-            GTModHandler.RecipeBits.DISMANTLEABLE | GTModHandler.RecipeBits.NOT_REMOVABLE
-                | GTModHandler.RecipeBits.REVERSIBLE,
-            new Object[] { "CWR", "WIW", "RWC", 'I', OrePrefixes.stick.get(Materials.SteelMagnetic), 'R',
-                OrePrefixes.stick.get(Materials.Steel), 'W', OrePrefixes.wireGt01.get(Materials.AnyCopper), 'C',
-                OrePrefixes.cableGt01.get(Materials.Tin) });
-        GTModHandler.addCraftingRecipe(
-            ItemList.Electric_Motor_MV.get(1L),
-            GTModHandler.RecipeBits.DISMANTLEABLE | GTModHandler.RecipeBits.NOT_REMOVABLE
-                | GTModHandler.RecipeBits.REVERSIBLE,
-            new Object[] { "CWR", "WIW", "RWC", 'I', OrePrefixes.stick.get(Materials.SteelMagnetic), 'R',
-                OrePrefixes.stick.get(Materials.Aluminium), 'W', OrePrefixes.wireGt02.get(Materials.Cupronickel), 'C',
-                OrePrefixes.cableGt01.get(Materials.AnyCopper) });
-        GTModHandler.addCraftingRecipe(
-            ItemList.Electric_Motor_HV.get(1L),
-            GTModHandler.RecipeBits.DISMANTLEABLE | GTModHandler.RecipeBits.NOT_REMOVABLE
-                | GTModHandler.RecipeBits.REVERSIBLE,
-            new Object[] { "CWR", "WIW", "RWC", 'I', OrePrefixes.stick.get(Materials.SteelMagnetic), 'R',
-                OrePrefixes.stick.get(Materials.StainlessSteel), 'W', OrePrefixes.wireGt04.get(Materials.Electrum), 'C',
-                OrePrefixes.cableGt02.get(Materials.Silver) });
-        GTModHandler.addCraftingRecipe(
-            ItemList.Electric_Motor_EV.get(1L),
-            GTModHandler.RecipeBits.DISMANTLEABLE | GTModHandler.RecipeBits.NOT_REMOVABLE
-                | GTModHandler.RecipeBits.REVERSIBLE,
-            new Object[] { "CWR", "WIW", "RWC", 'I', OrePrefixes.stick.get(Materials.NeodymiumMagnetic), 'R',
-                OrePrefixes.stick.get(Materials.Titanium), 'W', OrePrefixes.wireGt04.get(Materials.BlackSteel), 'C',
-                OrePrefixes.cableGt02.get(Materials.Aluminium) });
-        GTModHandler.addCraftingRecipe(
-            ItemList.Electric_Motor_IV.get(1L),
-            GTModHandler.RecipeBits.DISMANTLEABLE | GTModHandler.RecipeBits.NOT_REMOVABLE
-                | GTModHandler.RecipeBits.REVERSIBLE,
-            new Object[] { "CWR", "WIW", "RWC", 'I', OrePrefixes.stick.get(Materials.NeodymiumMagnetic), 'R',
-                OrePrefixes.stick.get(Materials.TungstenSteel), 'W', OrePrefixes.wireGt04.get(Materials.Graphene), 'C',
-                OrePrefixes.cableGt02.get(Materials.Tungsten) });
-
         ItemList.ElectronicsLump.set(
             addItem(
                 414,
@@ -2107,10 +2066,26 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
                 FluidRegulator_UEV.ID,
                 "Fluid Regulator (UEV)",
                 FRText1 + GTUtility.formatNumbers(2097152 * 20) + FRText2));
-        ItemList.FluidRegulator_UIV.set(addItem(FluidRegulator_UIV.ID, "Fluid Regulator (UIV)", PartNotCoverText));
-        ItemList.FluidRegulator_UMV.set(addItem(FluidRegulator_UMV.ID, "Fluid Regulator (UMV)", PartNotCoverText));
-        ItemList.FluidRegulator_UXV.set(addItem(FluidRegulator_UXV.ID, "Fluid Regulator (UXV)", PartNotCoverText));
-        ItemList.Electric_Pump_MAX.set(addItem(FluidRegulator_MAX.ID, "Fluid Regulator (MAX)", PartNotCoverText));
+        ItemList.FluidRegulator_UIV.set(
+            addItem(
+                FluidRegulator_UIV.ID,
+                "Fluid Regulator (UIV)",
+                FRText1 + GTUtility.formatNumbers(4194304 * 20) + FRText2));
+        ItemList.FluidRegulator_UMV.set(
+            addItem(
+                FluidRegulator_UMV.ID,
+                "Fluid Regulator (UMV)",
+                FRText1 + GTUtility.formatNumbers(8388608 * 20) + FRText2));
+        ItemList.FluidRegulator_UXV.set(
+            addItem(
+                FluidRegulator_UXV.ID,
+                "Fluid Regulator (UXV)",
+                FRText1 + GTUtility.formatNumbers(16777216 * 20) + FRText2));
+        ItemList.FluidRegulator_MAX.set(
+            addItem(
+                FluidRegulator_MAX.ID,
+                "Fluid Regulator (MAX)",
+                FRText1 + GTUtility.formatNumbers(33554432 * 20) + FRText2));
 
         ItemList.FluidFilter.set(
             addItem(FluidFilter.ID, "Fluid Filter Cover", "Set with Fluid Container to only accept one Fluid Type"));
@@ -2961,20 +2936,40 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
             addItem(
                 Cover_Chest_Basic.ID,
                 "Basic Item Holder",
-                "Hold a few item for use within machine GUI",
+                "Holds 9 item for use within machine GUI (as Cover)",
                 new TCAspects.TC_AspectStack(TCAspects.VACUOS, 2L)));
         ItemList.Cover_Chest_Good.set(
             addItem(
                 Cover_Chest_Good.ID,
                 "Good Item Holder",
-                "Hold a few item for use within machine GUI",
+                "Holds 12 item for use within machine GUI (as Cover)",
                 new TCAspects.TC_AspectStack(TCAspects.VACUOS, 2L)));
         ItemList.Cover_Chest_Advanced.set(
             addItem(
                 Cover_Chest_Advanced.ID,
                 "Advanced Item Holder",
-                "Hold a few item for use within machine GUI",
+                "Holds 15 item for use within machine GUI (as Cover)",
                 new TCAspects.TC_AspectStack(TCAspects.VACUOS, 2L)));
+
+        for (int i = 1; i < 15; i++) {
+            ItemList.WIRELESS_ENERGY_COVERS[i - 1].set(
+                addItem(
+                    Cover_Wireless_Energy_LV.ID + i - 1,
+                    GTValues.VN[i] + " Wireless Energy Cover",
+                    String.join(
+                        "/n ",
+                        "Stores energy globally in a network, up to 2^(2^31) EU.",
+                        "Does not connect to wires. This cover withdraws EU from the network.",
+                        "Ignores voltage limitations (no explosions).",
+                        "Amperage: " + EnumChatFormatting.YELLOW + "2" + EnumChatFormatting.GRAY,
+                        "Voltage IN: " + EnumChatFormatting.GREEN
+                            + GTUtility.formatNumbers(GTValues.V[i])
+                            + " ("
+                            + GTUtility.getColoredTierNameFromTier((byte) (i))
+                            + EnumChatFormatting.GREEN
+                            + ")"),
+                    new TCAspects.TC_AspectStack(TCAspects.VACUOS, 2L)));
+        }
 
         ItemList.Cover_Screen.set(
             addItem(
@@ -3261,6 +3256,13 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
                 "Safely closes a pseudostable black hole",
                 new TCAspects.TC_AspectStack(TCAspects.ALIENIS, 32),
                 new TCAspects.TC_AspectStack(TCAspects.PERDITIO, 64)));
+        ItemList.Black_Hole_Stabilizer.set(
+            addItem(
+                Black_Hole_Stabilizer.ID,
+                "Superstable Black Hole Seed",
+                "Opens a superstable black hole/nBlack hole will never destabilize and will operate at maximum efficiency",
+                new TCAspects.TC_AspectStack(TCAspects.ALIENIS, 32),
+                new TCAspects.TC_AspectStack(TCAspects.ORDO, 128)));
 
         // Empty battery hulls
         ItemList.BatteryHull_EV.set(
@@ -3462,6 +3464,7 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
         setAllFluidContainerStats();
         setAllElectricStats();
         registerTieredTooltips();
+        registerSubIcons();
 
         craftingShapedRecipes();
         craftingShapelessRecipes();
@@ -3486,7 +3489,7 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
                 OrePrefixes aPrefix = this.mGeneratedPrefixList[(aDamage / 1000)];
                 if ((aPrefix == OrePrefixes.dustImpure) || (aPrefix == OrePrefixes.dustPure)) {
                     Block tBlock = aItemEntity.worldObj.getBlock(tX, tY, tZ);
-                    byte tMetaData = (byte) aItemEntity.worldObj.getBlockMetadata(tX, tY, tZ);
+                    int tMetaData = aItemEntity.worldObj.getBlockMetadata(tX, tY, tZ);
                     if ((tBlock == Blocks.cauldron) && (tMetaData > 0)) {
 
                         aMaterial = cauldronRemap.getOrDefault(aMaterial, aMaterial);
@@ -3499,7 +3502,7 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
                     }
                 } else if (aPrefix == OrePrefixes.crushed) {
                     Block tBlock = aItemEntity.worldObj.getBlock(tX, tY, tZ);
-                    byte tMetaData = (byte) aItemEntity.worldObj.getBlockMetadata(tX, tY, tZ);
+                    int tMetaData = aItemEntity.worldObj.getBlockMetadata(tX, tY, tZ);
                     if ((tBlock == Blocks.cauldron) && (tMetaData > 0)) {
                         aItemEntity.setEntityItemStack(
                             GTOreDictUnificator
@@ -3509,7 +3512,7 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
                     }
                 } else if (aPrefix == OrePrefixes.dust && aMaterial == Materials.Wheat) {
                     Block tBlock = aItemEntity.worldObj.getBlock(tX, tY, tZ);
-                    byte tMetaData = (byte) aItemEntity.worldObj.getBlockMetadata(tX, tY, tZ);
+                    int tMetaData = aItemEntity.worldObj.getBlockMetadata(tX, tY, tZ);
                     if ((tBlock == Blocks.cauldron) && (tMetaData > 0)) {
                         aItemEntity.setEntityItemStack(ItemList.Food_Dough.get(aItemEntity.getEntityItem().stackSize));
                         aItemEntity.worldObj.setBlockMetadataWithNotify(tX, tY, tZ, tMetaData - 1, 3);
@@ -3537,15 +3540,16 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
     }
 
     public boolean isPlasmaCellUsed(OrePrefixes aPrefix, Materials aMaterial) {
-        Collection<GTRecipe> fusionRecipes = RecipeMaps.fusionRecipes.getAllRecipes();
-        if (aPrefix == OrePrefixes.cellPlasma && aMaterial.getPlasma(1L) != null) { // Materials has a plasma fluid
-            for (GTRecipe recipe : fusionRecipes) { // Loop through fusion recipes
-                if (recipe.getFluidOutput(0) != null) { // Make sure fluid output can't be null (not sure if possible)
+        // Materials has a plasma fluid
+        if (aPrefix == OrePrefixes.cellPlasma && aMaterial.getPlasma(1L) != null) {
+            if (aMaterial.mHasPlasma) return true;
+            // Loop through fusion recipes
+            for (GTRecipe recipe : RecipeMaps.fusionRecipes.getAllRecipes()) {
+                // Make sure fluid output can't be null (not sure if possible)
+                if (recipe.getFluidOutput(0) != null) {
+                    // Fusion recipe output matches current plasma cell fluid
                     if (recipe.getFluidOutput(0)
-                        .isFluidEqual(aMaterial.getPlasma(1L))) return true; // Fusion recipe
-                                                                             // output matches
-                                                                             // current plasma
-                                                                             // cell fluid
+                        .isFluidEqual(aMaterial.getPlasma(1L))) return true;
                 }
             }
         }
@@ -3739,6 +3743,22 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
             ItemList.FluidRegulator_UEV.get(1L),
             TextureFactory.of(MACHINE_CASINGS[10][0], TextureFactory.of(OVERLAY_PUMP)),
             new CoverFluidRegulator(2097152, TextureFactory.of(OVERLAY_PUMP)));
+        GregTechAPI.registerCover(
+            ItemList.FluidRegulator_UIV.get(1L),
+            TextureFactory.of(MACHINE_CASINGS[11][0], TextureFactory.of(OVERLAY_PUMP)),
+            new CoverFluidRegulator(4194304, TextureFactory.of(OVERLAY_PUMP)));
+        GregTechAPI.registerCover(
+            ItemList.FluidRegulator_UMV.get(1L),
+            TextureFactory.of(MACHINE_CASINGS[12][0], TextureFactory.of(OVERLAY_PUMP)),
+            new CoverFluidRegulator(8388608, TextureFactory.of(OVERLAY_PUMP)));
+        GregTechAPI.registerCover(
+            ItemList.FluidRegulator_UXV.get(1L),
+            TextureFactory.of(MACHINE_CASINGS[12][0], TextureFactory.of(OVERLAY_PUMP)),
+            new CoverFluidRegulator(16777216, TextureFactory.of(OVERLAY_PUMP)));
+        GregTechAPI.registerCover(
+            ItemList.FluidRegulator_MAX.get(1L),
+            TextureFactory.of(MACHINE_CASINGS[13][0], TextureFactory.of(OVERLAY_PUMP)),
+            new CoverFluidRegulator(33554432, TextureFactory.of(OVERLAY_PUMP)));
 
         GregTechAPI.registerCover(
             ItemList.FluidFilter.get(1L),
@@ -3963,6 +3983,14 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
             ItemList.Cover_NeedsMaintainance.get(1L),
             TextureFactory.of(MACHINE_CASINGS[2][0], TextureFactory.of(OVERLAY_MAINTENANCE_DETECTOR)),
             new CoverNeedMaintainance(TextureFactory.of(OVERLAY_MAINTENANCE_DETECTOR)));
+
+        for (int i = 0; i < 14; i++) {
+            GregTechAPI.registerCover(
+                ItemList.WIRELESS_ENERGY_COVERS[i].get(1),
+                TextureFactory
+                    .of(MACHINE_CASINGS[i + 1][0], Textures.BlockIcons.OVERLAYS_ENERGY_IN_MULTI_WIRELESS_ON[0]),
+                new CoverEnergyWireless((int) GTValues.V[i + 1]));
+        }
 
     }
 
@@ -4632,6 +4660,10 @@ public class MetaGeneratedItem01 extends MetaGeneratedItemX32 {
         setElectricStats(32000 + BatteryHull_UIV_Full.ID, 104857600000L, GTValues.V[11], 11L, -3L, true);
         setElectricStats(32000 + BatteryHull_UMV_Full.ID, 419430400000L, GTValues.V[12], 12L, -3L, true);
         setElectricStats(32000 + BatteryHull_UxV_Full.ID, 1677721600000L, GTValues.V[13], 13L, -3L, true);
+    }
+
+    private void registerSubIcons() {
+        setSubIcons(Spray_Color_Infinite.ID, 3);
     }
 
     private void registerTieredTooltips() {

@@ -1,6 +1,7 @@
 package gtPlusPlus.xmod.gregtech.common.tileentities.machines.multi.storage;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlocksTiered;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onlyIf;
@@ -15,6 +16,9 @@ import static gregtech.api.util.GTUtility.validMTEList;
 import static gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase.GTPPHatchElement.TTDynamo;
 import static gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase.GTPPHatchElement.TTEnergy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
@@ -26,6 +30,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.structurelib.StructureLibAPI;
@@ -35,11 +40,13 @@ import com.gtnewhorizon.structurelib.structure.AutoPlaceEnvironment;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.IStructureElement;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
+import com.gtnewhorizon.structurelib.structure.ITierConverter;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import com.gtnewhorizons.modularui.api.NumberFormatMUI;
 import com.gtnewhorizons.modularui.api.drawable.Text;
 import com.gtnewhorizons.modularui.api.forge.PlayerMainInvWrapper;
+import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
@@ -69,19 +76,18 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.core.block.ModBlocks;
-import gtPlusPlus.core.lib.GTPPCore;
+import gtPlusPlus.core.config.ASMConfiguration;
 import gtPlusPlus.core.util.MovingAverageLong;
 import gtPlusPlus.core.util.Utils;
 import gtPlusPlus.core.util.math.MathUtils;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
-import gtPlusPlus.preloader.asm.AsmConfig;
 import gtPlusPlus.xmod.gregtech.api.gui.GTPPUITextures;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 
 public class GregtechMetaTileEntity_PowerSubStationController
     extends GTPPMultiBlockBase<GregtechMetaTileEntity_PowerSubStationController> implements ISurvivalConstructable {
 
-    private static enum TopState {
+    private enum TopState {
         MayBeTop,
         Top,
         NotTop
@@ -99,7 +105,7 @@ public class GregtechMetaTileEntity_PowerSubStationController
     private final int ENERGY_TAX = 5;
 
     private int mCasing;
-    private int[] cellCount = new int[6];
+    private final int[] cellCount = new int[6];
     private TopState topState = TopState.MayBeTop;
     private static IStructureDefinition<GregtechMetaTileEntity_PowerSubStationController> STRUCTURE_DEFINITION = null;
 
@@ -114,7 +120,7 @@ public class GregtechMetaTileEntity_PowerSubStationController
 
     @Override
     public String getMachineType() {
-        return "Energy Buffer";
+        return "Energy Buffer, PSS";
     }
 
     @Override
@@ -128,14 +134,13 @@ public class GregtechMetaTileEntity_PowerSubStationController
             .addInfo("Hatches can be placed nearly anywhere")
             .addInfo("HV Energy/Dynamo Hatches are the lowest tier you can use")
             .addInfo("Supports voltages >= UHV using MAX tier components.")
-            .addSeparator()
             .addController("Bottom Center")
             .addCasingInfoMin("Sub-Station External Casings", 10, false)
             .addDynamoHatch("Any Casing", 1)
             .addEnergyHatch("Any Casing", 1)
             .addSubChannelUsage("capacitor", "Vanadium Capacitor Cell Tier")
             .addSubChannelUsage("height", "Height of structure")
-            .toolTipFinisher(GTPPCore.GT_Tooltip_Builder.get());
+            .toolTipFinisher();
         return tt;
     }
 
@@ -167,14 +172,14 @@ public class GregtechMetaTileEntity_PowerSubStationController
     private void checkMachineProblem(String msg, int xOff, int yOff, int zOff) {
         final IGregTechTileEntity te = this.getBaseMetaTileEntity();
         final Block tBlock = te.getBlockOffset(xOff, yOff, zOff);
-        final byte tMeta = te.getMetaIDOffset(xOff, yOff, zOff);
+        final int tMeta = te.getMetaIDOffset(xOff, yOff, zOff);
         String name = tBlock.getLocalizedName();
         String problem = msg + ": (" + xOff + ", " + yOff + ", " + zOff + ") " + name + ":" + tMeta;
         checkMachineProblem(problem);
     }
 
     private void checkMachineProblem(String msg) {
-        if (!AsmConfig.disableAllLogging) {
+        if (!ASMConfiguration.debug.disableAllLogging) {
             Logger.INFO("Power Sub-Station problem: " + msg);
         }
     }
@@ -212,17 +217,13 @@ public class GregtechMetaTileEntity_PowerSubStationController
     }
 
     public static int getMaxHatchTier(int aCellTier) {
-        switch (aCellTier) {
-            case 9 -> {
-                return GTValues.VOLTAGE_NAMES[9].equals("Ultimate High Voltage") ? 15 : 9;
-            }
-            default -> {
-                if (aCellTier < 4) {
-                    return 0;
-                } else {
-                    return aCellTier;
-                }
-            }
+        if (aCellTier == 9) {
+            return GTValues.VOLTAGE_NAMES[9].equals("Ultimate High Voltage") ? 15 : 9;
+        }
+        if (aCellTier < 4) {
+            return 0;
+        } else {
+            return aCellTier;
         }
     }
 
@@ -291,10 +292,34 @@ public class GregtechMetaTileEntity_PowerSubStationController
                                         onElementPass(x -> ++x.cellCount[3], ofCell(7)),
                                         onElementPass(x -> ++x.cellCount[4], ofCell(8)),
                                         onElementPass(x -> ++x.cellCount[5], ofCell(9))))))))
-                .addElement('H', ofCell(4))
+                .addElement(
+                    'H',
+                    withChannel(
+                        "cell",
+                        // Adding this so preview looks correct
+                        ofBlocksTiered(cellTierConverter(), getAllCellTiers(), -1, (te, t) -> {}, (te) -> -1)))
                 .build();
         }
         return STRUCTURE_DEFINITION;
+    }
+
+    public static ITierConverter<Integer> cellTierConverter() {
+        return (block, meta) -> {
+            int tier = getCellTier(block, meta);
+            if (tier == -1) return null;
+            return tier;
+        };
+    }
+
+    public static List<Pair<Block, Integer>> getAllCellTiers() {
+        ArrayList<Pair<Block, Integer>> tiers = new ArrayList<>();
+        tiers.add(Pair.of(ModBlocks.blockCasings2Misc, 7));
+        tiers.add(Pair.of(ModBlocks.blockCasings3Misc, 4));
+        tiers.add(Pair.of(ModBlocks.blockCasings3Misc, 5));
+        tiers.add(Pair.of(ModBlocks.blockCasings3Misc, 6));
+        tiers.add(Pair.of(ModBlocks.blockCasings3Misc, 7));
+        tiers.add(Pair.of(ModBlocks.blockCasings3Misc, 8));
+        return tiers;
     }
 
     public static <T> IStructureElement<T> ofCell(int aIndex) {
@@ -708,7 +733,7 @@ public class GregtechMetaTileEntity_PowerSubStationController
                 + errorCode
                 + EnumChatFormatting.RESET
                 + "]",
-            "----------------------", "Stats for Nerds",
+            EnumChatFormatting.STRIKETHROUGH + "----------------------", "Stats for Nerds",
             "Average Input: " + EnumChatFormatting.BLUE
                 + GTUtility.formatNumbers(this.getAverageEuAdded())
                 + EnumChatFormatting.RESET
@@ -863,6 +888,7 @@ public class GregtechMetaTileEntity_PowerSubStationController
                             ? getBaseMetaTileEntity().isActive() ? "Running perfectly" : "Turn on with Mallet"
                             : "")
                     .setSynced(false)
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setPos(10, 8))
             .widget(
@@ -882,17 +908,20 @@ public class GregtechMetaTileEntity_PowerSubStationController
             .widget(new FakeSyncWidget.LongSyncer(this::getAverageEuAdded, val -> clientEUIn = val))
             .widget(
                 new TextWidget().setStringSupplier(() -> "Avg In: " + numberFormat.format(clientEUIn) + " EU")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setPos(10, 20))
             .widget(new FakeSyncWidget.LongSyncer(this::getAverageEuConsumed, val -> clientEUOut = val))
             .widget(
                 new TextWidget().setStringSupplier(() -> "Avg Out: " + numberFormat.format(clientEUOut) + " EU")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setPos(10, 30))
             .widget(new FakeSyncWidget.LongSyncer(this::computeEnergyTax, val -> clientEULoss = val))
             .widget(
                 new TextWidget()
                     .setStringSupplier(() -> "Powerloss: " + numberFormat.format(clientEULoss) + " EU per tick")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setPos(10, 40))
             .widget(
@@ -908,6 +937,7 @@ public class GregtechMetaTileEntity_PowerSubStationController
                     .setSize(147, 5))
             .widget(
                 new TextWidget("Stored:").setDefaultColor(COLOR_TEXT_WHITE.get())
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setPos(10, 132))
             .widget(
                 new FakeSyncWidget.LongSyncer(() -> getBaseMetaTileEntity().getStoredEU(), val -> clientEUStored = val))
@@ -916,6 +946,7 @@ public class GregtechMetaTileEntity_PowerSubStationController
                 return new Text(numberFormat.format(clientEUStored) + " EU")
                     .color(Utils.rgbtoHexValue((255 - colorScale), colorScale, 0));
             })
+                .setTextAlignment(Alignment.CenterLeft)
                 .setPos(10, 142))
             .widget(
                 new TextWidget().setStringSupplier(() -> numberFormat.format(clientProgress * 100) + "%")

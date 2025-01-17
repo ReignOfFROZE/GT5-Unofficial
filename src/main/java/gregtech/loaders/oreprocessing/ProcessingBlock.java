@@ -30,7 +30,7 @@ public class ProcessingBlock implements gregtech.api.interfaces.IOreRecipeRegist
     public void registerOre(OrePrefixes aPrefix, Materials aMaterial, String aOreDictName, String aModName,
         ItemStack aStack) {
 
-        if (aMaterial == Materials.Ichorium) {
+        if (aMaterial == Materials.Ichorium || aMaterial == Materials.NetherQuartz) {
             return;
         }
 
@@ -141,8 +141,8 @@ public class ProcessingBlock implements gregtech.api.interfaces.IOreRecipeRegist
                         .itemInputs(ItemList.Shape_Mold_Block.get(0L))
                         .itemOutputs(GTOreDictUnificator.get(OrePrefixes.block, aMaterial, 1L))
                         .fluidInputs(aMaterial.getMolten(1296L))
-                        .duration(14 * SECONDS + 8 * TICKS)
-                        .eut(8)
+                        .duration(aMaterial.getMass() * 9 * TICKS)
+                        .eut(calculateRecipeEU(aMaterial, 8))
                         .addTo(fluidSolidifierRecipes);
                 }
             }
@@ -159,9 +159,6 @@ public class ProcessingBlock implements gregtech.api.interfaces.IOreRecipeRegist
                 .duration(5 * SECONDS)
                 .eut(24)
                 .addTo(hammerRecipes);
-        }
-
-        if (tStack2 != null && aMaterial != Materials.NetherQuartz) {
             if (tStack3 != null)
                 GTModHandler.addShapelessCraftingRecipe(tStack3, new Object[] { OrePrefixes.block.get(aMaterial) });
             GTModHandler.addShapelessCraftingRecipe(tStack2, new Object[] { OrePrefixes.block.get(aMaterial) });
@@ -174,13 +171,13 @@ public class ProcessingBlock implements gregtech.api.interfaces.IOreRecipeRegist
             GTValues.RA.stdBuilder()
                 .itemInputs(GTOreDictUnificator.get(OrePrefixes.ingot, aMaterial, 9L))
                 .itemOutputs(GTOreDictUnificator.get(OrePrefixes.block, aMaterial, 1L))
-                .duration(15 * SECONDS)
+                .duration(aMaterial.getMass() * 2 * TICKS)
                 .eut(calculateRecipeEU(aMaterial, 2))
                 .addTo(compressorRecipes);
         }
 
-        switch (aMaterial.mName) {
-            case "Mercury" -> System.err.println(
+        if (aMaterial.mName.equals("Mercury")) {
+            System.err.println(
                 "'blockQuickSilver'?, In which Ice Desert can you actually place this as a solid Block? On Pluto Greg :)");
         }
     }

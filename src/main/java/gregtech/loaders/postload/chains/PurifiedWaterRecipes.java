@@ -17,13 +17,12 @@ import static gregtech.api.recipe.RecipeMaps.purificationParticleExtractionRecip
 import static gregtech.api.recipe.RecipeMaps.purificationPhAdjustmentRecipes;
 import static gregtech.api.recipe.RecipeMaps.purificationPlasmaHeatingRecipes;
 import static gregtech.api.recipe.RecipeMaps.purificationUVTreatmentRecipes;
-import static gregtech.api.util.GTRecipeBuilder.HOURS;
 import static gregtech.api.util.GTRecipeBuilder.MINUTES;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 import static gregtech.api.util.GTRecipeConstants.AssemblyLine;
 import static gregtech.api.util.GTRecipeConstants.COIL_HEAT;
 import static gregtech.api.util.GTRecipeConstants.RESEARCH_ITEM;
-import static gregtech.api.util.GTRecipeConstants.RESEARCH_TIME;
+import static gregtech.api.util.GTRecipeConstants.SCANNING;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -41,6 +40,7 @@ import gregtech.api.recipe.metadata.PurificationPlantBaseChanceKey;
 import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
+import gregtech.api.util.recipe.Scanning;
 import gregtech.common.tileentities.machines.multi.purification.MTEPurificationPlant;
 import gregtech.common.tileentities.machines.multi.purification.MTEPurificationUnitUVTreatment;
 import gtPlusPlus.core.material.Particle;
@@ -48,6 +48,7 @@ import gtPlusPlus.core.material.Particle;
 public class PurifiedWaterRecipes {
 
     static final PurificationPlantBaseChanceKey BASE_CHANCE = PurificationPlantBaseChanceKey.INSTANCE;
+    public static final int extraBaryonicOutput = 500;
 
     public static void run() {
         final int duration = MTEPurificationPlant.CYCLE_TIME_TICKS;
@@ -151,12 +152,10 @@ public class PurifiedWaterRecipes {
             .eut(TierEU.RECIPE_EV)
             .addTo(multiblockChemicalReactorRecipes);
 
-        // Diluted is twice what chem balance would suggest, but it is 2:1 with hydrochloric acid which makes it
-        // correct I believe.
         GTValues.RA.stdBuilder()
             .fluidInputs(Materials.FlocculationWasteLiquid.getFluid(10000L))
-            .itemOutputs(Materials.Aluminium.getDust(11))
-            .fluidOutputs(Materials.Oxygen.getGas(29000L), Materials.DilutedHydrochloricAcid.getFluid(58000L))
+            .itemOutputs(Materials.Aluminium.getDust(20))
+            .fluidOutputs(Materials.Oxygen.getGas(30000L), Materials.HydrochloricAcid.getFluid(30000L))
             .duration(1 * SECONDS)
             .eut(TierEU.RECIPE_EV)
             .addTo(distillationTowerRecipes);
@@ -264,7 +263,7 @@ public class PurifiedWaterRecipes {
         // Recipe for quark catalyst housing
         GTValues.RA.stdBuilder()
             .metadata(RESEARCH_ITEM, ItemList.Electromagnet_Tengam.get(1))
-            .metadata(RESEARCH_TIME, 1 * HOURS)
+            .metadata(SCANNING, new Scanning(2 * MINUTES, TierEU.RECIPE_UHV))
             .itemInputs(
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Neutronium, 16),
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Infinity, 16),
@@ -274,8 +273,8 @@ public class PurifiedWaterRecipes {
                 GTOreDictUnificator.get(OrePrefixes.wireFine, Materials.Infinity, 64),
                 GTOreDictUnificator.get(OrePrefixes.wireFine, Materials.Tritanium, 64),
                 GTOreDictUnificator.get(OrePrefixes.wireFine, Materials.CosmicNeutronium, 64),
-                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UHV, 16),
-                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UEV, 8),
+                new Object[] { OrePrefixes.circuit.get(Materials.UHV), 16 },
+                new Object[] { OrePrefixes.circuit.get(Materials.UEV), 8 },
                 ItemList.Field_Generator_UEV.get(1))
             .fluidInputs(
                 Materials.Neutronium.getMolten(16 * 144),
@@ -304,7 +303,9 @@ public class PurifiedWaterRecipes {
         // real recipe
         GTValues.RA.stdBuilder()
             .fluidInputs(Materials.Grade7PurifiedWater.getFluid(1000L))
-            .fluidOutputs(Materials.Grade8PurifiedWater.getFluid(900L), Materials.StableBaryonicMatter.getFluid(500))
+            .fluidOutputs(
+                Materials.Grade8PurifiedWater.getFluid(900L),
+                Materials.StableBaryonicMatter.getFluid(extraBaryonicOutput))
             .itemOutputs(ItemList.Quark_Creation_Catalyst_Unaligned.get(2L), Particle.getBaseParticle(Particle.UNKNOWN))
             .outputChances(10000, 100)
             .ignoreCollision()

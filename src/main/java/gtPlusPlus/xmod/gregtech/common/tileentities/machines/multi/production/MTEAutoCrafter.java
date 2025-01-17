@@ -29,8 +29,8 @@ import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.core.block.ModBlocks;
-import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 
 public class MTEAutoCrafter extends GTPPMultiBlockBase<MTEAutoCrafter> implements ISurvivalConstructable {
@@ -49,7 +49,7 @@ public class MTEAutoCrafter extends GTPPMultiBlockBase<MTEAutoCrafter> implement
 
     @Override
     public String getMachineType() {
-        return "Assembler";
+        return "Assembler, LSAA";
     }
 
     @Override
@@ -79,7 +79,7 @@ public class MTEAutoCrafter extends GTPPMultiBlockBase<MTEAutoCrafter> implement
 
     @Override
     public int getPollutionPerSecond(ItemStack aStack) {
-        return GTPPCore.ConfigSwitches.pollutionPerSecondMultiAutoCrafter;
+        return PollutionConfig.pollutionPerSecondMultiAutoCrafter;
     }
 
     @Override
@@ -90,7 +90,6 @@ public class MTEAutoCrafter extends GTPPMultiBlockBase<MTEAutoCrafter> implement
             .addInfo("200% faster than using single block machines of the same voltage")
             .addInfo("Processes two items per voltage tier")
             .addPollutionAmount(getPollutionPerSecond(null))
-            .addSeparator()
             .beginStructureBlock(3, 3, 3, true)
             .addController("Front Center")
             .addCasingInfoRange("Bulk Production Frame", 10, 25, false)
@@ -100,7 +99,7 @@ public class MTEAutoCrafter extends GTPPMultiBlockBase<MTEAutoCrafter> implement
             .addEnergyHatch("Any Casing", 1)
             .addMaintenanceHatch("Any Casing", 1)
             .addMufflerHatch("Any Casing", 1)
-            .toolTipFinisher(GTPPCore.GT_Tooltip_Builder.get());
+            .toolTipFinisher();
         return tt;
     }
 
@@ -110,8 +109,18 @@ public class MTEAutoCrafter extends GTPPMultiBlockBase<MTEAutoCrafter> implement
     }
 
     @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return Textures.BlockIcons.OVERLAY_FRONT_DISASSEMBLER_ACTIVE_GLOW;
+    }
+
+    @Override
     protected IIconContainer getInactiveOverlay() {
         return Textures.BlockIcons.OVERLAY_FRONT_DISASSEMBLER;
+    }
+
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return Textures.BlockIcons.OVERLAY_FRONT_DISASSEMBLER_GLOW;
     }
 
     @Override

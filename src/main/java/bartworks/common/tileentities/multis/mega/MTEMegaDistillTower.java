@@ -13,7 +13,6 @@
 
 package bartworks.common.tileentities.multis.mega;
 
-import static bartworks.util.BWTooltipReference.MULTIBLOCK_ADDED_BY_BARTIMAEUSNEK_VIA_BARTWORKS;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
@@ -28,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -37,9 +35,9 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
-import com.gtnewhorizon.structurelib.structure.IItemSource;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.IStructureElementCheckOnly;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 
 import bartworks.common.configs.Configuration;
@@ -206,10 +204,9 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
     }
 
     protected boolean addLayerOutputHatch(IGregTechTileEntity aTileEntity, int aBaseCasingIndex) {
-        if (aTileEntity == null || aTileEntity.isDead() || !(aTileEntity.getMetaTileEntity() instanceof MTEHatchOutput))
-            return false;
+        if (aTileEntity == null || aTileEntity.isDead()
+            || !(aTileEntity.getMetaTileEntity() instanceof MTEHatchOutput tHatch)) return false;
         while (this.mOutputHatchesByLayer.size() < this.mHeight) this.mOutputHatchesByLayer.add(new ArrayList<>());
-        MTEHatchOutput tHatch = (MTEHatchOutput) aTileEntity.getMetaTileEntity();
         tHatch.updateTexture(aBaseCasingIndex);
         return this.mOutputHatchesByLayer.get(this.mHeight - 1)
             .add(tHatch);
@@ -260,11 +257,11 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
-        tt.addMachineType("Distillery")
-            .addInfo("Controller block for the Distillation Tower")
+        tt.addMachineType("Distillery, MDT")
+            .addParallelInfo(Configuration.Multiblocks.megaMachinesMax)
             .addInfo("Fluids are only put out at the correct height")
             .addInfo("The correct height equals the slot number in the NEI recipe")
-            .addSeparator()
+            .addTecTechHatchInfo()
             .beginVariableStructureBlock(15, 15, 16, 56, 15, 15, true)
             .addController("Front bottom")
             .addOtherStructurePart("Clean Stainless Steel Machine Casing", "15 x h - 5 (minimum)")
@@ -275,7 +272,7 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
             .addOutputHatch("2-11x Output Hatches (One per Output Layer except bottom layer)")
             .addStructureInfo("An \"Output Layer\" consists of 5 layers!")
             .addStructureHint("The interior of this Mega Multiblock's hologram is empty, it should be all air.")
-            .toolTipFinisher(MULTIBLOCK_ADDED_BY_BARTIMAEUSNEK_VIA_BARTWORKS);
+            .toolTipFinisher();
         return tt;
     }
 
@@ -329,12 +326,11 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
     }
 
     @Override
-    public int survivalConstruct(ItemStack stackSize, int elementBudget, IItemSource source, EntityPlayerMP actor) {
+    public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
         if (this.mMachine) return -1;
         int realBudget = elementBudget >= 200 ? elementBudget : Math.min(200, elementBudget * 5);
         this.mHeight = 0;
-        int built = this
-            .survivialBuildPiece(STRUCTURE_PIECE_BASE, stackSize, 7, 0, 0, realBudget, source, actor, false, true);
+        int built = this.survivialBuildPiece(STRUCTURE_PIECE_BASE, stackSize, 7, 0, 0, realBudget, env, false, true);
         if (built >= 0) return built;
         int tTotalHeight = Math.min(12, stackSize.stackSize + 2); // min 2 output layer, so at least 1 + 2 height
         for (int i = 1; i < tTotalHeight - 1; i++) {
@@ -346,8 +342,7 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
                 5 * this.mHeight,
                 0,
                 realBudget,
-                source,
-                actor,
+                env,
                 false,
                 true);
             if (built >= 0) return built;
@@ -360,8 +355,7 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
             5 * this.mHeight,
             0,
             realBudget,
-            source,
-            actor,
+            env,
             false,
             true);
     }
@@ -376,7 +370,7 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
 
     @Override
     public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-        float aX, float aY, float aZ) {
+        float aX, float aY, float aZ, ItemStack aTool) {
         if (aPlayer.isSneaking()) {
             this.batchMode = !this.batchMode;
             if (this.batchMode) {
@@ -421,9 +415,9 @@ public class MTEMegaDistillTower extends MegaMultiBlockBase<MTEMegaDistillTower>
     }
 
     @Override
-    protected void addFluidOutputs(FluidStack[] mOutputFluids2) {
-        for (int i = 0; i < mOutputFluids2.length && i < this.mOutputHatchesByLayer.size(); i++) {
-            FluidStack tStack = mOutputFluids2[i].copy();
+    protected void addFluidOutputs(FluidStack[] outputFluids) {
+        for (int i = 0; i < outputFluids.length && i < this.mOutputHatchesByLayer.size(); i++) {
+            FluidStack tStack = outputFluids[i].copy();
             if (!dumpFluid(this.mOutputHatchesByLayer.get(i), tStack, true))
                 dumpFluid(this.mOutputHatchesByLayer.get(i), tStack, false);
         }

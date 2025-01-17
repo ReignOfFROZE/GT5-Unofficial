@@ -28,7 +28,7 @@ import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtTools;
 public class ToolAngleGrinder extends GTTool {
 
     public static final List<String> mEffectiveList = Arrays
-        .asList(new String[] { EntityIronGolem.class.getName(), "EntityTowerGuardian" });
+        .asList(EntityIronGolem.class.getName(), "EntityTowerGuardian");
 
     @Override
     public float getNormalDamageAgainstEntity(final float aOriginalDamage, final Entity aEntity, final ItemStack aStack,
@@ -115,14 +115,14 @@ public class ToolAngleGrinder extends GTTool {
     }
 
     @Override
-    public boolean isMinableBlock(final Block aBlock, final byte aMetaData) {
+    public boolean isMinableBlock(final Block aBlock, final int aMetaData) {
         final String tTool = aBlock.getHarvestTool(aMetaData);
         return (tTool != null) && (tTool.equals("sword") || tTool.equals("file"));
     }
 
     @Override
     public int convertBlockDrops(final List<ItemStack> aDrops, final ItemStack aStack, final EntityPlayer aPlayer,
-        final Block aBlock, final int aX, final int aY, final int aZ, final byte aMetaData, final int aFortune,
+        final Block aBlock, final int aX, final int aY, final int aZ, final int aMetaData, final int aFortune,
         final boolean aSilkTouch, final BlockEvent.HarvestDropsEvent aEvent) {
         return 0;
     }
@@ -134,7 +134,7 @@ public class ToolAngleGrinder extends GTTool {
 
     @Override
     public IIconContainer getIcon(boolean aIsToolHead, ItemStack aStack) {
-        return (IIconContainer) (aIsToolHead ? TexturesGtTools.ANGLE_GRINDER : ItemIcons.POWER_UNIT_HV);
+        return aIsToolHead ? TexturesGtTools.ANGLE_GRINDER : ItemIcons.POWER_UNIT_HV;
     }
 
     @Override

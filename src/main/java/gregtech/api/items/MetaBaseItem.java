@@ -6,6 +6,7 @@ import static gregtech.api.util.GTUtility.formatNumbers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -24,6 +25,9 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 
+import com.gtnewhorizons.modularui.api.KeyboardUtil;
+
+import gregtech.GTMod;
 import gregtech.api.enums.SubTag;
 import gregtech.api.interfaces.IItemBehaviour;
 import gregtech.api.util.GTLanguageManager;
@@ -123,6 +127,10 @@ public abstract class MetaBaseItem extends GTGenericItem
         return forEachBehavior(aStack, behavior -> behavior.onLeftClick(this, aStack, aPlayer));
     }
 
+    public boolean onMiddleClick(ItemStack aStack, EntityPlayer aPlayer) {
+        return forEachBehavior(aStack, behavior -> behavior.onMiddleClick(this, aStack, aPlayer));
+    }
+
     @Override
     public boolean onLeftClickEntity(ItemStack aStack, EntityPlayer aPlayer, Entity aEntity) {
         use(aStack, 0, aPlayer);
@@ -139,7 +147,7 @@ public abstract class MetaBaseItem extends GTGenericItem
                 return false;
             }
         } catch (Throwable e) {
-            if (D1) e.printStackTrace(GTLog.err);
+            GTMod.GT_FML_LOGGER.error("Error left clicking entity", e);
         }
         return false;
     }
@@ -161,7 +169,7 @@ public abstract class MetaBaseItem extends GTGenericItem
                 return false;
             }
         } catch (Throwable e) {
-            if (D1) e.printStackTrace(GTLog.err);
+            GTMod.GT_FML_LOGGER.error("Error using item", e);
         }
         return false;
     }
@@ -193,7 +201,7 @@ public abstract class MetaBaseItem extends GTGenericItem
                 return false;
             }
         } catch (Throwable e) {
-            if (D1) e.printStackTrace(GTLog.err);
+            GTMod.GT_FML_LOGGER.error("Error using item", e);
         }
         return false;
     }
@@ -207,7 +215,7 @@ public abstract class MetaBaseItem extends GTGenericItem
             if (tList != null) for (IItemBehaviour<MetaBaseItem> tBehavior : tList)
                 aStack = tBehavior.onItemRightClick(this, aStack, aWorld, aPlayer);
         } catch (Throwable e) {
-            if (D1) e.printStackTrace(GTLog.err);
+            GTMod.GT_FML_LOGGER.error("Error right clicking item", e);
         }
         return aStack;
     }
@@ -256,13 +264,23 @@ public abstract class MetaBaseItem extends GTGenericItem
             aList.add(
                 EnumChatFormatting.BLUE + String.format(
                     transItem("013", "%sL / %sL"),
-                    "" + (tFluid == null ? 0 : formatNumbers(tFluid.amount)),
-                    "" + formatNumbers(tStats[0])) + EnumChatFormatting.GRAY);
+                    tFluid == null ? 0 : formatNumbers(tFluid.amount),
+                    formatNumbers(tStats[0])) + EnumChatFormatting.GRAY);
         }
 
-        ArrayList<IItemBehaviour<MetaBaseItem>> tList = mItemBehaviors.get((short) getDamage(aStack));
-        if (tList != null) for (IItemBehaviour<MetaBaseItem> tBehavior : tList)
-            aList = tBehavior.getAdditionalToolTips(this, aList, aStack);
+        ArrayList<IItemBehaviour<MetaBaseItem>> behaviours = mItemBehaviors.get((short) getDamage(aStack));
+        if (behaviours != null) {
+            for (IItemBehaviour<MetaBaseItem> behavior : behaviours) {
+                final Optional<List<String>> shiftTooltips = KeyboardUtil.isShiftKeyDown()
+                    ? behavior.getAdditionalToolTipsWhileSneaking(this, aList, aStack)
+                    : Optional.empty();
+                if (shiftTooltips.isPresent()) {
+                    aList = shiftTooltips.get();
+                } else {
+                    aList = behavior.getAdditionalToolTips(this, aList, aStack);
+                }
+            }
+        }
 
         addAdditionalToolTips(aList, aStack, aPlayer);
     }

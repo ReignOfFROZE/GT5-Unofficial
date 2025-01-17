@@ -39,12 +39,11 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_DISTILLATION_
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.util.GTStructureUtility.ofFrame;
-import static kubatech.api.Variables.Author;
-import static kubatech.api.Variables.StructureHologram;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -54,7 +53,6 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -63,11 +61,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -75,7 +75,6 @@ import net.minecraftforge.fluids.FluidStack;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.google.common.collect.Multimap;
 import com.gtnewhorizon.structurelib.alignment.IAlignmentLimits;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
@@ -106,8 +105,10 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import crazypants.enderio.EnderIO;
 import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.Mods;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.ITexture;
@@ -128,6 +129,8 @@ import kubatech.api.utils.ModUtils;
 import kubatech.client.effect.EntityRenderer;
 import kubatech.loaders.MobHandlerLoader;
 import kubatech.network.CustomTileEntityPacket;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 
 public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtremeEntityCrusher>
     implements CustomTileEntityPacketHandler, ISurvivalConstructable {
@@ -262,11 +265,9 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType("Powered Spawner, EEC")
-            .addInfo("Controller block for the Extreme Entity Crusher")
-            .addInfo(Author)
             .addInfo("Spawns and kills monsters for you.")
             .addInfo("You have to insert the powered spawner in the controller.")
-            .addInfo("Base energy usage: 2,000 EU/t")
+            .addInfo("Base energy usage: 1,920 EU/t")
             .addInfo("Supports perfect OC, minimum time: 20 ticks, after that multiplies the outputs.")
             .addInfo("Recipe time is based on mob health.")
             .addInfo("You can additionally put a weapon inside the GUI.")
@@ -280,8 +281,6 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
             .addInfo("When in ritual mode and the Well Of Suffering ritual is built directly centered on the machine,")
             .addInfo("the mobs will start to buffer and die very slowly by the ritual.")
             .addInfo("You can disable mob animation with a soldering iron.")
-            .addInfo(StructureHologram)
-            .addSeparator()
             .beginStructureBlock(5, 7, 5, true)
             .addController("Front Bottom Center")
             .addCasingInfoMin("Solid Steel Machine Casing", 35, false)
@@ -293,7 +292,7 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
             .addOutputHatch("Any bottom casing", 1)
             .addEnergyHatch("Any bottom casing", 1)
             .addMaintenanceHatch("Any bottom casing", 1)
-            .toolTipFinisher(Tags.MODNAME);
+            .toolTipFinisher(GTValues.AuthorKuba);
         return tt;
     }
 
@@ -416,12 +415,12 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
 
     @Override
     public boolean onSolderingToolRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-        float aX, float aY, float aZ) {
+        float aX, float aY, float aZ, ItemStack aTool) {
         if (wrenchingSide == getBaseMetaTileEntity().getFrontFacing()) {
             mAnimationEnabled = !mAnimationEnabled;
             GTUtility.sendChatToPlayer(aPlayer, "Animations are " + (mAnimationEnabled ? "enabled" : "disabled"));
             return true;
-        } else return super.onSolderingToolRightClick(side, wrenchingSide, aPlayer, aX, aY, aZ);
+        } else return super.onSolderingToolRightClick(side, wrenchingSide, aPlayer, aX, aY, aZ, aTool);
     }
 
     @SuppressWarnings("unused")
@@ -496,8 +495,7 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
                 isValid = false;
                 return;
             }
-            // noinspection unchecked
-            attackDamage = ((Multimap<String, AttributeModifier>) stack.getAttributeModifiers())
+            attackDamage = stack.getAttributeModifiers()
                 .get(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName())
                 .stream()
                 .mapToDouble(
@@ -558,7 +556,7 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
 
             double attackDamage = DIAMOND_SPIKES_DAMAGE; // damage from spikes
             weaponCheck: {
-                MTEHatchInputBus inputbus = this.mInputBusses.size() == 0 ? null : this.mInputBusses.get(0);
+                MTEHatchInputBus inputbus = this.mInputBusses.isEmpty() ? null : this.mInputBusses.get(0);
                 if (inputbus != null && !inputbus.isValid()) inputbus = null;
                 ItemStack lootingHolder = inputbus == null ? null : inputbus.getStackInSlot(0);
                 if (lootingHolder == null) break weaponCheck;
@@ -591,7 +589,6 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
                 EECPlayer.currentWeapon = weapon;
                 Item lootingHolderItem = weapon.getItem();
                 for (int i = 0; i < times + 1; i++) {
-                    // noinspection ConstantConditions
                     if (!lootingHolderItem.hitEntity(weapon, recipe.recipe.entity, EECPlayer)) break;
                     if (weapon.stackSize == 0) {
                         weaponCache.setStackInSlot(0, null);
@@ -655,9 +652,8 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
         mCasing = 0;
         if (!checkPiece(STRUCTURE_PIECE_MAIN, 2, 6, 0)) return false;
         if (mCasing < 35 || mMaintenanceHatches.size() != 1
-            || mEnergyHatches.size() == 0
-            || !(mInputBusses.size() == 0 || (mInputBusses.size() == 1 && mInputBusses.get(0).mTier == 0)))
-            return false;
+            || mEnergyHatches.isEmpty()
+            || !(mInputBusses.isEmpty() || (mInputBusses.size() == 1 && mInputBusses.get(0).mTier == 0))) return false;
         if (mGlassTier < 8) for (MTEHatchEnergy hatch : mEnergyHatches) if (hatch.mTier > mGlassTier) return false;
         if (isInRitualMode) connectToRitual();
         return true;
@@ -666,6 +662,8 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
     @Override
     public String[] getInfoData() {
         ArrayList<String> info = new ArrayList<>(Arrays.asList(super.getInfoData()));
+        String mobName = getCurrentMob();
+        info.add("Current Mob: " + EnumChatFormatting.YELLOW + (mobName != null ? mobName : "None"));
         info.add("Animations: " + EnumChatFormatting.YELLOW + (mAnimationEnabled ? "Enabled" : "Disabled"));
         info.add(
             "Is allowed to produce infernal drops: " + EnumChatFormatting.YELLOW
@@ -774,6 +772,56 @@ public class MTEExtremeEntityCrusher extends KubaTechGTMultiBlockBase<MTEExtreme
                 .withFixedSize(16, 16)
                 .withOffset(1, 1));
         slotWidgets.add(weaponSlot);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    protected SoundResource getActivitySoundLoop() {
+        return SoundResource.GT_MACHINES_EXTREME_ENTITY_CRUSHER_LOOP;
+    }
+
+    private String getCurrentMob() {
+        ItemStack spawner = mInventory[1];
+        if (spawner != null && spawner.getTagCompound() != null) {
+            return spawner.getTagCompound()
+                .getString("mobType");
+        }
+        return null;
+    }
+
+    @Override
+    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+        int z) {
+        super.getWailaNBTData(player, tile, tag, world, x, y, z);
+        String mob = getCurrentMob();
+        if (mob != null) {
+            tag.setString("eecMobType", mob);
+        }
+    }
+
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currentTip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
+        super.getWailaBody(itemStack, currentTip, accessor, config);
+        NBTTagCompound tag = accessor.getNBTData();
+
+        if (tag.hasKey("eecMobType", Constants.NBT.TAG_STRING)) {
+            String mob = tag.getString("eecMobType");
+            String mobKey = "entity." + mob + ".name";
+            if (StatCollector.canTranslate(mobKey)) {
+                currentTip.add(
+                    StatCollector.translateToLocalFormatted(
+                        "kubatech.waila.eec.mob_type",
+                        StatCollector.translateToLocal(mobKey)));
+            } else {
+                currentTip.add(StatCollector.translateToLocalFormatted("kubatech.waila.eec.mob_type", mob));
+            }
+        } else {
+            currentTip.add(
+                StatCollector.translateToLocalFormatted(
+                    "kubatech.waila.eec.mob_type",
+                    StatCollector.translateToLocal("kubatech.waila.eec.no_mob")));
+        }
     }
 
     private static class EECFakePlayer extends FakePlayer {

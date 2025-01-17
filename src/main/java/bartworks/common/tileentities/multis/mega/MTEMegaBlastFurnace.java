@@ -13,7 +13,6 @@
 
 package bartworks.common.tileentities.multis.mega;
 
-import static bartworks.util.BWTooltipReference.MULTIBLOCK_ADDED_BY_BARTIMAEUSNEK_VIA_BARTWORKS;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.withChannel;
 import static gregtech.api.enums.HatchElement.*;
@@ -24,41 +23,38 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_ELECTRIC_BLAS
 import static gregtech.api.enums.Textures.BlockIcons.casingTexturePages;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.util.GTStructureUtility.ofCoil;
-import static gregtech.api.util.GTUtility.validMTEList;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidStack;
 
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
-import com.gtnewhorizon.structurelib.structure.IItemSource;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 
 import bartworks.API.BorosilicateGlass;
 import bartworks.common.configs.Configuration;
 import bartworks.util.BWUtil;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.HeatingCoilLevel;
-import gregtech.api.enums.Materials;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEHatch;
-import gregtech.api.metatileentity.implementations.MTEHatchMuffler;
-import gregtech.api.metatileentity.implementations.MTEHatchOutput;
+import gregtech.api.metatileentity.implementations.MTEHatchEnergy;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.check.CheckRecipeResult;
@@ -68,6 +64,7 @@ import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.OverclockCalculator;
+import gregtech.common.pollution.PollutionConfig;
 
 public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace> implements ISurvivalConstructable {
 
@@ -78,10 +75,7 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
         .addElement('=', StructureElementAirNoHint.getInstance())
         .addElement(
             't',
-            buildHatchAdder(MTEMegaBlastFurnace.class)
-                .atLeast(
-                    OutputHatch.withAdder(MTEMegaBlastFurnace::addOutputHatchToTopList)
-                        .withCount(t -> t.mPollutionOutputHatches.size()))
+            buildHatchAdder(MTEMegaBlastFurnace.class).atLeast(OutputHatch)
                 .casingIndex(CASING_INDEX)
                 .dot(1)
                 .buildAndChain(GregTechAPI.sBlockCasings1, CASING_INDEX))
@@ -143,12 +137,9 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
     }
 
     private HeatingCoilLevel mCoilLevel;
-    protected final ArrayList<MTEHatchOutput> mPollutionOutputHatches = new ArrayList<>();
-    protected final FluidStack[] pollutionFluidStacks = { Materials.CarbonDioxide.getGas(1000),
-        Materials.CarbonMonoxide.getGas(1000), Materials.SulfurDioxide.getGas(1000) };
     private int mHeatingCapacity;
     private byte glassTier;
-    private final static int polPtick = Configuration.pollution.basePollutionMBFSecond / 20
+    private final static int polPtick = PollutionConfig.basePollutionMBFSecond / 20
         * Configuration.Multiblocks.megaMachinesMax;
 
     public MTEMegaBlastFurnace(int aID, String aName, String aNameRegional) {
@@ -167,13 +158,14 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
-        tt.addMachineType("Blast Furnace")
-            .addInfo("Controller block for the Mega Blast Furnace")
+        tt.addMachineType("Blast Furnace, MEBF, MBF")
+            .addParallelInfo(Configuration.Multiblocks.megaMachinesMax)
             .addInfo("You can use some fluids to reduce recipe time. Place the circuit in the Input Bus")
             .addInfo("Each 900K over the min. Heat required reduces power consumption by 5% (multiplicatively)")
             .addInfo("Each 1800K over the min. Heat allows for an overclock to be upgraded to a perfect overclock.")
             .addInfo("That means the EBF will reduce recipe time by a factor 4 instead of 2 (giving 100% efficiency).")
             .addInfo("Additionally gives +100K for every tier past MV")
+            .addTecTechHatchInfo()
             .addInfo(
                 GTValues.TIER_COLORS[8] + GTValues.VN[8]
                     + EnumChatFormatting.GRAY
@@ -184,11 +176,10 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
                     + "Tech"
                     + EnumChatFormatting.GRAY
                     + " Laser Hatches.")
-            .addPollutionAmount(20 * this.getPollutionPerTick(null))
-            .addSeparator()
+            .addPollutionAmount(getPollutionPerSecond(null))
             .beginStructureBlock(15, 20, 15, true)
             .addController("3rd layer center")
-            .addCasingInfoRange("Heat Proof Machine Casing", 0, 279, false)
+            .addCasingInfoRange("Heat Proof Machine Casing", 0, 447, false)
             .addOtherStructurePart("864x Heating Coils", "Inner 13x18x13 (Hollow)")
             .addOtherStructurePart("1007x Borosilicate Glass", "Outer 15x18x15")
             .addStructureInfo("The glass tier limits the Energy Input tier")
@@ -198,11 +189,9 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
             .addInputBus("Any bottom layer casing")
             .addInputHatch("Any bottom layer casing")
             .addOutputBus("Any bottom layer casing")
-            .addOutputHatch("Gasses, Any top layer casing")
-            .addStructureInfo("Recovery amount scales with Muffler Hatch tier")
-            .addOutputHatch("Platline fluids, Any bottom layer casing")
+            .addOutputHatch("Any Heat Proof Machine Casing")
             .addStructureHint("This Mega Multiblock is too big to have its structure hologram displayed fully.")
-            .toolTipFinisher(MULTIBLOCK_ADDED_BY_BARTIMAEUSNEK_VIA_BARTWORKS);
+            .toolTipFinisher();
         return tt;
     }
 
@@ -220,7 +209,7 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
 
     @Override
     public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-        float aX, float aY, float aZ) {
+        float aX, float aY, float aZ, ItemStack aTool) {
         if (!aPlayer.isSneaking()) {
             this.inputSeparation = !this.inputSeparation;
             GTUtility.sendChatToPlayer(
@@ -270,19 +259,8 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
     }
 
     @Override
-    public int getPollutionPerTick(ItemStack aStack) {
-        return polPtick;
-    }
-
-    public boolean addOutputHatchToTopList(IGregTechTileEntity aTileEntity, int aBaseCasingIndex) {
-        if (aTileEntity == null) return false;
-        IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
-        if (aMetaTileEntity == null) return false;
-        if (aMetaTileEntity instanceof MTEHatchOutput) {
-            ((MTEHatch) aMetaTileEntity).updateTexture(aBaseCasingIndex);
-            return this.mPollutionOutputHatches.add((MTEHatchOutput) aMetaTileEntity);
-        }
-        return false;
+    public int getPollutionPerSecond(ItemStack aStack) {
+        return polPtick * 20;
     }
 
     @Override
@@ -327,12 +305,12 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
     }
 
     @Override
-    public int survivalConstruct(ItemStack stackSize, int elementBudget, IItemSource source, EntityPlayerMP actor) {
+    public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
         if (this.mMachine) return -1;
         int realBudget = elementBudget >= 200 ? elementBudget : Math.min(200, elementBudget * 5);
         this.glassTier = 0;
         this.setCoilLevel(HeatingCoilLevel.None);
-        return this.survivialBuildPiece("main", stackSize, 7, 17, 0, realBudget, source, actor, false, true);
+        return this.survivialBuildPiece("main", stackSize, 7, 17, 0, realBudget, env, false, true);
     }
 
     public void setCoilLevel(HeatingCoilLevel aCoilLevel) {
@@ -344,46 +322,17 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
     }
 
     @Override
-    public boolean addOutput(FluidStack aLiquid) {
-        if (aLiquid == null) return false;
-        FluidStack tLiquid = aLiquid.copy();
-        boolean isOutputPollution = false;
-        for (FluidStack pollutionFluidStack : this.pollutionFluidStacks) {
-            if (!tLiquid.isFluidEqual(pollutionFluidStack)) continue;
-
-            isOutputPollution = true;
-            break;
-        }
-        ArrayList<MTEHatchOutput> tOutputHatches;
-        if (isOutputPollution) {
-            tOutputHatches = this.mPollutionOutputHatches;
-            int pollutionReduction = 0;
-            for (MTEHatchMuffler tHatch : validMTEList(mMufflerHatches)) {
-                pollutionReduction = 100 - tHatch.calculatePollutionReduction(100);
-                break;
-            }
-            tLiquid.amount = tLiquid.amount * pollutionReduction / 100;
-        } else {
-            tOutputHatches = this.mOutputHatches;
-        }
-        return dumpFluid(tOutputHatches, tLiquid, true) || dumpFluid(tOutputHatches, tLiquid, false);
-    }
-
-    @Override
     public boolean checkMachine(IGregTechTileEntity iGregTechTileEntity, ItemStack itemStack) {
         this.mHeatingCapacity = 0;
         this.glassTier = 0;
 
         this.setCoilLevel(HeatingCoilLevel.None);
 
-        this.mPollutionOutputHatches.clear();
-
         if (!this.checkPiece("main", 7, 17, 0) || this.getCoilLevel() == HeatingCoilLevel.None
             || this.mMaintenanceHatches.size() != 1) return false;
 
         if (this.glassTier < 8) {
-            for (int i = 0; i < this.mExoticEnergyHatches.size(); ++i) {
-                MTEHatch hatch = this.mExoticEnergyHatches.get(i);
+            for (MTEHatch hatch : this.mExoticEnergyHatches) {
                 if (hatch.getConnectionType() == MTEHatch.ConnectionType.LASER) {
                     return false;
                 }
@@ -391,8 +340,8 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
                     return false;
                 }
             }
-            for (int i = 0; i < this.mEnergyHatches.size(); ++i) {
-                if (this.glassTier < this.mEnergyHatches.get(i).mTier) {
+            for (MTEHatchEnergy mEnergyHatch : this.mEnergyHatches) {
+                if (this.glassTier < mEnergyHatch.mTier) {
                     return false;
                 }
             }
@@ -427,5 +376,11 @@ public class MTEMegaBlastFurnace extends MegaMultiBlockBase<MTEMegaBlastFurnace>
     @Override
     public boolean supportsVoidProtection() {
         return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    protected SoundResource getActivitySoundLoop() {
+        return SoundResource.GT_MACHINES_MEGA_BLAST_FURNACE_LOOP;
     }
 }

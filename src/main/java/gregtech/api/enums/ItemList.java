@@ -1026,6 +1026,21 @@ public enum ItemList implements IItemContainer {
     Wireless_Dynamo_Energy_UXV,
     Wireless_Dynamo_Energy_MAX,
 
+    Cover_Wireless_Energy_LV,
+    Cover_Wireless_Energy_MV,
+    Cover_Wireless_Energy_HV,
+    Cover_Wireless_Energy_EV,
+    Cover_Wireless_Energy_IV,
+    Cover_Wireless_Energy_LuV,
+    Cover_Wireless_Energy_ZPM,
+    Cover_Wireless_Energy_UV,
+    Cover_Wireless_Energy_UHV,
+    Cover_Wireless_Energy_UEV,
+    Cover_Wireless_Energy_UIV,
+    Cover_Wireless_Energy_UMV,
+    Cover_Wireless_Energy_UXV,
+    Cover_Wireless_Energy_MAX,
+
     Hatch_Input_ULV,
     Hatch_Input_LV,
     Hatch_Input_MV,
@@ -1489,6 +1504,8 @@ public enum ItemList implements IItemContainer {
     Casing_Fluid_Solidifier,
     Radiator_Fluid_Solidifier,
 
+    Casing_Reinforced_Wood,
+
     Machine_Multi_IndustrialCompressor,
     Machine_Multi_HIPCompressor,
     Machine_Multi_NeutroniumCompressor,
@@ -1505,6 +1522,9 @@ public enum ItemList implements IItemContainer {
     Hawking_Glass,
     Black_Hole_Opener,
     Black_Hole_Closer,
+    Black_Hole_Stabilizer,
+
+    Machine_Multi_IndustrialBrewery,
 
     Machine_Multi_IndustrialLaserEngraver,
     Laser_Plate,
@@ -1673,11 +1693,6 @@ public enum ItemList implements IItemContainer {
     Pump_LV,
     Pump_MV,
     Pump_HV,
-    Pump_EV,
-    Pump_IV,
-    Pump_LuV,
-    Pump_ZPM,
-    Pump_UV,
 
     Teleporter,
     Cover_NeedsMaintainance,
@@ -2023,6 +2038,15 @@ public enum ItemList implements IItemContainer {
     Machine_HV_LightningRod,
     Machine_EV_LightningRod,
 
+    Machine_LV_SolarPanel,
+    Machine_MV_SolarPanel,
+    Machine_HV_SolarPanel,
+    Machine_EV_SolarPanel,
+    Machine_IV_SolarPanel,
+    Machine_LuV_SolarPanel,
+    Machine_ZPM_SolarPanel,
+    Machine_UV_SolarPanel,
+
     ULV_Coil,
     LV_Coil,
     MV_Coil,
@@ -2182,7 +2206,6 @@ public enum ItemList implements IItemContainer {
     Hull_UMV,
     Hull_UXV,
     Hull_MAXV,
-    // todo: move them from gt.blockcasingsNH in NHCore to here
     Casing_UEV,
     Casing_UIV,
     Casing_UMV,
@@ -2554,8 +2577,6 @@ public enum ItemList implements IItemContainer {
     WiremillUEV,
     WiremillUIV,
     WiremillUMV,
-    PumpLuV,
-    PumpZPM,
     Automation_ChestBuffer_UEV,
     Automation_ChestBuffer_UIV,
     Automation_ChestBuffer_UMV,
@@ -2569,9 +2590,23 @@ public enum ItemList implements IItemContainer {
     Thermal_Superconductor,
     Relativistic_Heat_Capacitor,
     Phononic_Seed_Crystal,
-    ResearchCompleter, // Populated in EMT
+    ResearchCompleter,
     SpaceElevatorController, // Populated in GTNH-Intergalactic
     Spray_Color_Infinite,
+    Casing_AirFilter_Turbine_T1,
+    Casing_AirFilter_Vent_T1,
+    Casing_AirFilter_Turbine_T2,
+    Casing_AirFilter_Vent_T2,
+    Casing_AirFilter_Turbine_T3,
+    Casing_AirFilter_Vent_T3,
+    Casing_Pyrolyse,
+    NameRemover,
+    Hatch_Nanite,
+    Hatch_Catalyst_Bulk,
+    Machine_Multi_AirFilterT1,
+    Machine_Multi_AirFilterT2,
+    Machine_Multi_AirFilterT3,
+
     // semicolon after the comment to reduce merge conflicts
     ;
 
@@ -2586,8 +2621,8 @@ public enum ItemList implements IItemContainer {
             Spray_Color_Used_14, Spray_Color_Used_15 },
         TRANSFORMERS = { Transformer_LV_ULV, Transformer_MV_LV, Transformer_HV_MV, Transformer_EV_HV, Transformer_IV_EV,
             Transformer_LuV_IV, Transformer_ZPM_LuV, Transformer_UV_ZPM, Transformer_MAX_UV },
-        MACHINE_HULLS = { Hull_ULV, Hull_LV, Hull_MV, Hull_HV, Hull_EV, Hull_IV, Hull_LuV, Hull_ZPM, Hull_UV,
-            Hull_MAX },
+        MACHINE_HULLS = { Hull_ULV, Hull_LV, Hull_MV, Hull_HV, Hull_EV, Hull_IV, Hull_LuV, Hull_ZPM, Hull_UV, Hull_MAX,
+            Hull_UEV, Hull_UIV, Hull_UMV, Hull_UXV, Hull_MAXV },
         HATCHES_DYNAMO = { Hatch_Dynamo_ULV, Hatch_Dynamo_LV, Hatch_Dynamo_MV, Hatch_Dynamo_HV, Hatch_Dynamo_EV,
             Hatch_Dynamo_IV, Hatch_Dynamo_LuV, Hatch_Dynamo_ZPM, Hatch_Dynamo_UV, Hatch_Dynamo_UHV },
         HATCHES_ENERGY = { Hatch_Energy_ULV, Hatch_Energy_LV, Hatch_Energy_MV, Hatch_Energy_HV, Hatch_Energy_EV,
@@ -2603,7 +2638,16 @@ public enum ItemList implements IItemContainer {
             Hatch_Output_Bus_EV, Hatch_Output_Bus_IV, Hatch_Output_Bus_LuV, Hatch_Output_Bus_ZPM, Hatch_Output_Bus_UV,
             Hatch_Output_Bus_MAX },
         HATCHES_MUFFLER = { Hatch_Muffler_LV, Hatch_Muffler_LV, Hatch_Muffler_MV, Hatch_Muffler_HV, Hatch_Muffler_EV,
-            Hatch_Muffler_IV, Hatch_Muffler_LuV, Hatch_Muffler_ZPM, Hatch_Muffler_UV, Hatch_Muffler_MAX };
+            Hatch_Muffler_IV, Hatch_Muffler_LuV, Hatch_Muffler_ZPM, Hatch_Muffler_UV, Hatch_Muffler_MAX },
+        WIRELESS_ENERGY_HATCHES = { Wireless_Hatch_Energy_ULV, Wireless_Hatch_Energy_LV, Wireless_Hatch_Energy_MV,
+            Wireless_Hatch_Energy_HV, Wireless_Hatch_Energy_EV, Wireless_Hatch_Energy_IV, Wireless_Hatch_Energy_LuV,
+            Wireless_Hatch_Energy_ZPM, Wireless_Hatch_Energy_UV, Wireless_Hatch_Energy_UHV, Wireless_Hatch_Energy_UEV,
+            Wireless_Hatch_Energy_UIV, Wireless_Hatch_Energy_UMV, Wireless_Hatch_Energy_UXV,
+            Wireless_Hatch_Energy_MAX },
+        WIRELESS_ENERGY_COVERS = { Cover_Wireless_Energy_LV, Cover_Wireless_Energy_MV, Cover_Wireless_Energy_HV,
+            Cover_Wireless_Energy_EV, Cover_Wireless_Energy_IV, Cover_Wireless_Energy_LuV, Cover_Wireless_Energy_ZPM,
+            Cover_Wireless_Energy_UV, Cover_Wireless_Energy_UHV, Cover_Wireless_Energy_UEV, Cover_Wireless_Energy_UIV,
+            Cover_Wireless_Energy_UMV, Cover_Wireless_Energy_UXV, Cover_Wireless_Energy_MAX };
     public static Fluid sOilExtraHeavy, sEpichlorhydrin, sDrillingFluid, sBlueVitriol, sNickelSulfate, sGreenVitriol,
         sToluene, sNitrationMixture, sRocketFuel, sHydricSulfur, sIndiumConcentrate, sLeadZincSolution,
         sHydrochloricAcid;
@@ -2720,7 +2764,7 @@ public enum ItemList implements IItemContainer {
         StringBuilder tCamelCasedDisplayNameBuilder = new StringBuilder();
         final String[] tDisplayNameWords = aDisplayName.split("\\W");
         for (String tWord : tDisplayNameWords) {
-            if (tWord.length() > 0) tCamelCasedDisplayNameBuilder.append(
+            if (!tWord.isEmpty()) tCamelCasedDisplayNameBuilder.append(
                 tWord.substring(0, 1)
                     .toUpperCase(Locale.US));
             if (tWord.length() > 1) tCamelCasedDisplayNameBuilder.append(

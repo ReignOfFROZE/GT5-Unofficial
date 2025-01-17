@@ -15,12 +15,11 @@ import static goodgenerator.util.ItemRefer.Compassline_Casing_UXV;
 import static goodgenerator.util.ItemRefer.Compassline_Casing_ZPM;
 import static goodgenerator.util.ItemRefer.Component_Assembly_Line;
 import static gregtech.api.recipe.RecipeMaps.assemblerRecipes;
-import static gregtech.api.util.GTRecipeBuilder.HOURS;
+import static gregtech.api.util.GTRecipeBuilder.MINUTES;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
-import static gregtech.api.util.GTRecipeBuilder.TICKS;
 import static gregtech.api.util.GTRecipeConstants.AssemblyLine;
 import static gregtech.api.util.GTRecipeConstants.RESEARCH_ITEM;
-import static gregtech.api.util.GTRecipeConstants.RESEARCH_TIME;
+import static gregtech.api.util.GTRecipeConstants.SCANNING;
 
 import java.util.HashMap;
 
@@ -32,7 +31,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import bartworks.system.material.WerkstoffLoader;
-import cpw.mods.fml.common.registry.GameRegistry;
 import goodgenerator.util.StackUtils;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
@@ -42,6 +40,7 @@ import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.TierEU;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
+import gregtech.api.util.recipe.Scanning;
 import gtPlusPlus.core.recipe.common.CI;
 import tectech.recipe.TTRecipeAdder;
 
@@ -63,7 +62,7 @@ public class ComponentAssemblyLineMiscRecipes {
         // The controller itself
         GTValues.RA.stdBuilder()
             .metadata(RESEARCH_ITEM, Compassline_Casing_EV.get(1))
-            .metadata(RESEARCH_TIME, 1 * HOURS)
+            .metadata(SCANNING, new Scanning(2 * MINUTES + 30 * SECONDS, TierEU.RECIPE_ZPM))
             .itemInputs(
                 ItemList.Machine_Multi_Assemblyline.get(16L),
                 ItemList.Casing_Assembler.get(16L),
@@ -75,7 +74,7 @@ public class ComponentAssemblyLineMiscRecipes {
                 ComponentType.Electric_Motor.getComponent(7)
                     .get(32),
                 GTOreDictUnificator.get(OrePrefixes.pipeMedium, Materials.Polybenzimidazole, 16),
-                GTOreDictUnificator.get(OrePrefixes.plateDense, Materials.Iridium, 32),
+                GTOreDictUnificator.get(OrePrefixes.plateSuperdense, Materials.Iridium, 4),
                 ItemList.FluidSolidifierZPM.get(16L),
                 getALCircuit(8, 16),
                 getALCircuit(7, 20),
@@ -203,7 +202,7 @@ public class ComponentAssemblyLineMiscRecipes {
         t++;
         GTValues.RA.stdBuilder()
             .metadata(RESEARCH_ITEM, Compassline_Casing_IV.get(1))
-            .metadata(RESEARCH_TIME, (2250 << t) * TICKS)
+            .metadata(SCANNING, new Scanning(1 * MINUTES + 30 * SECONDS, TierEU.RECIPE_IV))
             .itemInputs(
                 GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Europium, 1),
                 WerkstoffLoader.LuVTierMaterial.get(OrePrefixes.plateDense, 6),
@@ -231,10 +230,10 @@ public class ComponentAssemblyLineMiscRecipes {
         t++;
         GTValues.RA.stdBuilder()
             .metadata(RESEARCH_ITEM, Compassline_Casing_LuV.get(1))
-            .metadata(RESEARCH_TIME, (2250 << t) * TICKS)
+            .metadata(SCANNING, new Scanning(1 * MINUTES + 30 * SECONDS, TierEU.RECIPE_LuV))
             .itemInputs(
                 GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Iridium, 1),
-                GTOreDictUnificator.get(OrePrefixes.plateDense, Materials.Iridium, 6),
+                GTOreDictUnificator.get(OrePrefixes.plateSuperdense, Materials.Iridium, 1),
                 ComponentType.Robot_Arm.getComponent(t)
                     .get(8),
                 ComponentType.Electric_Piston.getComponent(t)
@@ -260,10 +259,10 @@ public class ComponentAssemblyLineMiscRecipes {
 
         GTValues.RA.stdBuilder()
             .metadata(RESEARCH_ITEM, Compassline_Casing_ZPM.get(1))
-            .metadata(RESEARCH_TIME, (2250 << t) * TICKS)
+            .metadata(SCANNING, new Scanning(1 * MINUTES + 30 * SECONDS, TierEU.RECIPE_ZPM))
             .itemInputs(
                 GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Osmium, 1),
-                GTOreDictUnificator.get(OrePrefixes.plateDense, Materials.Osmium, 6),
+                GTOreDictUnificator.get(OrePrefixes.plateSuperdense, Materials.Osmium, 1),
                 ComponentType.Robot_Arm.getComponent(t)
                     .get(8),
                 ComponentType.Electric_Piston.getComponent(t)
@@ -293,7 +292,7 @@ public class ComponentAssemblyLineMiscRecipes {
             (int) TierEU.RECIPE_UV,
             1,
             new Object[] { GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.CosmicNeutronium, 1),
-                GTOreDictUnificator.get(OrePrefixes.plateDense, Materials.CosmicNeutronium, 6),
+                GTOreDictUnificator.get(OrePrefixes.plateSuperdense, Materials.CosmicNeutronium, 1),
                 ComponentType.Robot_Arm.getComponent(t)
                     .get(8),
                 ComponentType.Electric_Piston.getComponent(t)
@@ -319,7 +318,7 @@ public class ComponentAssemblyLineMiscRecipes {
             (int) TierEU.RECIPE_UHV,
             1,
             new Object[] { GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Infinity, 1),
-                GTOreDictUnificator.get(OrePrefixes.plateDense, Materials.Infinity, 6),
+                GTOreDictUnificator.get(OrePrefixes.plateSuperdense, Materials.Infinity, 1),
                 ComponentType.Robot_Arm.getComponent(t)
                     .get(8),
                 ComponentType.Electric_Piston.getComponent(t)
@@ -344,7 +343,7 @@ public class ComponentAssemblyLineMiscRecipes {
             (int) TierEU.RECIPE_UEV,
             1,
             new Object[] { GTOreDictUnificator.get(OrePrefixes.frameGt, MaterialsUEVplus.ProtoHalkonite, 1),
-                GTOreDictUnificator.get(OrePrefixes.plateDense, MaterialsUEVplus.TranscendentMetal, 6),
+                GTOreDictUnificator.get(OrePrefixes.plateSuperdense, MaterialsUEVplus.TranscendentMetal, 1),
                 ComponentType.Robot_Arm.getComponent(t)
                     .get(8),
                 ComponentType.Electric_Piston.getComponent(t)
@@ -370,7 +369,7 @@ public class ComponentAssemblyLineMiscRecipes {
             (int) TierEU.RECIPE_UIV,
             1,
             new Object[] { GTOreDictUnificator.get(OrePrefixes.frameGt, MaterialsUEVplus.SpaceTime, 1),
-                GTOreDictUnificator.get(OrePrefixes.plateDense, MaterialsUEVplus.SpaceTime, 6),
+                GTOreDictUnificator.get(OrePrefixes.plateSuperdense, MaterialsUEVplus.SpaceTime, 1),
                 ComponentType.Robot_Arm.getComponent(t)
                     .get(8),
                 ComponentType.Electric_Piston.getComponent(t)
@@ -435,7 +434,7 @@ public class ComponentAssemblyLineMiscRecipes {
         }
         GTValues.RA.stdBuilder()
             .itemInputs(
-                GameRegistry.findItemStack("dreamcraft", "item.PikoCircuit", 16),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UMV, 16),
                 GTUtility.getIntegratedCircuit(16))
             .fluidInputs(Materials.SolderingAlloy.getMolten(72L))
             .itemOutputs(new ItemStack(Loaders.circuitWrap, 1, 12))
@@ -444,7 +443,7 @@ public class ComponentAssemblyLineMiscRecipes {
             .addTo(assemblerRecipes);
         GTValues.RA.stdBuilder()
             .itemInputs(
-                GameRegistry.findItemStack("dreamcraft", "item.QuantumCircuit", 16),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UXV, 16),
                 GTUtility.getIntegratedCircuit(16))
             .fluidInputs(Materials.SolderingAlloy.getMolten(72L))
             .itemOutputs(new ItemStack(Loaders.circuitWrap, 1, 13))

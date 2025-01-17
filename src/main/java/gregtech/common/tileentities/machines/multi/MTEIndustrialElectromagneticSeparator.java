@@ -1,13 +1,13 @@
 package gregtech.common.tileentities.machines.multi;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.*;
-import static gregtech.api.enums.GTValues.AuthorFourIsTheNumber;
 import static gregtech.api.enums.HatchElement.*;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_EMS;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_EMS_ACTIVE;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_EMS_ACTIVE_GLOW;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_EMS_GLOW;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
+import static gregtech.api.util.GTStructureUtility.chainAllGlasses;
 import static gregtech.api.util.GTStructureUtility.ofFrame;
 
 import java.util.Arrays;
@@ -34,6 +34,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 
 import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.Textures;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -43,7 +44,6 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEExtendedPowerMultiBlockBase;
 import gregtech.api.metatileentity.implementations.MTEHatchMagnet;
-import gregtech.api.multitileentity.multiblock.casing.Glasses;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.check.CheckRecipeResult;
@@ -122,7 +122,7 @@ public class MTEIndustrialElectromagneticSeparator
                 { "CC   CC", "       ", " BBBBB ", " A   A ", " BBBBB ", "BBBBBBB" },
                 { " CC CC ", "       ", "  BBB  ", "  AAA  ", "  BBB  ", " BBBBB " },
                 { "  CCC  ", "   C   ", "   C   ", "   C   ", "   C   ", "  BBB  " } }))
-        .addElement('A', Glasses.chainAllGlasses())
+        .addElement('A', chainAllGlasses())
         .addElement(
             'B',
             ofChain(
@@ -210,31 +210,22 @@ public class MTEIndustrialElectromagneticSeparator
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
-        tt.addMachineType("Electromagnetic Separator/Polarizer")
-            .addInfo("Controller Block for the Magnetic Flux Exhibitor")
+        tt.addMachineType("Electromagnetic Separator, Polarizer")
             .addInfo("Use screwdriver to switch mode")
             .addInfo("Insert an electromagnet into the electromagnet housing to use")
             .addInfo("Better electromagnets give further bonuses")
             .addInfo("With Tengam electromagnet, multiamp (NOT laser) hatches are allowed")
-            .addInfo(
-                AuthorFourIsTheNumber + EnumChatFormatting.GRAY
-                    + " & "
-                    + EnumChatFormatting.GOLD
-                    + "Ba"
-                    + EnumChatFormatting.LIGHT_PURPLE
-                    + "ps")
-            .addSeparator()
             .beginStructureBlock(7, 6, 7, false)
             .addController("Front Center")
             .addCasingInfoMin("MagTech Casings", MIN_CASING, false)
-            .addOtherStructurePart("Any glass", "x12")
+            .addCasingInfoExactly("Any Glass", 12, false)
             .addOtherStructurePart("Magnetic Neodymium Frame Box", "x37")
             .addOtherStructurePart("Electromagnet Housing", "1 Block Above/Behind Controller", 2)
             .addInputBus("Any Casing", 1)
             .addOutputBus("Any Casing", 1)
             .addEnergyHatch("Any Casing", 1)
             .addMaintenanceHatch("Any Casing", 1)
-            .toolTipFinisher("GregTech");
+            .toolTipFinisher(GTValues.AuthorFourIsTheNumber, GTValues.authorBaps);
         return tt;
     }
 
@@ -270,8 +261,8 @@ public class MTEIndustrialElectromagneticSeparator
         if (!mExoticEnergyHatches.isEmpty()) {
             if (!mEnergyHatches.isEmpty()) return false;
             if (mExoticEnergyHatches.size() > 1) return false;
-            if (mExoticEnergyHatches.get(0)
-                .maxWorkingAmperesIn() > 64) return false;
+            return mExoticEnergyHatches.get(0)
+                .maxWorkingAmperesIn() <= 64;
         }
 
         // All checks passed!
@@ -417,7 +408,7 @@ public class MTEIndustrialElectromagneticSeparator
     @Override
     protected void setProcessingLogicPower(ProcessingLogic logic) {
         // This fix works for normal energy hatches, preventing over-paralleling with 1 energy hatch
-        // However, it does not work with multiamp. MuTEs can't come soon enough.
+        // However, it does not work with multiamp.
 
         if (mExoticEnergyHatches.isEmpty()) {
             logic.setAvailableVoltage(GTUtility.roundUpVoltage(this.getMaxInputVoltage()));
@@ -461,5 +452,17 @@ public class MTEIndustrialElectromagneticSeparator
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+        float aX, float aY, float aZ, ItemStack aTool) {
+        batchMode = !batchMode;
+        if (batchMode) {
+            GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("misc.BatchModeTextOn"));
+        } else {
+            GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("misc.BatchModeTextOff"));
+        }
+        return true;
     }
 }

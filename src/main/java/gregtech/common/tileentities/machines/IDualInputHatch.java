@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import net.minecraft.item.ItemStack;
 
+import gregtech.api.logic.ProcessingLogic;
+
 public interface IDualInputHatch {
 
     boolean justUpdated();
@@ -17,5 +19,9 @@ public interface IDualInputHatch {
 
     Optional<IDualInputInventory> getFirstNonEmptyInventory();
 
-    public boolean supportsFluids();
+    boolean supportsFluids();
+
+    ItemStack[] getSharedItems();
+
+    void setProcessingLogic(ProcessingLogic pl);
 }

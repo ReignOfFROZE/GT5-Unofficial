@@ -1,5 +1,6 @@
 package gtPlusPlus.core.item.chemistry;
 
+import static bartworks.system.material.WerkstoffLoader.PTMetallicPowder;
 import static gregtech.api.enums.Mods.BiomesOPlenty;
 import static gregtech.api.enums.Mods.Forestry;
 import static gregtech.api.util.GTRecipeBuilder.MINUTES;
@@ -220,10 +221,9 @@ public class MilledOreProcessing extends ItemPackage {
     }
 
     private void addVacuumFurnaceRecipes() {
-        int aCircuitID = 1;
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
+            .itemInputs(GTUtility.getIntegratedCircuit(1))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Zinc, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Zinc, 64),
@@ -240,7 +240,7 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
+            .itemInputs(GTUtility.getIntegratedCircuit(1))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Copper, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Copper, 64),
@@ -257,7 +257,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Nickel, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Nickel, 64),
@@ -274,10 +273,9 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
-                GTOreDictUnificator.get(OrePrefixes.dust, Materials.Platinum, 64),
-                GTOreDictUnificator.get(OrePrefixes.dust, Materials.Platinum, 64),
+                PTMetallicPowder.get(OrePrefixes.dust, 64),
+                PTMetallicPowder.get(OrePrefixes.dust, 64),
                 MaterialsElements.getInstance().RHODIUM.getDust(60),
                 MaterialsElements.getInstance().SELENIUM.getDust(40),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Tellurium, 10))
@@ -289,7 +287,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Iron, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Iron, 64),
@@ -306,7 +303,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Redstone, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Redstone, 64),
@@ -324,7 +320,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Manganese, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Manganese, 64),
@@ -341,7 +336,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Calcium, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Calcium, 64),
@@ -358,7 +352,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Aluminium, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Aluminium, 64),
@@ -375,7 +368,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Magnesium, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Magnesium, 46),
@@ -391,7 +383,6 @@ public class MilledOreProcessing extends ItemPackage {
             .addTo(vacuumFurnaceRecipes);
 
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.getIntegratedCircuit(aCircuitID++))
             .itemOutputs(
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Erbium, 64),
                 GTOreDictUnificator.get(OrePrefixes.dust, Materials.Lanthanum, 32),
@@ -667,7 +658,7 @@ public class MilledOreProcessing extends ItemPackage {
 
     public boolean addRecipe(ItemStack aInput, ItemStack aOutput1, int[] aChances, int aTime, int aEU) {
         aOutput1 = GTOreDictUnificator.get(true, aOutput1);
-        ItemStack aOutputs[] = new ItemStack[4];
+        ItemStack[] aOutputs = new ItemStack[4];
         for (int i = 0; i < aChances.length; i++) {
             aOutputs[i] = aOutput1;
         }

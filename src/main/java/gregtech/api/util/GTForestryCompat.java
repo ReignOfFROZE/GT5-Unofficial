@@ -1,6 +1,5 @@
 package gregtech.api.util;
 
-import static gregtech.api.recipe.RecipeMaps.centrifugeNonCellRecipes;
 import static gregtech.api.recipe.RecipeMaps.centrifugeRecipes;
 import static gregtech.api.recipe.RecipeMaps.scannerFakeRecipes;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
@@ -8,6 +7,8 @@ import static gregtech.api.util.GTRecipeBuilder.TICKS;
 
 import java.util.Map;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import forestry.api.recipes.ICentrifugeRecipe;
@@ -16,7 +17,10 @@ import forestry.api.recipes.RecipeManagers;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
+import gregtech.api.enums.Mods;
 import gregtech.api.recipe.RecipeMaps;
+import gregtech.common.items.CombType;
+import gregtech.loaders.misc.GTBees;
 
 public class GTForestryCompat {
 
@@ -132,61 +136,53 @@ public class GTForestryCompat {
     }
 
     public static void transferCentrifugeRecipes() {
-        try {
-            for (ICentrifugeRecipe tRecipe : RecipeManagers.centrifugeManager.recipes()) {
-                Map<ItemStack, Float> outputs = tRecipe.getAllProducts();
-                ItemStack[] tOutputs = new ItemStack[outputs.size()];
-                int[] tChances = new int[outputs.size()];
-                int i = 0;
-                for (Map.Entry<ItemStack, Float> entry : outputs.entrySet()) {
-                    tChances[i] = (int) (entry.getValue() * 10000);
-                    tOutputs[i] = entry.getKey()
-                        .copy();
-                    i++;
-                }
-                GTValues.RA.stdBuilder()
-                    .itemInputs(tRecipe.getInput())
-                    .itemOutputs(tOutputs)
-                    .outputChances(tChances)
-                    .duration(6 * SECONDS + 8 * TICKS)
-                    .eut(5)
-                    .addTo(centrifugeRecipes);
+        // Dumb exceptions
+        ItemStack irradiatedComb = GTModHandler.getModItem(Mods.Forestry.ID, "beeCombs", 1, 9);
+        ItemStack DOBComb = GTBees.combs.getStackForType(CombType.DOB);
 
-                GTValues.RA.stdBuilder()
-                    .itemInputs(tRecipe.getInput())
-                    .itemOutputs(tOutputs)
-                    .outputChances(tChances)
-                    .duration(6 * SECONDS + 8 * TICKS)
-                    .eut(5)
-                    .addTo(centrifugeNonCellRecipes);
+        for (ICentrifugeRecipe tRecipe : RecipeManagers.centrifugeManager.recipes()) {
+            ItemStack input = tRecipe.getInput();
+
+            // Don't transfer GT recipes to centrifuge, those recipes are made already by ItemComb
+            if (input.getUnlocalizedName()
+                .contains("gt.comb") && !input.isItemEqual(DOBComb)) continue;
+            if (irradiatedComb != null && input.isItemEqual(irradiatedComb)) continue;
+            Map<ItemStack, Float> outputs = tRecipe.getAllProducts();
+            ItemStack[] tOutputs = new ItemStack[outputs.size()];
+            int[] tChances = new int[outputs.size()];
+            int i = 0;
+            for (Map.Entry<ItemStack, Float> entry : outputs.entrySet()) {
+                tChances[i] = (int) (entry.getValue() * 10000);
+                tOutputs[i] = entry.getKey()
+                    .copy();
+                i++;
             }
-        } catch (Throwable e) {
-            if (GTValues.D1) {
-                e.printStackTrace(GTLog.err);
-            }
+            GTValues.RA.stdBuilder()
+                .itemInputs(tRecipe.getInput())
+                .itemOutputs(tOutputs)
+                .outputChances(tChances)
+                .duration(6 * SECONDS + 8 * TICKS)
+                .eut(5)
+                .addTo(centrifugeRecipes);
         }
     }
 
     public static void transferSqueezerRecipes() {
-        try {
-            for (ISqueezerRecipe tRecipe : RecipeManagers.squeezerManager.recipes()) {
-                if ((tRecipe.getResources().length == 1) && (tRecipe.getFluidOutput() != null)
-                    && (tRecipe.getResources()[0] != null)) {
-                    GTRecipeBuilder recipeBuilder = GTValues.RA.stdBuilder();
-                    recipeBuilder.itemInputs(tRecipe.getResources()[0]);
-                    if (tRecipe.getRemnants() != null) {
-                        recipeBuilder.itemOutputs(tRecipe.getRemnants())
-                            .outputChances((int) (tRecipe.getRemnantsChance() * 10000));
-                    }
-                    recipeBuilder.fluidOutputs(tRecipe.getFluidOutput())
-                        .duration(1 * SECONDS + 12 * TICKS)
-                        .eut(8)
-                        .addTo(RecipeMaps.fluidExtractionRecipes);
+        for (ISqueezerRecipe tRecipe : RecipeManagers.squeezerManager.recipes()) {
+            ItemStack[] resources = tRecipe.getResources();
+            if ((resources.length == 1) && (tRecipe.getFluidOutput() != null) && (resources[0] != null)) {
+                Item input = resources[0].getItem();
+                if (input == Items.pumpkin_seeds || input == Items.melon_seeds || input == Items.wheat_seeds) continue;
+                GTRecipeBuilder recipeBuilder = GTValues.RA.stdBuilder();
+                recipeBuilder.itemInputs(resources[0]);
+                if (tRecipe.getRemnants() != null) {
+                    recipeBuilder.itemOutputs(tRecipe.getRemnants())
+                        .outputChances((int) (tRecipe.getRemnantsChance() * 10000));
                 }
-            }
-        } catch (Throwable e) {
-            if (GTValues.D1) {
-                e.printStackTrace(GTLog.err);
+                recipeBuilder.fluidOutputs(tRecipe.getFluidOutput())
+                    .duration(1 * SECONDS + 12 * TICKS)
+                    .eut(8)
+                    .addTo(RecipeMaps.fluidExtractionRecipes);
             }
         }
     }

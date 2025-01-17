@@ -14,18 +14,20 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.enums.GTValues;
-import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
-import gregtech.api.enums.TierEU;
 import gregtech.api.interfaces.IRecipeMap;
 import gregtech.api.objects.ItemData;
 import gregtech.api.recipe.RecipeCategories;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.RecipeMetadataKey;
 import gregtech.api.recipe.metadata.SimpleRecipeMetadataKey;
+import gregtech.api.util.recipe.Scanning;
+import gregtech.api.util.recipe.Sievert;
 import gregtech.common.items.IDMetaItem03;
 import gregtech.common.items.MetaGeneratedItem03;
 import gtnhlanth.common.item.ItemPhotolithographicMask;
@@ -58,11 +60,14 @@ public class GTRecipeConstants {
      */
     public static final RecipeMetadataKey<Integer> FUSION_THRESHOLD = SimpleRecipeMetadataKey
         .create(Integer.class, "fusion_threshold");
+
     /**
-     * Research time in a scanner used in ticks.
+     * Scanning data used for scanner for assembly line recipes (time and voltage).
+     * Scanning time should be between 30 seconds and 3 minutes, and the voltage 1 tiers below the available scanner
+     * tier for the recipe.
      */
-    public static final RecipeMetadataKey<Integer> RESEARCH_TIME = SimpleRecipeMetadataKey
-        .create(Integer.class, "research_time");
+    public static final RecipeMetadataKey<Scanning> SCANNING = SimpleRecipeMetadataKey
+        .create(Scanning.class, "scanning");
     /**
      * Fuel type. TODO should we use enum directly?
      */
@@ -113,6 +118,12 @@ public class GTRecipeConstants {
         .create(Integer.class, "nano_forge_tier");
 
     /**
+     * PCB Factory nanite material
+     */
+    public static final RecipeMetadataKey<Materials> PCB_NANITE_MATERIAL = SimpleRecipeMetadataKey
+        .create(Materials.class, "pcb_nanite_material");
+
+    /**
      * FOG Exotic recipe tier.
      */
     public static final RecipeMetadataKey<Integer> FOG_EXOTIC_TIER = SimpleRecipeMetadataKey
@@ -131,6 +142,12 @@ public class GTRecipeConstants {
         .create(Boolean.class, "fog_plasma_multistep");
 
     /**
+     * FOG Shortened upgrade name.
+     */
+    public static final RecipeMetadataKey<String> FOG_UPGRADE_NAME_SHORT = SimpleRecipeMetadataKey
+        .create(String.class, "fog_plasma_upgrade_name_short");
+
+    /**
      * DEFC Casing tier.
      */
     public static final RecipeMetadataKey<Integer> DEFC_CASING_TIER = SimpleRecipeMetadataKey
@@ -147,6 +164,12 @@ public class GTRecipeConstants {
      */
     public static final RecipeMetadataKey<Integer> QFT_FOCUS_TIER = SimpleRecipeMetadataKey
         .create(Integer.class, "qft_focus_tier");
+
+    /**
+     * QFT catalyst meta.
+     */
+    public static final RecipeMetadataKey<ItemStack> QFT_CATALYST = SimpleRecipeMetadataKey
+        .create(ItemStack.class, "qft_catalyst");
 
     /**
      * Tier of advanced compression (HIP/black hole)
@@ -201,18 +224,26 @@ public class GTRecipeConstants {
         .create(Integer.class, "lftr_output_power");
 
     /**
+     * Sparge Tower maximum byproduct outputs.
+     */
+    public static final RecipeMetadataKey<Integer> SPARGE_MAX_BYPRODUCT = SimpleRecipeMetadataKey
+        .create(Integer.class, "sparge_max_byproduct");
+
+    /**
      * Research Station data.
      */
     public static final RecipeMetadataKey<Integer> RESEARCH_STATION_DATA = SimpleRecipeMetadataKey
         .create(Integer.class, "research_station_data");
 
     /**
-     * glass tier required for the biovat recipes.
+     * sievert data required for the biovat recipes.
      */
-    public static final RecipeMetadataKey<Integer> SIEVERTS = SimpleRecipeMetadataKey.create(Integer.class, "sieverts");
 
-    public static final RecipeMetadataKey<Integer> DECAY_TICKS = SimpleRecipeMetadataKey
-        .create(Integer.class, "decay_ticks");
+    public static final RecipeMetadataKey<Sievert> SIEVERT = SimpleRecipeMetadataKey.create(Sievert.class, "SIEVERT");
+
+    public static final RecipeMetadataKey<Integer> GLASS = SimpleRecipeMetadataKey.create(Integer.class, "GLASS");
+
+    public static final RecipeMetadataKey<Integer> MASS = SimpleRecipeMetadataKey.create(Integer.class, "mass");
 
     public static final RecipeMetadataKey<Boolean> NOBLE_GASES = SimpleRecipeMetadataKey
         .create(Boolean.class, "noble_gases");
@@ -236,19 +267,20 @@ public class GTRecipeConstants {
         if (aDuration <= 0) {
             return Collections.emptyList();
         }
-        builder.duration(aDuration);
         boolean recycle = builder.getMetadataOrDefault(RECYCLE, false);
         Collection<GTRecipe> ret = new ArrayList<>();
         for (Materials mat : new Materials[] { Materials.Argon, Materials.Nitrogen }) {
+            builder.duration(Math.max(1, mat == Materials.Nitrogen ? aDuration / 4 : aDuration / 24));
             int tPlasmaAmount = (int) Math.max(1L, aDuration / (mat.getMass() * 16L));
             GTRecipeBuilder plasmaBuilder = builder.copy()
                 .fluidInputs(mat.getPlasma(tPlasmaAmount))
                 .fluidOutputs(mat.getGas(tPlasmaAmount));
             if (recycle) {
-                plasmaBuilder.recipeCategory(RecipeCategories.plasmaArcFurnaceRecycling);
+                continue;
             }
             ret.addAll(RecipeMaps.plasmaArcFurnaceRecipes.doAdd(plasmaBuilder));
         }
+        builder.duration(aDuration);
         GTRecipeBuilder arcBuilder = builder.copy()
             .fluidInputs(Materials.Oxygen.getGas(aDuration));
         if (recycle) {
@@ -257,7 +289,6 @@ public class GTRecipeConstants {
         ret.addAll(RecipeMaps.arcFurnaceRecipes.doAdd(arcBuilder));
         return ret;
     });
-
     /**
      * Add a chemical reactor recipe to both LCR and singleblocks.
      */
@@ -337,16 +368,18 @@ public class GTRecipeConstants {
                 return GTUtility.concat(
                     builder.copy()
                         .itemInputs(itemInputs)
-                        .fluidInputs(GTModHandler.getDistilledWater(100L))
+                        .fluidInputs(ArrayUtils.addAll(builder.fluidInputs, GTModHandler.getDistilledWater(100L)))
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
                         .itemInputs(itemInputs)
-                        .fluidInputs(Materials.Grade1PurifiedWater.getFluid(100L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade1PurifiedWater.getFluid(100L)))
                         .duration(halfBoostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
                         .itemInputs(itemInputs)
-                        .fluidInputs(Materials.Grade2PurifiedWater.getFluid(100L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade2PurifiedWater.getFluid(100L)))
                         .duration(boostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes));
             }
@@ -354,11 +387,13 @@ public class GTRecipeConstants {
                 // Require purified water for europium wafers, at least grade 3
                 return GTUtility.concat(
                     builder.copy()
-                        .fluidInputs(Materials.Grade3PurifiedWater.getFluid(100L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade3PurifiedWater.getFluid(100L)))
                         .duration(recipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
-                        .fluidInputs(Materials.Grade4PurifiedWater.getFluid(100L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade4PurifiedWater.getFluid(100L)))
                         .duration(boostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes));
             }
@@ -366,11 +401,13 @@ public class GTRecipeConstants {
                 // Require purified water for americium wafers, at least grade 5
                 return GTUtility.concat(
                     builder.copy()
-                        .fluidInputs(Materials.Grade5PurifiedWater.getFluid(100L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade5PurifiedWater.getFluid(100L)))
                         .duration(recipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
-                        .fluidInputs(Materials.Grade6PurifiedWater.getFluid(100L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade6PurifiedWater.getFluid(100L)))
                         .duration(boostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes));
             }
@@ -379,15 +416,18 @@ public class GTRecipeConstants {
                 // T1 masks require grade 1, 2 or 3 purified water
                 return GTUtility.concat(
                     builder.copy()
-                        .fluidInputs(Materials.Grade1PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade1PurifiedWater.getFluid(32000L)))
                         .duration(recipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
-                        .fluidInputs(Materials.Grade2PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade2PurifiedWater.getFluid(32000L)))
                         .duration(halfBoostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
-                        .fluidInputs(Materials.Grade3PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade3PurifiedWater.getFluid(32000L)))
                         .duration(boostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes));
             }
@@ -395,11 +435,13 @@ public class GTRecipeConstants {
                 // T2 masks require grade 4 or 5 purified water
                 return GTUtility.concat(
                     builder.copy()
-                        .fluidInputs(Materials.Grade4PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade4PurifiedWater.getFluid(32000L)))
                         .duration(recipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
-                        .fluidInputs(Materials.Grade5PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade5PurifiedWater.getFluid(32000L)))
                         .duration(boostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes));
             }
@@ -407,15 +449,18 @@ public class GTRecipeConstants {
                 // T3 masks require grade 6, 7 or 8 purified water
                 return GTUtility.concat(
                     builder.copy()
-                        .fluidInputs(Materials.Grade6PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade6PurifiedWater.getFluid(32000L)))
                         .duration(recipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
-                        .fluidInputs(Materials.Grade7PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade7PurifiedWater.getFluid(32000L)))
                         .duration(halfBoostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes),
                     builder.copy()
-                        .fluidInputs(Materials.Grade8PurifiedWater.getFluid(32000L))
+                        .fluidInputs(
+                            ArrayUtils.addAll(builder.fluidInputs, Materials.Grade8PurifiedWater.getFluid(32000L)))
                         .duration(boostedRecipeTime)
                         .addTo(RecipeMaps.laserEngraverRecipes));
             }
@@ -426,8 +471,8 @@ public class GTRecipeConstants {
 
     /**
      * The one and only :tm: assline recipe adder.
-     * Uses {@link #RESEARCH_ITEM} metadata as research item, and {@link #RESEARCH_TIME} metadata as research time, unit
-     * in ticks.
+     * Uses {@link #RESEARCH_ITEM} metadata as research item, and {@link #SCANNING} metadata as research time and
+     * voltage.
      */
     public static final IRecipeMap AssemblyLine = IRecipeMap.newRecipeMap(builder -> {
         Optional<GTRecipe.GTRecipe_WithAlt> rr = builder.forceOreDictInput()
@@ -490,14 +535,16 @@ public class GTRecipeConstants {
             if (fluidInput == null) continue;
             tPersistentHash = tPersistentHash * 31 + GTUtility.persistentHash(fluidInput, true, false);
         }
-        int aResearchTime = builder.getMetadataOrDefault(RESEARCH_TIME, 0);
-        tPersistentHash = tPersistentHash * 31 + aResearchTime;
+        Scanning scanningData = builder.getMetadataOrDefault(SCANNING, new Scanning(0, 0));
+        tPersistentHash = tPersistentHash * 31 + scanningData.time;
+        tPersistentHash = tPersistentHash * 31 + (int) scanningData.voltage;
         tPersistentHash = tPersistentHash * 31 + r.mDuration;
         tPersistentHash = tPersistentHash * 31 + r.mEUt;
 
         GTRecipe.RecipeAssemblyLine tRecipe = new GTRecipe.RecipeAssemblyLine(
             aResearchItem,
-            aResearchTime,
+            scanningData.time,
+            (int) scanningData.voltage,
             r.mInputs,
             r.mFluidInputs,
             aOutput,
@@ -508,30 +555,26 @@ public class GTRecipeConstants {
         GTRecipe.RecipeAssemblyLine.sAssemblylineRecipes.add(tRecipe);
         AssemblyLineUtils.addRecipeToCache(tRecipe);
 
-        ItemStack writesDataStick = ItemList.Tool_DataStick.getWithName(1L, "Writes Research result");
-        AssemblyLineUtils.setAssemblyLineRecipeOnDataStick(writesDataStick, tRecipe, false);
         Collection<GTRecipe> ret = new ArrayList<>(3);
         ret.addAll(
             GTValues.RA.stdBuilder()
                 .itemInputs(aResearchItem)
                 .itemOutputs(aOutput)
-                .special(writesDataStick)
-                .duration(aResearchTime)
-                .eut(TierEU.RECIPE_LV)
+                .special(tRecipe.newDataStickForNEI("Writes Research result"))
+                .duration(scanningData.time)
+                .eut(scanningData.voltage)
                 .specialValue(-201) // means it's scanned
                 .noOptimize()
                 .ignoreCollision()
                 .fake()
                 .addTo(scannerFakeRecipes));
 
-        ItemStack readsDataStick = ItemList.Tool_DataStick.getWithName(1L, "Reads Research result");
-        AssemblyLineUtils.setAssemblyLineRecipeOnDataStick(readsDataStick, tRecipe, false);
         ret.add(
             RecipeMaps.assemblylineVisualRecipes.addFakeRecipe(
                 false,
                 r.mInputs,
                 new ItemStack[] { aOutput },
-                new ItemStack[] { readsDataStick },
+                new ItemStack[] { tRecipe.newDataStickForNEI("Reads Research result") },
                 r.mFluidInputs,
                 null,
                 r.mDuration,
@@ -691,10 +734,6 @@ public class GTRecipeConstants {
         GTRecipeMapUtil.SPECIAL_VALUE_ALIASES.add(NKE_RANGE);
         GTRecipeMapUtil.SPECIAL_VALUE_ALIASES.add(PRECISE_ASSEMBLER_CASING_TIER);
         GTRecipeMapUtil.SPECIAL_VALUE_ALIASES.add(COAL_CASING_TIER);
-        GTRecipeMapUtil.SPECIAL_VALUE_ALIASES.add(COMPRESSION_TIER);
         GTRecipeMapUtil.SPECIAL_VALUE_ALIASES.add(RESEARCH_STATION_DATA);
-        GTRecipeMapUtil.SPECIAL_VALUE_ALIASES.add(SIEVERTS);
-        GTRecipeMapUtil.SPECIAL_VALUE_ALIASES.add(DECAY_TICKS);
-
     }
 }

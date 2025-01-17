@@ -117,7 +117,7 @@ public class MTEHatchInputME extends MTEHatchInput implements IPowerChannelState
     protected static final FluidStack[] EMPTY_FLUID_STACK = new FluidStack[0];
 
     public MTEHatchInputME(int aID, boolean autoPullAvailable, String aName, String aNameRegional) {
-        super(aID, aName, aNameRegional, autoPullAvailable ? 10 : 8, 1, getDescriptionArray(autoPullAvailable));
+        super(aID, aName, aNameRegional, autoPullAvailable ? 9 : 8, 1, getDescriptionArray(autoPullAvailable));
         this.autoPullAvailable = autoPullAvailable;
     }
 
@@ -588,6 +588,7 @@ public class MTEHatchInputME extends MTEHatchInput implements IPowerChannelState
                 storedFluids[i] = GTUtility.loadFluid(stockingFluids.getCompoundTagAt(i));
             }
         }
+        updateValidGridProxySides();
         return true;
     }
 
@@ -625,7 +626,6 @@ public class MTEHatchInputME extends MTEHatchInput implements IPowerChannelState
 
         if (!pasteCopiedData(aPlayer, dataStick.stackTagCompound)) return false;
 
-        updateValidGridProxySides();
         aPlayer.addChatMessage(new ChatComponentTranslation("GT5U.machines.stocking_bus.loaded"));
         return true;
     }
@@ -929,7 +929,7 @@ public class MTEHatchInputME extends MTEHatchInput implements IPowerChannelState
     private static String[] getDescriptionArray(boolean autoPullAvailable) {
         List<String> strings = new ArrayList<>(8);
         strings.add("Advanced fluid input for Multiblocks");
-        strings.add("Hatch Tier: " + TIER_COLORS[autoPullAvailable ? 10 : 8] + VN[autoPullAvailable ? 10 : 8]);
+        strings.add("Hatch Tier: " + TIER_COLORS[autoPullAvailable ? 9 : 8] + VN[autoPullAvailable ? 9 : 8]);
         strings.add("Retrieves directly from ME");
         strings.add("Keeps 16 fluid types in stock");
 

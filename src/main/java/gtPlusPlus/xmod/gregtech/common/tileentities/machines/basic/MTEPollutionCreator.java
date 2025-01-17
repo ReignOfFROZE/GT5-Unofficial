@@ -6,14 +6,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import gregtech.GTMod;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.objects.GTRenderedTexture;
+import gregtech.common.pollution.Pollution;
 import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
-import gtPlusPlus.core.util.minecraft.gregtech.PollutionUtils;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMetaTileEntity;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
@@ -21,10 +22,10 @@ public class MTEPollutionCreator extends GTPPMetaTileEntity {
 
     int mCurrentPollution;
     int mAveragePollution;
-    int mAveragePollutionArray[] = new int[10];
+    int[] mAveragePollutionArray = new int[10];
     private int mArrayPos = 0;
     private int mTickTimer = 0;
-    private int mSecondTimer = 0;
+    private final int mSecondTimer = 0;
 
     public MTEPollutionCreator(final int aID, final String aName, final String aNameRegional, final int aTier,
         final String aDescription, final int aSlotCount) {
@@ -270,7 +271,7 @@ public class MTEPollutionCreator extends GTPPMetaTileEntity {
     public int pollutionMultiplier = 1;
 
     private void showPollution(final World worldIn, final EntityPlayer playerIn) {
-        if (!PollutionUtils.isPollutionEnabled()) {
+        if (!GTMod.gregtechproxy.mPollution) {
             PlayerUtils.messagePlayer(playerIn, "This block is useless, Pollution is disabled.");
         } else {
             addPollution();
@@ -282,7 +283,7 @@ public class MTEPollutionCreator extends GTPPMetaTileEntity {
     }
 
     private boolean addPollution() {
-        PollutionUtils.addPollution(getBaseMetaTileEntity(), 100000 * pollutionMultiplier);
+        Pollution.addPollution(getBaseMetaTileEntity(), 100000 * pollutionMultiplier);
         return true;
     }
 
@@ -303,7 +304,7 @@ public class MTEPollutionCreator extends GTPPMetaTileEntity {
     }
 
     public int getCurrentChunkPollution(IGregTechTileEntity aBaseMetaTileEntity) {
-        return PollutionUtils.getPollution(aBaseMetaTileEntity);
+        return Pollution.getPollution(aBaseMetaTileEntity);
     }
 
     @Override

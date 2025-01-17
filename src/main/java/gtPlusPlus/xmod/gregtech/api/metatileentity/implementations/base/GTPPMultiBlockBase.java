@@ -9,14 +9,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -37,6 +35,7 @@ import com.gtnewhorizon.structurelib.structure.AutoPlaceEnvironment;
 import com.gtnewhorizon.structurelib.structure.IStructureElement;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import com.gtnewhorizons.modularui.api.drawable.ItemDrawable;
+import com.gtnewhorizons.modularui.api.math.Alignment;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
 import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
 import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
@@ -79,15 +78,12 @@ import gtPlusPlus.GTplusplus;
 import gtPlusPlus.GTplusplus.INIT_PHASE;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.api.objects.minecraft.BlockPos;
+import gtPlusPlus.core.config.ASMConfiguration;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
-import gtPlusPlus.core.util.reflect.ReflectionUtils;
-import gtPlusPlus.preloader.PreloaderCore;
-import gtPlusPlus.preloader.asm.AsmConfig;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.METHatchAirIntake;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchInputBattery;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchOutputBattery;
-import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MteHatchSteamBusInput;
 import tectech.thing.metaTileEntity.hatch.MTEHatchDynamoMulti;
 import tectech.thing.metaTileEntity.hatch.MTEHatchEnergyMulti;
 
@@ -143,7 +139,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
     public String[] getInfoData() {
         ArrayList<String> mInfo = new ArrayList<>();
         if (!this.getMetaName()
-            .equals("")) {
+            .isEmpty()) {
             mInfo.add(this.getMetaName());
         }
 
@@ -152,11 +148,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
         if (extra == null) {
             extra = new String[0];
         }
-        if (extra.length > 0) {
-            for (String s : extra) {
-                mInfo.add(s);
-            }
-        }
+        mInfo.addAll(Arrays.asList(extra));
 
         long seconds = (this.mTotalRunTime / 20);
         int weeks = (int) (TimeUnit.SECONDS.toDays(seconds) / 7);
@@ -187,20 +179,18 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
             mInfo.add(StatCollector.translateToLocal("GTPP.multiblock.energy") + ":");
             mInfo.add(
                 StatCollector.translateToLocal(
-                    "" + EnumChatFormatting.GREEN
-                        + Long.toString(storedEnergy)
+                    EnumChatFormatting.GREEN.toString() + storedEnergy
                         + EnumChatFormatting.RESET
                         + " EU / "
                         + EnumChatFormatting.YELLOW
-                        + Long.toString(maxEnergy)
+                        + maxEnergy
                         + EnumChatFormatting.RESET
                         + " EU"));
 
             mInfo.add(StatCollector.translateToLocal("GTPP.multiblock.mei") + ":");
             mInfo.add(
                 StatCollector.translateToLocal(
-                    "" + EnumChatFormatting.YELLOW
-                        + Long.toString(getMaxInputVoltage())
+                    EnumChatFormatting.YELLOW.toString() + getMaxInputVoltage()
                         + EnumChatFormatting.RESET
                         + " EU/t(*2A) "
                         + StatCollector.translateToLocal("GTPP.machines.tier")
@@ -215,12 +205,11 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
             mInfo.add(StatCollector.translateToLocal("GTPP.multiblock.energy") + " In Dynamos:");
             mInfo.add(
                 StatCollector.translateToLocal(
-                    "" + EnumChatFormatting.GREEN
-                        + Long.toString(storedEnergy)
+                    EnumChatFormatting.GREEN.toString() + storedEnergy
                         + EnumChatFormatting.RESET
                         + " EU / "
                         + EnumChatFormatting.YELLOW
-                        + Long.toString(maxEnergy)
+                        + maxEnergy
                         + EnumChatFormatting.RESET
                         + " EU"));
         }
@@ -246,12 +235,11 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                 + StatCollector.translateToLocal("GTPP.multiblock.efficiency")
                 + ": "
                 + EnumChatFormatting.YELLOW
-                + Float.toString(mEfficiency / 100.0F)
+                + mEfficiency / 100.0F
                 + EnumChatFormatting.RESET
                 + " %");
 
         if (this.getPollutionPerSecond(null) > 0) {
-            int mPollutionReduction = getPollutionReductionForAllMufflers();
             mInfo.add(
                 StatCollector.translateToLocal("GTPP.multiblock.pollution") + ": "
                     + EnumChatFormatting.RED
@@ -261,7 +249,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
             mInfo.add(
                 StatCollector.translateToLocal("GTPP.multiblock.pollutionreduced") + ": "
                     + EnumChatFormatting.GREEN
-                    + mPollutionReduction
+                    + getAveragePollutionPercentage()
                     + EnumChatFormatting.RESET
                     + " %");
         }
@@ -274,11 +262,11 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
 
         mInfo.add(
             "Total Time Since Built: " + EnumChatFormatting.DARK_GREEN
-                + Integer.toString(weeks)
+                + weeks
                 + EnumChatFormatting.RESET
                 + " Weeks, "
                 + EnumChatFormatting.DARK_GREEN
-                + Integer.toString(days)
+                + days
                 + EnumChatFormatting.RESET
                 + " Days, ");
         mInfo.add(
@@ -286,25 +274,16 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                 + EnumChatFormatting.RESET
                 + " Hours, "
                 + EnumChatFormatting.DARK_GREEN
-                + Long.toString(minutes)
+                + minutes
                 + EnumChatFormatting.RESET
                 + " Minutes, "
                 + EnumChatFormatting.DARK_GREEN
-                + Long.toString(second)
+                + second
                 + EnumChatFormatting.RESET
                 + " Seconds.");
-        mInfo.add("Total Time in ticks: " + EnumChatFormatting.DARK_GREEN + Long.toString(this.mTotalRunTime));
+        mInfo.add("Total Time in ticks: " + EnumChatFormatting.DARK_GREEN + this.mTotalRunTime);
 
-        String[] mInfo2 = mInfo.toArray(new String[mInfo.size()]);
-        return mInfo2;
-    }
-
-    public int getPollutionReductionForAllMufflers() {
-        int mPollutionReduction = 0;
-        for (MTEHatchMuffler tHatch : validMTEList(mMufflerHatches)) {
-            mPollutionReduction = Math.max(calculatePollutionReductionForHatch(tHatch, 100), mPollutionReduction);
-        }
-        return mPollutionReduction;
+        return mInfo.toArray(new String[0]);
     }
 
     public long getStoredEnergyInAllEnergyHatches() {
@@ -383,8 +362,8 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
     public static Method aLogger = null;
 
     public void log(String s) {
-        if (!AsmConfig.disableAllLogging) {
-            if (PreloaderCore.DEBUG_MODE) {
+        if (!ASMConfiguration.debug.disableAllLogging) {
+            if (ASMConfiguration.debug.debugMode) {
                 Logger.INFO(s);
             } else {
                 Logger.MACHINE_INFO(s);
@@ -413,10 +392,8 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
     }
 
     public boolean isMachineRunning() {
-        boolean aRunning = this.getBaseMetaTileEntity()
+        return this.getBaseMetaTileEntity()
             .isActive();
-        // log("Queried Multiblock is currently running: "+aRunning);
-        return aRunning;
     }
 
     @Override
@@ -427,19 +404,16 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                 .doExplosion(GTValues.V[8])) {
             tTileEntity = localIterator.next();
         }
-        tTileEntity = null;
         for (final Iterator<MTEHatchOutputBattery> localIterator = this.mDischargeHatches.iterator(); localIterator
             .hasNext(); tTileEntity.getBaseMetaTileEntity()
                 .doExplosion(GTValues.V[8])) {
             tTileEntity = localIterator.next();
         }
-        tTileEntity = null;
         for (final Iterator<MTEHatch> localIterator = this.mTecTechDynamoHatches.iterator(); localIterator
             .hasNext(); tTileEntity.getBaseMetaTileEntity()
                 .doExplosion(GTValues.V[8])) {
             tTileEntity = localIterator.next();
         }
-        tTileEntity = null;
         for (final Iterator<MTEHatch> localIterator = this.mTecTechEnergyHatches.iterator(); localIterator
             .hasNext(); tTileEntity.getBaseMetaTileEntity()
                 .doExplosion(GTValues.V[8])) {
@@ -469,7 +443,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
     }
 
     public ItemStack findItemInInventory(ItemStack aSearchStack) {
-        if (aSearchStack != null && this.mInputBusses.size() > 0) {
+        if (aSearchStack != null && !this.mInputBusses.isEmpty()) {
             for (MTEHatchInputBus bus : this.mInputBusses) {
                 if (bus != null) {
                     for (ItemStack uStack : bus.mInventory) {
@@ -517,8 +491,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
     }
 
     public boolean checkHatch() {
-        return mMaintenanceHatches.size() <= 1
-            && (this.getPollutionPerSecond(null) > 0 ? !mMufflerHatches.isEmpty() : true);
+        return mMaintenanceHatches.size() <= 1 && (this.getPollutionPerSecond(null) <= 0 || !mMufflerHatches.isEmpty());
     }
 
     @Override
@@ -614,8 +587,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
         if (aTileEntity == null) {
             return null;
         }
-        final IMetaTileEntity aMetaTileEntity = aTileEntity.getMetaTileEntity();
-        return aMetaTileEntity;
+        return aTileEntity.getMetaTileEntity();
     }
 
     @Override
@@ -770,8 +742,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
             if (aMetaTileEntity == null) {
                 return false;
             }
-            if (aMetaTileEntity instanceof MTEHatchInput || aMetaTileEntity instanceof MTEHatchInputBus
-                || aMetaTileEntity instanceof MteHatchSteamBusInput) {
+            if (aMetaTileEntity instanceof MTEHatchInput || aMetaTileEntity instanceof MTEHatchInputBus) {
                 return resetRecipeMapForHatch((MTEHatch) aMetaTileEntity, aMap);
             } else {
                 return false;
@@ -786,28 +757,18 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
         if (aTileEntity == null) {
             return false;
         }
-        final IMetaTileEntity aMetaTileEntity = aTileEntity;
-        if (aMetaTileEntity instanceof MTEHatchInput || aMetaTileEntity instanceof MTEHatchInputBus
-            || aMetaTileEntity instanceof MteHatchSteamBusInput) {
-            if (aMetaTileEntity instanceof MTEHatchInput) {
-                ((MTEHatchInput) aMetaTileEntity).mRecipeMap = null;
-                ((MTEHatchInput) aMetaTileEntity).mRecipeMap = aMap;
+        if (aTileEntity instanceof MTEHatchInput || aTileEntity instanceof MTEHatchInputBus) {
+            if (aTileEntity instanceof MTEHatchInput) {
+                ((MTEHatchInput) aTileEntity).mRecipeMap = null;
+                ((MTEHatchInput) aTileEntity).mRecipeMap = aMap;
                 if (aMap != null) {
                     log("Remapped Input Hatch to " + aMap.unlocalizedName + ".");
                 } else {
                     log("Cleared Input Hatch.");
                 }
-            } else if (aMetaTileEntity instanceof MTEHatchInputBus) {
-                ((MTEHatchInputBus) aMetaTileEntity).mRecipeMap = null;
-                ((MTEHatchInputBus) aMetaTileEntity).mRecipeMap = aMap;
-                if (aMap != null) {
-                    log("Remapped Input Bus to " + aMap.unlocalizedName + ".");
-                } else {
-                    log("Cleared Input Bus.");
-                }
-            } else {
-                ((MteHatchSteamBusInput) aMetaTileEntity).mRecipeMap = null;
-                ((MteHatchSteamBusInput) aMetaTileEntity).mRecipeMap = aMap;
+            } else if (aTileEntity instanceof MTEHatchInputBus) {
+                ((MTEHatchInputBus) aTileEntity).mRecipeMap = null;
+                ((MTEHatchInputBus) aTileEntity).mRecipeMap = aMap;
                 if (aMap != null) {
                     log("Remapped Input Bus to " + aMap.unlocalizedName + ".");
                 } else {
@@ -1001,8 +962,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
             }
         }
         // Do Super
-        boolean aSuper = super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
-        return aSuper;
+        return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
     }
 
     public boolean onPlungerRightClick(EntityPlayer aPlayer, ForgeDirection side, float aX, float aY, float aZ) {
@@ -1027,7 +987,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
 
     @Override
     public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-        float aX, float aY, float aZ) {
+        float aX, float aY, float aZ, ItemStack aTool) {
         if (aPlayer.isSneaking()) {
             batchMode = !batchMode;
             if (batchMode) {
@@ -1042,7 +1002,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
 
     @Override
     public boolean onSolderingToolRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
-        float aX, float aY, float aZ) {
+        float aX, float aY, float aZ, ItemStack aTool) {
         if (supportsVoidProtection() && wrenchingSide == getBaseMetaTileEntity().getFrontFacing()) {
             Set<VoidingMode> allowed = getAllowedVoidingModes();
             setVoidingMode(getVoidingMode().nextInCollection(allowed));
@@ -1051,7 +1011,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                 StatCollector.translateToLocal("GT5U.gui.button.voiding_mode") + " "
                     + StatCollector.translateToLocal(getVoidingMode().getTransKey()));
             return true;
-        } else return super.onSolderingToolRightClick(side, wrenchingSide, aPlayer, aX, aY, aZ);
+        } else return super.onSolderingToolRightClick(side, wrenchingSide, aPlayer, aX, aY, aZ, aTool);
     }
 
     // Only support to use meta to tier
@@ -1109,6 +1069,18 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
             }
 
             @Override
+            public boolean couldBeValid(T t, World world, int x, int y, int z, ItemStack trigger) {
+                Block tBlock = world.getBlock(x, y, z);
+                if (aBlock == tBlock) {
+                    int expectedMeta = getMeta(trigger);
+                    int blockMeta = tBlock.getDamageValue(world, x, y, z) + 1;
+                    if (blockMeta > maxMeta || blockMeta < minMeta + 1) return false;
+                    return expectedMeta == blockMeta;
+                }
+                return false;
+            }
+
+            @Override
             public boolean spawnHint(T t, World world, int x, int y, int z, ItemStack trigger) {
                 StructureLibAPI.hintParticle(world, x, y, z, aBlock, getMeta(trigger));
                 return true;
@@ -1159,24 +1131,53 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
     @Override
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection facing,
         int aColorIndex, boolean aActive, boolean aRedstone) {
-        if (side == facing) {
-            if (aActive) return new ITexture[] { getCasingTexture(), TextureFactory.builder()
-                .addIcon(getActiveOverlay())
-                .extFacing()
-                .build() };
-            return new ITexture[] { getCasingTexture(), TextureFactory.builder()
-                .addIcon(getInactiveOverlay())
-                .extFacing()
-                .build() };
+        ITexture casingTexture = getCasingTexture();
+        if (side != facing) {
+            return new ITexture[] { casingTexture };
         }
-        return new ITexture[] { getCasingTexture() };
+
+        int textures = 1;
+        IIconContainer container = aActive ? getActiveOverlay() : getInactiveOverlay();
+        ITexture overlay = null;
+        if (container != null) {
+            textures++;
+            overlay = TextureFactory.builder()
+                .addIcon(container)
+                .extFacing()
+                .build();
+        }
+
+        IIconContainer glowContainer = aActive ? getActiveGlowOverlay() : getInactiveGlowOverlay();
+        ITexture glowOverlay = null;
+        if (glowContainer != null) {
+            textures++;
+            glowOverlay = TextureFactory.builder()
+                .addIcon(glowContainer)
+                .extFacing()
+                .glow()
+                .build();
+        }
+
+        ITexture[] retVal = new ITexture[textures];
+        retVal[0] = getCasingTexture();
+        if (overlay != null) retVal[1] = overlay;
+        if (glowOverlay != null) retVal[2] = glowOverlay;
+        return retVal;
     }
 
     protected IIconContainer getActiveOverlay() {
         return null;
     }
 
+    protected IIconContainer getActiveGlowOverlay() {
+        return null;
+    }
+
     protected IIconContainer getInactiveOverlay() {
+        return null;
+    }
+
+    protected IIconContainer getInactiveGlowOverlay() {
         return null;
     }
 
@@ -1280,7 +1281,8 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
 
         screenElements
             .widget(
-                new TextWidget(GTUtility.trans("138", "Incomplete Structure.")).setDefaultColor(COLOR_TEXT_WHITE.get())
+                new TextWidget(GTUtility.trans("138", "Incomplete Structure.")).setTextAlignment(Alignment.CenterLeft)
+                    .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> !mMachine))
             .widget(new FakeSyncWidget.BooleanSyncer(() -> mMachine, val -> mMachine = val))
             .widget(
@@ -1291,6 +1293,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + ": "
                             + EnumChatFormatting.GREEN
                             + GTValues.VOLTAGE_NAMES[(int) getInputTier()])
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine && getInputTier() > 0))
             .widget(
@@ -1301,6 +1304,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + ": "
                             + EnumChatFormatting.GREEN
                             + GTValues.VOLTAGE_NAMES[(int) getOutputTier()])
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine && getOutputTier() > 0))
             .widget(
@@ -1315,10 +1319,12 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + getBaseMetaTileEntity().getMaxProgress() / 20
                             + EnumChatFormatting.RESET
                             + " s")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
                 new TextWidget(StatCollector.translateToLocal("GTPP.multiblock.energy") + ":")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1333,20 +1339,24 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                                 + getMaxEnergyStorageOfAllEnergyHatches()
                                 + EnumChatFormatting.RESET
                                 + " EU"))
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
                 new TextWidget(StatCollector.translateToLocal("GTPP.multiblock.usage") + ":")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine && getLastRecipeEU() > 0 && getLastRecipeDuration() > 0))
             .widget(
                 TextWidget.dynamicString(
                     () -> StatCollector.translateToLocal(
                         "" + EnumChatFormatting.RED + -getLastRecipeEU() + EnumChatFormatting.RESET + " EU/t/parallel"))
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine && getLastRecipeEU() > 0 && getLastRecipeDuration() > 0))
             .widget(
                 TextWidget.dynamicString(() -> StatCollector.translateToLocal("GTPP.multiblock.generation") + ":")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine && getLastRecipeEU() < 0 && getLastRecipeDuration() > 0))
             .widget(
@@ -1357,6 +1367,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                                 + getLastRecipeEU()
                                 + EnumChatFormatting.RESET
                                 + " EU/t/parallel"))
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine && getLastRecipeEU() < 0 && getLastRecipeDuration() > 0))
             .widget(
@@ -1367,6 +1378,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + getLastRecipeDuration()
                             + EnumChatFormatting.RESET
                             + " ticks")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine && getLastRecipeEU() != 0 && getLastRecipeDuration() > 0))
             .widget(
@@ -1375,8 +1387,8 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                         () -> StatCollector.translateToLocal("GTPP.multiblock.specialvalue") + ": "
                             + EnumChatFormatting.RED
                             + getLastRecipeEU()
-                            + EnumChatFormatting.RESET
-                            + "")
+                            + EnumChatFormatting.RESET)
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(
                         widget -> mMachine && getLastRecipeEU() != 0
@@ -1384,6 +1396,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             && (mLastRecipe != null ? mLastRecipe.mSpecialValue : 0) > 0))
             .widget(
                 new TextWidget(StatCollector.translateToLocal("GTPP.multiblock.mei") + ":")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1399,6 +1412,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                                 + EnumChatFormatting.YELLOW
                                 + GTValues.VN[GTUtility.getTier(getMaxInputVoltage())]
                                 + EnumChatFormatting.RESET))
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1409,6 +1423,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + (mEfficiency / 100.0F)
                             + EnumChatFormatting.RESET
                             + " %")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1416,9 +1431,10 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                     .dynamicString(
                         () -> StatCollector.translateToLocal("GTPP.multiblock.pollution") + ": "
                             + EnumChatFormatting.RED
-                            + (getPollutionPerTick(null) * 20)
+                            + getPollutionPerSecond(null)
                             + EnumChatFormatting.RESET
                             + "/sec")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1426,13 +1442,15 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                     .dynamicString(
                         () -> StatCollector.translateToLocal("GTPP.multiblock.pollutionreduced") + ": "
                             + EnumChatFormatting.GREEN
-                            + getPollutionReductionForAllMufflers()
+                            + getAveragePollutionPercentage()
                             + EnumChatFormatting.RESET
                             + " %")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
-                new TextWidget("Total Time Since Built: ").setDefaultColor(COLOR_TEXT_WHITE.get())
+                new TextWidget("Total Time Since Built: ").setTextAlignment(Alignment.CenterLeft)
+                    .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
                 TextWidget
@@ -1441,6 +1459,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + getRuntimeWeeksDisplay()
                             + EnumChatFormatting.RESET
                             + " Weeks,")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1450,6 +1469,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + getRuntimeDaysDisplay()
                             + EnumChatFormatting.RESET
                             + " Days,")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1459,6 +1479,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + getRuntimeHoursDisplay()
                             + EnumChatFormatting.RESET
                             + " Hours,")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1468,6 +1489,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + getRuntimeMinutesDisplay()
                             + EnumChatFormatting.RESET
                             + " Minutes,")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine))
             .widget(
@@ -1477,6 +1499,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
                             + getRuntimeSecondsDisplay()
                             + EnumChatFormatting.RESET
                             + " Seconds")
+                    .setTextAlignment(Alignment.CenterLeft)
                     .setDefaultColor(COLOR_TEXT_WHITE.get())
                     .setEnabled(widget -> mMachine));
     }
@@ -1591,12 +1614,7 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
             public long count(GTPPMultiBlockBase<?> t) {
                 return t.mTecTechEnergyHatches.size();
             }
-        },;
-
-        @SuppressWarnings("unchecked")
-        private static <T> Class<T> retype(Class<?> clazz) {
-            return (Class<T>) clazz;
-        }
+        };
 
         private final List<? extends Class<? extends IMetaTileEntity>> mMteClasses;
         private final IGTHatchAdder<? super GTPPMultiBlockBase<?>> mAdder;
@@ -1605,15 +1623,6 @@ public abstract class GTPPMultiBlockBase<T extends MTEExtendedPowerMultiBlockBas
         GTPPHatchElement(IGTHatchAdder<? super GTPPMultiBlockBase<?>> aAdder,
             Class<? extends IMetaTileEntity>... aMteClasses) {
             this.mMteClasses = Arrays.asList(aMteClasses);
-            this.mAdder = aAdder;
-        }
-
-        GTPPHatchElement(IGTHatchAdder<? super GTPPMultiBlockBase<?>> aAdder, String... aClassNames) {
-            this.mMteClasses = Arrays.stream(aClassNames)
-                .map(ReflectionUtils::getClass)
-                .filter(Objects::nonNull)
-                .<Class<? extends IMetaTileEntity>>map(GTPPHatchElement::retype)
-                .collect(Collectors.toList());
             this.mAdder = aAdder;
         }
 

@@ -28,8 +28,8 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.core.block.ModBlocks;
-import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
@@ -60,14 +60,12 @@ public class MTEIndustrialExtruder extends GTPPMultiBlockBase<MTEIndustrialExtru
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType(getMachineType())
-            .addInfo("Controller Block for the Material Extruder")
             .addInfo("250% faster than using single block machines of the same voltage")
             .addInfo("Processes four items per voltage tier")
             .addInfo("Extrusion Shape for recipe goes in the Input Bus")
             .addInfo("Each Input Bus can have a different shape!")
             .addInfo("You can use several input buses per multiblock")
             .addPollutionAmount(getPollutionPerSecond(null))
-            .addSeparator()
             .beginStructureBlock(3, 3, 5, true)
             .addController("Front Center")
             .addCasingInfoMin("Inconel Reinforced Casings", 14, false)
@@ -76,7 +74,7 @@ public class MTEIndustrialExtruder extends GTPPMultiBlockBase<MTEIndustrialExtru
             .addEnergyHatch("Any Casing", 1)
             .addMaintenanceHatch("Any Casing", 1)
             .addMufflerHatch("Any Casing", 1)
-            .toolTipFinisher(GTPPCore.GT_Tooltip_Builder.get());
+            .toolTipFinisher();
         return tt;
     }
 
@@ -120,7 +118,7 @@ public class MTEIndustrialExtruder extends GTPPMultiBlockBase<MTEIndustrialExtru
 
     @Override
     protected SoundResource getProcessStartSound() {
-        return SoundResource.IC2_MACHINES_COMPRESSOR_OP;
+        return SoundResource.IC2_MACHINES_INDUCTION_LOOP;
     }
 
     @Override
@@ -129,8 +127,18 @@ public class MTEIndustrialExtruder extends GTPPMultiBlockBase<MTEIndustrialExtru
     }
 
     @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return TexturesGtBlock.oMCDIndustrialExtruderActiveGlow;
+    }
+
+    @Override
     protected IIconContainer getInactiveOverlay() {
         return TexturesGtBlock.oMCDIndustrialExtruder;
+    }
+
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return TexturesGtBlock.oMCDIndustrialExtruderGlow;
     }
 
     @Override
@@ -166,7 +174,7 @@ public class MTEIndustrialExtruder extends GTPPMultiBlockBase<MTEIndustrialExtru
 
     @Override
     public int getPollutionPerSecond(final ItemStack aStack) {
-        return GTPPCore.ConfigSwitches.pollutionPerSecondMultiIndustrialExtruder;
+        return PollutionConfig.pollutionPerSecondMultiIndustrialExtruder;
     }
 
     @Override

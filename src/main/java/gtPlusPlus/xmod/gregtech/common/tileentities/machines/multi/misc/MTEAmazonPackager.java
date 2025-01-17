@@ -41,8 +41,8 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.core.block.ModBlocks;
-import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
@@ -99,17 +99,15 @@ public class MTEAmazonPackager extends GTPPMultiBlockBase<MTEAmazonPackager> imp
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType(getMachineType())
-            .addInfo("Controller Block for the Amazon Warehouse")
             .addInfo("This Multiblock is used for EXTREME packaging requirements")
             .addInfo("Can be configured with a screwdriver to work as an Unpackager")
-            .addInfo("Dust Schematics are inserted into the input busses")
-            .addInfo("If inserted into the controller, it is shared across all busses")
+            .addInfo("Dust Schematics are inserted into the input buses")
+            .addInfo("If inserted into the controller, it is shared across all buses")
             .addInfo("1x, 2x, 3x & Other Schematics are to be placed into the controller GUI slot")
             .addInfo("500% faster than using single block machines of the same voltage")
             .addInfo("Only uses 75% of the EU/t normally required")
             .addInfo("Processes 16 items per voltage tier")
             .addPollutionAmount(getPollutionPerSecond(null))
-            .addSeparator()
             .beginStructureBlock(3, 3, 3, true)
             .addController("Front center")
             .addCasingInfoMin("Supply Depot Casings", 10, false)
@@ -118,7 +116,7 @@ public class MTEAmazonPackager extends GTPPMultiBlockBase<MTEAmazonPackager> imp
             .addEnergyHatch("Any casing", 1)
             .addMaintenanceHatch("Any casing", 1)
             .addMufflerHatch("Any casing", 1)
-            .toolTipFinisher("GT++");
+            .toolTipFinisher();
         return tt;
     }
 
@@ -128,8 +126,18 @@ public class MTEAmazonPackager extends GTPPMultiBlockBase<MTEAmazonPackager> imp
     }
 
     @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return TexturesGtBlock.oMCAAmazonPackagerActiveGlow;
+    }
+
+    @Override
     protected IIconContainer getInactiveOverlay() {
         return TexturesGtBlock.oMCAAmazonPackager;
+    }
+
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return TexturesGtBlock.oMCAAmazonPackagerGlow;
     }
 
     @Override
@@ -168,7 +176,7 @@ public class MTEAmazonPackager extends GTPPMultiBlockBase<MTEAmazonPackager> imp
 
     @Override
     public int getPollutionPerSecond(ItemStack arg0) {
-        return GTPPCore.ConfigSwitches.pollutionPerSecondMultiPackager;
+        return PollutionConfig.pollutionPerSecondMultiPackager;
     }
 
     @Override

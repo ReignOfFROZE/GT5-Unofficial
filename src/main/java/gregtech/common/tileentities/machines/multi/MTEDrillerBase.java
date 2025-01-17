@@ -116,7 +116,6 @@ public abstract class MTEDrillerBase extends MTEEnhancedMultiBlockBase<MTEDrille
                     'b',
                     lazy(
                         t -> buildHatchAdder(MTEDrillerBase.class).atLeastList(t.getAllowedHatches())
-                            .adder(MTEDrillerBase::addToMachineList)
                             .casingIndex(t.casingTextureIndex)
                             .dot(1)
                             .buildAndChain(
@@ -181,6 +180,18 @@ public abstract class MTEDrillerBase extends MTEEnhancedMultiBlockBase<MTEDrille
         initFields();
     }
 
+    protected void addOperatingMessages() {
+        // Inheritors can overwrite these to add custom operating messages.
+        addResultMessage(STATE_DOWNWARD, true, "deploying_pipe");
+        addResultMessage(STATE_DOWNWARD, false, "extracting_pipe");
+        addResultMessage(STATE_AT_BOTTOM, true, "drilling");
+        addResultMessage(STATE_AT_BOTTOM, false, "no_mining_pipe");
+        addResultMessage(STATE_UPWARD, true, "retracting_pipe");
+        addResultMessage(STATE_UPWARD, false, "drill_generic_finished");
+        addResultMessage(STATE_ABORT, true, "retracting_pipe");
+        addResultMessage(STATE_ABORT, false, "drill_retract_pipes_finished");
+    }
+
     private void initFields() {
         casingBlock = getCasingBlockItem().getBlock();
         casingMeta = getCasingBlockItem().get(0)
@@ -192,15 +203,8 @@ public abstract class MTEDrillerBase extends MTEEnhancedMultiBlockBase<MTEDrille
         casingTextureIndex = getCasingTextureIndex();
         workState = STATE_DOWNWARD;
 
-        // Inheritors can overwrite these to add custom operating messages.
-        addResultMessage(STATE_DOWNWARD, true, "deploying_pipe");
-        addResultMessage(STATE_DOWNWARD, false, "extracting_pipe");
-        addResultMessage(STATE_AT_BOTTOM, true, "drilling");
-        addResultMessage(STATE_AT_BOTTOM, false, "no_mining_pipe");
-        addResultMessage(STATE_UPWARD, true, "retracting_pipe");
-        addResultMessage(STATE_UPWARD, false, "drill_generic_finished");
-        addResultMessage(STATE_ABORT, true, "retracting_pipe");
-        addResultMessage(STATE_ABORT, false, "drill_retract_pipes_finished");
+        addOperatingMessages();
+
     }
 
     @Override
@@ -257,7 +261,7 @@ public abstract class MTEDrillerBase extends MTEEnhancedMultiBlockBase<MTEDrille
 
     @Override
     public boolean onSolderingToolRightClick(ForgeDirection side, ForgeDirection wrenchingSide,
-        EntityPlayer entityPlayer, float aX, float aY, float aZ) {
+        EntityPlayer entityPlayer, float aX, float aY, float aZ, ItemStack aTool) {
         if (side == getBaseMetaTileEntity().getFrontFacing()) {
             mChunkLoadingEnabled = !mChunkLoadingEnabled;
             GTUtility.sendChatToPlayer(
@@ -266,7 +270,7 @@ public abstract class MTEDrillerBase extends MTEEnhancedMultiBlockBase<MTEDrille
                     : GTUtility.trans("503", "Mining chunk loading disabled"));
             return true;
         }
-        return super.onSolderingToolRightClick(side, wrenchingSide, entityPlayer, aX, aY, aZ);
+        return super.onSolderingToolRightClick(side, wrenchingSide, entityPlayer, aX, aY, aZ, aTool);
     }
 
     @Override
@@ -698,6 +702,12 @@ public abstract class MTEDrillerBase extends MTEEnhancedMultiBlockBase<MTEDrille
     protected abstract boolean checkHatches();
 
     protected abstract void setElectricityStats();
+
+    public int calculateMaxProgressTime(int tier) {
+        return calculateMaxProgressTime(tier, false);
+    }
+
+    public abstract int calculateMaxProgressTime(int tier, boolean simulateWorking);
 
     public int getTotalConfigValue() {
         int config = 0;

@@ -1,6 +1,5 @@
 package gregtech.common.tileentities.machines.multi;
 
-import static gregtech.api.enums.GTValues.TIER_COLORS;
 import static gregtech.api.enums.GTValues.VN;
 import static gregtech.api.enums.HatchElement.Energy;
 import static gregtech.api.enums.HatchElement.InputBus;
@@ -487,10 +486,12 @@ public abstract class MTEOreDrillingPlantBase extends MTEDrillerBase implements 
         this.mMaxProgresstime = calculateMaxProgressTime(tier);
     }
 
-    private int calculateMaxProgressTime(int tier) {
-        return Math.max(
+    @Override
+    public int calculateMaxProgressTime(int tier, boolean simulateWorking) {
+        return (int) Math.max(
             1,
-            ((workState == STATE_DOWNWARD || workState == STATE_AT_BOTTOM) ? getBaseProgressTime() : 80) / (1 << tier));
+            ((workState == STATE_DOWNWARD || workState == STATE_AT_BOTTOM || simulateWorking) ? getBaseProgressTime()
+                : 80) / Math.pow(2, tier));
     }
 
     private ItemStack[] getOutputByDrops(Collection<ItemStack> oreBlockDrops) {
@@ -543,12 +544,17 @@ public abstract class MTEOreDrillingPlantBase extends MTEDrillerBase implements 
         }
         if (oreBlock instanceof BlockOresAbstract) {
             TileEntity tTileEntity = getBaseMetaTileEntity().getTileEntity(posX, posY, posZ);
-            if (tTileEntity instanceof TileEntityOres && ((TileEntityOres) tTileEntity).mMetaData >= 16000) {
-                // GTLog.out.println("Running Small Ore");
-                return oreBlock.getDrops(getBaseMetaTileEntity().getWorld(), posX, posY, posZ, blockMeta, mTier + 3);
+            if (tTileEntity instanceof TileEntityOres tTileEntityOres) {
+                if (tTileEntityOres.mMetaData >= 16000) {
+                    // Small ore
+                    return oreBlock
+                        .getDrops(getBaseMetaTileEntity().getWorld(), posX, posY, posZ, blockMeta, mTier + 3);
+                } else {
+                    return tTileEntityOres.getSilkTouchDrops(oreBlock);
+                }
             }
         }
-        // GTLog.out.println("Running Normal Ore");
+        // Regular ore
         return oreBlock.getDrops(getBaseMetaTileEntity().getWorld(), posX, posY, posZ, blockMeta, 0);
     }
 
@@ -606,9 +612,8 @@ public abstract class MTEOreDrillingPlantBase extends MTEDrillerBase implements 
             .getDisplayName();
 
         final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
-        final int baseCycleTime = calculateMaxProgressTime(getMinTier());
-        tt.addMachineType("Miner")
-            .addInfo("Controller Block for the Ore Drilling Plant " + (tierSuffix != null ? tierSuffix : ""))
+        final int baseCycleTime = calculateMaxProgressTime(getMinTier(), true);
+        tt.addMachineType("Miner, MBM")
             .addInfo("Use a Screwdriver to configure block radius")
             .addInfo("Maximum radius is " + GTUtility.formatNumbers((long) getRadiusInChunks() << 4) + " blocks")
             .addInfo("Use Soldering iron to turn off chunk mode")
@@ -616,11 +621,10 @@ public abstract class MTEOreDrillingPlantBase extends MTEDrillerBase implements 
             .addInfo("In chunk mode, working area center is the chunk corner nearest to the drill")
             .addInfo("Gives ~3x as much crushed ore vs normal processing")
             .addInfo("Fortune bonus of " + GTUtility.formatNumbers(mTier + 3) + ". Only works on small ores")
-            .addInfo("Minimum energy hatch tier: " + TIER_COLORS[getMinTier()] + VN[getMinTier()])
+            .addInfo("Minimum energy hatch tier: " + GTUtility.getColoredTierNameFromTier((byte) getMinTier()))
             .addInfo(
                 "Base cycle time: " + (baseCycleTime < 20 ? GTUtility.formatNumbers(baseCycleTime) + " ticks"
-                    : GTUtility.formatNumbers(baseCycleTime / 20) + " seconds"))
-            .addSeparator()
+                    : GTUtility.formatNumbers(baseCycleTime / 20.0) + " seconds"))
             .beginStructureBlock(3, 7, 3, false)
             .addController("Front bottom")
             .addOtherStructurePart(casings, "form the 3x1x3 Base")
@@ -631,7 +635,7 @@ public abstract class MTEOreDrillingPlantBase extends MTEDrillerBase implements 
             .addInputBus("Mining Pipes, optional, any base casing", 1)
             .addInputHatch("Drilling Fluid, any base casing", 1)
             .addOutputBus("Any base casing", 1)
-            .toolTipFinisher("Gregtech");
+            .toolTipFinisher();
         return tt;
     }
 

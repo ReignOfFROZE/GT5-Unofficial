@@ -21,7 +21,6 @@ import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
-import gregtech.api.enums.TextureSet;
 import gregtech.api.enums.TierEU;
 import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTOreDictUnificator;
@@ -30,13 +29,8 @@ import gregtech.api.util.GTUtility;
 import gtPlusPlus.api.objects.minecraft.ItemPackage;
 import gtPlusPlus.core.item.chemistry.general.ItemGenericChemBase;
 import gtPlusPlus.core.item.circuit.GTPPIntegratedCircuitItem;
-import gtPlusPlus.core.material.Material;
-import gtPlusPlus.core.material.MaterialGenerator;
 import gtPlusPlus.core.material.MaterialMisc;
-import gtPlusPlus.core.material.MaterialStack;
 import gtPlusPlus.core.material.MaterialsElements;
-import gtPlusPlus.core.material.MaterialsOther;
-import gtPlusPlus.core.material.state.MaterialState;
 import gtPlusPlus.core.recipe.common.CI;
 import gtPlusPlus.core.util.minecraft.FluidUtils;
 import gtPlusPlus.core.util.minecraft.ItemUtils;
@@ -44,28 +38,6 @@ import gtPlusPlus.plugin.agrichem.block.AgrichemFluids;
 import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
 
 public class GenericChem extends ItemPackage {
-
-    /**
-     * Materials
-     */
-
-    // Refined PTFE
-    public static final Material TEFLON = new Material(
-        "Teflon",
-        MaterialState.SOLID,
-        TextureSet.SET_SHINY,
-        new short[] { 75, 45, 75 },
-        330,
-        640,
-        -1,
-        -1,
-        false,
-        null,
-        0,
-        new MaterialStack(MaterialsOther.PTFE, 75),
-        new MaterialStack(MaterialsOther.PLASTIC, 15),
-        new MaterialStack(MaterialsElements.getInstance().CARBON, 5),
-        new MaterialStack(MaterialsElements.getInstance().SODIUM, 5));
 
     /**
      * Fluids
@@ -119,14 +91,12 @@ public class GenericChem extends ItemPackage {
     public static ItemStack mTitaTungstenIndiumCatalyst;
     public static ItemStack mRadioactivityCatalyst;
     public static ItemStack mRareEarthGroupCatalyst;
-    public static ItemStack mLimpidWaterCatalyst;
     public static ItemStack mSimpleNaquadahCatalyst;
     public static ItemStack mAdvancedNaquadahCatalyst;
     public static ItemStack mRawIntelligenceCatalyst;
     public static ItemStack mParticleAccelerationCatalyst;
     public static ItemStack mUltimatePlasticCatalyst;
     public static ItemStack mBiologicalIntelligenceCatalyst;
-    public static ItemStack mFlawlessWaterCatalyst;
     public static ItemStack TemporalHarmonyCatalyst;
     public static ItemStack mSynchrotronCapableCatalyst;
     public static ItemStack mAlgagenicGrowthPromoterCatalyst;
@@ -141,8 +111,6 @@ public class GenericChem extends ItemPackage {
 
     @Override
     public void items() {
-
-        MaterialGenerator.generate(TEFLON, false);
 
         mGenericChemItem1 = new ItemGenericChemBase();
         mAdvancedCircuit = new GTPPIntegratedCircuitItem("T3RecipeSelector", "science/general/AdvancedCircuit");
@@ -190,8 +158,6 @@ public class GenericChem extends ItemPackage {
         mUltimatePlasticCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 26, 1);
         mBiologicalIntelligenceCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 27, 1);
         TemporalHarmonyCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 28, 1);
-        mLimpidWaterCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 29, 1);
-        mFlawlessWaterCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 30, 1);
         mParticleAccelerationCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 31, 1);
         mSynchrotronCapableCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 32, 1);
         mAlgagenicGrowthPromoterCatalyst = ItemUtils.simpleMetaStack(mGenericChemItem1, 33, 1);
@@ -228,8 +194,6 @@ public class GenericChem extends ItemPackage {
         ItemUtils.addItemToOreDictionary(mUltimatePlasticCatalyst, "catalystUltimatePlastic");
         ItemUtils.addItemToOreDictionary(mBiologicalIntelligenceCatalyst, "catalystBiologicalIntelligence");
         ItemUtils.addItemToOreDictionary(TemporalHarmonyCatalyst, "catalystTemporalHarmony");
-        ItemUtils.addItemToOreDictionary(mLimpidWaterCatalyst, "catalystLimpidWater");
-        ItemUtils.addItemToOreDictionary(mFlawlessWaterCatalyst, "catalystFlawlessWater");
         ItemUtils.addItemToOreDictionary(mParticleAccelerationCatalyst, "catalystParticleAcceleration");
         ItemUtils.addItemToOreDictionary(mSynchrotronCapableCatalyst, "catalystSynchrotronCapable");
         ItemUtils.addItemToOreDictionary(mAlgagenicGrowthPromoterCatalyst, "catalystAlgagenicGrowthPromoter");

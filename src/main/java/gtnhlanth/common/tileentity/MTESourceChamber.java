@@ -12,7 +12,6 @@ import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_OIL_CRACKER_A
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_OIL_CRACKER_GLOW;
 import static gregtech.api.enums.Textures.BlockIcons.casingTexturePages;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
-import static gtnhlanth.util.DescTextLocalization.BLUEPRINT_INFO;
 import static gtnhlanth.util.DescTextLocalization.addDotText;
 
 import java.util.ArrayList;
@@ -22,6 +21,8 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
@@ -36,9 +37,12 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
 import gregtech.api.metatileentity.implementations.MTEHatchEnergy;
 import gregtech.api.recipe.RecipeMap;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.api.util.shutdown.ShutDownReason;
 import gregtech.api.util.shutdown.SimpleShutDownReason;
 import gtnhlanth.common.beamline.BeamInformation;
 import gtnhlanth.common.beamline.BeamLinePacket;
@@ -53,7 +57,7 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
 
     private static final IStructureDefinition<MTESourceChamber> STRUCTURE_DEFINITION;
 
-    private ArrayList<MTEHatchOutputBeamline> mOutputBeamline = new ArrayList<>();
+    private final ArrayList<MTEHatchOutputBeamline> mOutputBeamline = new ArrayList<>();
 
     private static final int CASING_INDEX = GTUtility.getCasingTextureIndex(GregTechAPI.sBlockCasings5, 14);
 
@@ -125,11 +129,8 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
     protected MultiblockTooltipBuilder createTooltip() {
         final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType("Particle Source")
-            .addInfo("Controller block for the Source Chamber")
             .addInfo("Output energy scales with EU/t up to the point shown in the recipe")
-            .addInfo(BLUEPRINT_INFO)
             .addInfo(DescTextLocalization.BEAMLINE_SCANNER_INFO)
-            .addSeparator()
             .beginStructureBlock(5, 5, 6, true)
             .addController("Front bottom")
             .addCasingInfoExactly(LanthItemList.SHIELDED_ACCELERATOR_CASING.getLocalizedName(), 56, false)
@@ -140,7 +141,7 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
             .addMaintenanceHatch(addDotText(3))
             .addInputBus(addDotText(1))
             .addOutputBus(addDotText(2))
-            .toolTipFinisher("GTNH: Lanthanides");
+            .toolTipFinisher();
         return tt;
     }
 
@@ -158,14 +159,10 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
 
         return false;
     }
-    /*
-     * protected OverclockDescriber createOverclockDescriber() { return new EUNoTotalOverclockDescriber((byte) 4, 1); }
-     */
 
+    @NotNull
     @Override
-    public boolean checkRecipe(ItemStack itemStack) {
-
-        // GTLog.out.print("In checkRecipe");
+    public CheckRecipeResult checkProcessing() {
 
         // No input particle, so no input quantities
 
@@ -176,7 +173,7 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
 
         ItemStack[] tItems = this.getStoredInputs()
             .toArray(new ItemStack[0]);
-        // GTLog.out.print(Arrays.toString(tItems));
+
         long tVoltageMaxTier = this.getMaxInputVoltage(); // Used to keep old math the same
         long tVoltageActual = GTValues.VP[(int) this.getInputVoltageTier()];
 
@@ -185,15 +182,17 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
             .voltage(tVoltageActual)
             .find();
 
-        if (tRecipe == null || !tRecipe.isRecipeInputEqual(true, new FluidStack[] {}, tItems)) return false; // Consumes
-                                                                                                             // input
-                                                                                                             // item
+        if (tRecipe == null || !tRecipe.isRecipeInputEqual(true, new FluidStack[] {}, tItems)) {
+            return CheckRecipeResultRegistry.NO_RECIPE; // Consumes input item
+        }
 
         this.mEfficiency = (10000 - (this.getIdealStatus() - this.getRepairStatus()) * 1000);
         this.mEfficiencyIncrease = 10000;
 
         this.mMaxProgresstime = tRecipe.mDuration;
-        if (mMaxProgresstime == Integer.MAX_VALUE - 1 && this.mEUt == Integer.MAX_VALUE - 1) return false;
+        if (mMaxProgresstime == Integer.MAX_VALUE - 1 && this.mEUt == Integer.MAX_VALUE - 1) {
+            return CheckRecipeResultRegistry.NO_RECIPE;
+        }
 
         mEUt = (int) -tVoltageActual;
         if (this.mEUt > 0) this.mEUt = (-this.mEUt);
@@ -212,7 +211,7 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
 
         if (outputEnergy <= 0) {
             stopMachine(SimpleShutDownReason.ofCritical("gtnhlanth.scerror"));
-            return false;
+            return CheckRecipeResultRegistry.NO_RECIPE;
         }
 
         outputFocus = tRecipe.focus;
@@ -223,7 +222,7 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
 
         outputAfterRecipe();
 
-        return true;
+        return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
     @Override
@@ -247,12 +246,12 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
     }
 
     @Override
-    public void stopMachine() {
+    public void stopMachine(@NotNull ShutDownReason reason) {
         outputFocus = 0;
         outputEnergy = 0;
         outputParticle = 0;
         outputRate = 0;
-        super.stopMachine();
+        super.stopMachine(reason);
     }
 
     @Override
@@ -316,7 +315,7 @@ public class MTESourceChamber extends MTEEnhancedMultiBlockBase<MTESourceChamber
                 + StatCollector.translateToLocal("GT5U.multiblock.efficiency")
                 + ": "
                 + EnumChatFormatting.YELLOW
-                + Float.toString(mEfficiency / 100.0F)
+                + mEfficiency / 100.0F
                 + EnumChatFormatting.RESET
                 + " %",
             EnumChatFormatting.BOLD + StatCollector.translateToLocal("beamline.out_pre")

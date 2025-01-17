@@ -98,7 +98,6 @@ public class MTESOFuelCellMK1 extends MTEEnhancedMultiBlockBase<MTESOFuelCellMK1
             .addInfo("Steam production requires the SOFC to heat up completely first")
             .addInfo("Outputs " + EU_PER_TICK + "EU/t and " + STEAM_PER_SEC + "L/s Steam")
             .addInfo("Additionally, requires " + OXYGEN_PER_SEC + "L/s Oxygen gas")
-            .addSeparator()
             .beginStructureBlock(3, 3, 5, false)
             .addController("Front center")
             .addCasingInfoMin("Clean Stainless Steel Casing", 12, false)
@@ -109,7 +108,7 @@ public class MTESOFuelCellMK1 extends MTEEnhancedMultiBlockBase<MTESOFuelCellMK1
             .addInputHatch("Fuel, any casing")
             .addInputHatch("Oxygen, any casing")
             .addOutputHatch("Steam, any casing")
-            .toolTipFinisher("KekzTech");
+            .toolTipFinisher();
         return tt;
     }
 
@@ -197,11 +196,6 @@ public class MTESOFuelCellMK1 extends MTEEnhancedMultiBlockBase<MTESOFuelCellMK1
     @Override
     public int getMaxEfficiency(ItemStack stack) {
         return 10000;
-    }
-
-    @Override
-    public int getPollutionPerTick(ItemStack stack) {
-        return 0;
     }
 
     @Override

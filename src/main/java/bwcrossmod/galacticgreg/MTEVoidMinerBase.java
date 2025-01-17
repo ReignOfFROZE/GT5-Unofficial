@@ -13,7 +13,6 @@
 
 package bwcrossmod.galacticgreg;
 
-import static bartworks.util.BWTooltipReference.MULTIBLOCK_ADDED_BY_BARTIMAEUSNEK_VIA_BARTWORKS;
 import static gregtech.api.enums.GTValues.VN;
 import static gregtech.api.enums.HatchElement.Energy;
 import static gregtech.api.enums.HatchElement.InputBus;
@@ -105,10 +104,15 @@ public abstract class MTEVoidMinerBase extends MTEDrillerBase {
         }
         this.mOutputItems = new ItemStack[0];
         this.mProgresstime = 0;
-        this.mMaxProgresstime = 10;
+        this.mMaxProgresstime = calculateMaxProgressTime(0);
         this.mEfficiency = this.getCurrentEfficiency(null);
         this.mEfficiencyIncrease = 10000;
         this.mEUt = this.mEUt > 0 ? -this.mEUt : this.mEUt;
+    }
+
+    @Override
+    public int calculateMaxProgressTime(int tier, boolean simulateWorking) {
+        return 10;
     }
 
     @Override
@@ -135,7 +139,6 @@ public abstract class MTEVoidMinerBase extends MTEDrillerBase {
 
         final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType("Miner")
-            .addInfo("Controller Block for the Void Miner " + GTValues.VN[this.getMinTier()])
             .addInfo("Consumes " + GTValues.V[this.getMinTier()] + "EU/t")
             .addInfo(
                 "Can be supplied with 2L/s of Neon(x4), Krypton(x8), Xenon(x16) or Oganesson(x64) for higher outputs.")
@@ -149,7 +152,6 @@ public abstract class MTEVoidMinerBase extends MTEDrillerBase {
                     + "VOIDED"
                     + EnumChatFormatting.RESET
                     + ".")
-            .addSeparator()
             .beginStructureBlock(3, 7, 3, false)
             .addController("Front bottom")
             .addOtherStructurePart(casings, "form the 3x1x3 Base")
@@ -162,7 +164,7 @@ public abstract class MTEVoidMinerBase extends MTEDrillerBase {
             .addInputBus("Mining Pipes or Ores, optional, any base casing")
             .addInputHatch("Optional noble gas, any base casing")
             .addOutputBus("Any base casing")
-            .toolTipFinisher(MULTIBLOCK_ADDED_BY_BARTIMAEUSNEK_VIA_BARTWORKS);
+            .toolTipFinisher();
         return tt;
     }
 

@@ -3,8 +3,13 @@ package tectech.thing.metaTileEntity.multi;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
 import static gregtech.api.enums.GTValues.V;
+import static gregtech.api.enums.HatchElement.Dynamo;
+import static gregtech.api.enums.HatchElement.Energy;
+import static gregtech.api.enums.HatchElement.Maintenance;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static net.minecraft.util.StatCollector.translateToLocal;
+import static tectech.thing.metaTileEntity.multi.base.TTMultiblockBase.HatchElement.DynamoMulti;
+import static tectech.thing.metaTileEntity.multi.base.TTMultiblockBase.HatchElement.EnergyMulti;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,22 +17,19 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
-import com.gtnewhorizon.structurelib.structure.IItemSource;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures;
 import gregtech.api.interfaces.IHatchElement;
 import gregtech.api.interfaces.ITexture;
@@ -41,8 +43,6 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.IGTHatchAdder;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.common.WirelessComputationPacket;
-import gregtech.common.WirelessDataStore;
-import tectech.Reference;
 import tectech.mechanics.dataTransport.InventoryDataPacket;
 import tectech.recipe.TTRecipeAdder;
 import tectech.thing.casing.BlockGTCasingsTT;
@@ -52,7 +52,6 @@ import tectech.thing.metaTileEntity.hatch.MTEHatchDataItemsOutput;
 import tectech.thing.metaTileEntity.hatch.MTEHatchWirelessDataItemsOutput;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 import tectech.thing.metaTileEntity.multi.base.render.TTRenderedExtendedFacingTexture;
-import tectech.util.CommonValues;
 
 public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructable {
 
@@ -83,7 +82,12 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
                     { "BCCCB", "BDDDB", "BDDDB" } }))
         .addElement('A', ofBlock(TTCasingsContainer.sBlockCasingsTT, 1))
         .addElement('B', ofBlock(TTCasingsContainer.sBlockCasingsTT, 2))
-        .addElement('C', classicHatches(BlockGTCasingsTT.textureOffset, 1, TTCasingsContainer.sBlockCasingsTT, 0))
+        .addElement(
+            'C',
+            buildHatchAdder(MTEDataBank.class).atLeast(Maintenance, Energy, EnergyMulti, Dynamo, DynamoMulti)
+                .casingIndex(BlockGTCasingsTT.textureOffset)
+                .dot(1)
+                .buildAndChain(TTCasingsContainer.sBlockCasingsTT, 0))
         .addElement(
             'D',
             buildHatchAdder(MTEDataBank.class)
@@ -126,11 +130,12 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
                                                                                            // the same Data
             .addInfo(translateToLocal("gt.blockmachines.multimachine.em.databank.desc.3")) // Use screwdriver to toggle
                                                                                            // wireless mode
-
-            // Stick
-            .addInfo(translateToLocal("tt.keyword.Structure.StructureTooComplex")) // The structure is too complex!
-            .addSeparator()
+            .addTecTechHatchInfo()
             .beginStructureBlock(5, 3, 3, false)
+            .addController("Front center")
+            .addCasingInfoExactly("Computer Heat Vent", 18, false)
+            .addCasingInfoExactly("High Power Casing", 7, false)
+            .addCasingInfoMin("Computer Casing", 3, false)
             .addOtherStructurePart(
                 translateToLocal("tt.keyword.Structure.DataAccessHatch"),
                 translateToLocal("tt.keyword.Structure.AnyComputerCasing"),
@@ -144,7 +149,7 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
             .addMaintenanceHatch(translateToLocal("tt.keyword.Structure.AnyHighPowerCasing"), 1) // Maintenance
                                                                                                  // Hatch: Any High
                                                                                                  // Power Casing
-            .toolTipFinisher(CommonValues.TEC_MARK_EM);
+            .toolTipFinisher();
         return tt;
     }
 
@@ -160,7 +165,7 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
     @Override
     @NotNull
     protected CheckRecipeResult checkProcessing_EM() {
-        if (eDataAccessHatches.size() > 0 && (eStacksDataOutputs.size() > 0 || eWirelessStacksDataOutputs.size() > 0)) {
+        if (!eDataAccessHatches.isEmpty() && (!eStacksDataOutputs.isEmpty() || !eWirelessStacksDataOutputs.isEmpty())) {
             mEUt = -(int) V[slave ? 6 : 4];
             eAmpereFlow = 1
                 + (long) (eStacksDataOutputs.size() + eWirelessStacksDataOutputs.size()) * eDataAccessHatches.size();
@@ -183,7 +188,7 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
                 }
             }
         }
-        if (stacks.size() > 0) {
+        if (!stacks.isEmpty()) {
             ItemStack[] arr = stacks.toArray(TTRecipeAdder.nullItem);
             for (MTEHatchDataItemsOutput hatch : eStacksDataOutputs) {
                 hatch.q = new InventoryDataPacket(arr);
@@ -213,12 +218,9 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
         return new ITexture[] { Textures.BlockIcons.casingTexturePages[BlockGTCasingsTT.texturePage][1] };
     }
 
-    public static final ResourceLocation activitySound = new ResourceLocation(Reference.MODID + ":fx_hi_freq");
-
     @Override
-    @SideOnly(Side.CLIENT)
-    protected ResourceLocation getActivitySound() {
-        return activitySound;
+    protected SoundResource getActivitySoundLoop() {
+        return SoundResource.TECTECH_MACHINES_FX_HIGH_FREQ;
     }
 
     public final boolean addDataBankHatchToMachineList(IGregTechTileEntity aTileEntity, int aBaseCasingIndex) {
@@ -246,23 +248,6 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
                 return eDataAccessHatches.add(aMetaTileEntity);
             }
         return false;
-    }
-
-    @Override
-    public void onPreTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
-        super.onPreTick(aBaseMetaTileEntity, aTick);
-        // Every 200 ticks, clear wireless data store so hatches need to provide their data again in
-        // their onPostTick() call. This also happens every 200 ticks
-        if (mMachine && aBaseMetaTileEntity.isActive() && wirelessModeEnabled && aTick % 200 == 0) {
-            WirelessDataStore wirelessStore = WirelessDataStore
-                .getWirelessDataSticks(aBaseMetaTileEntity.getOwnerUuid());
-            wirelessStore.clearData();
-
-            // After reset, clear uploadedSinceReset of all connected hatches
-            for (MTEHatchWirelessDataItemsOutput hatch : eWirelessStacksDataOutputs) {
-                hatch.uploadedSinceReset = false;
-            }
-        }
     }
 
     @Override
@@ -301,9 +286,9 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
     }
 
     @Override
-    public int survivalConstruct(ItemStack stackSize, int elementBudget, IItemSource source, EntityPlayerMP actor) {
+    public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
         if (mMachine) return -1;
-        return survivialBuildPiece("main", stackSize, 2, 1, 0, elementBudget, source, actor, false, true);
+        return survivialBuildPiece("main", stackSize, 2, 1, 0, elementBudget, env, false, true);
     }
 
     @Override
@@ -366,17 +351,7 @@ public class MTEDataBank extends TTMultiblockBase implements ISurvivalConstructa
     }
 
     @Override
-    public boolean isPowerPassButtonEnabled() {
-        return true;
-    }
-
-    @Override
     public boolean isSafeVoidButtonEnabled() {
         return false;
-    }
-
-    @Override
-    public boolean isAllowedToWorkButtonEnabled() {
-        return true;
     }
 }

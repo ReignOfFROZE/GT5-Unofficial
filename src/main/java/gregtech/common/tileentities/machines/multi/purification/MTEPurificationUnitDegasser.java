@@ -66,7 +66,7 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
         { "      AAAAA      ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "      AAAAA      " },
         { "    AAAAAAAAA    ", "      AAAAA      ", "                 ", "           C     ", "         CC      ", "        C        ", "      CC         ", "     C           ", "                 ", "                 ", "                 ", "           C     ", "         CC      ", "        C        ", "      CC         ", "     C           ", "                 ", "                 ", "                 ", "           C     ", "         CC      ", "        C        ", "      CC         ", "    CCAA~AA      ", "    AAAAAAAAA    " },
         { "  AAAAAAAAAAAAA  ", "   CAAAAAAAAA    ", "      BBBBB CC   ", "      BBBBB      ", "      BBBBB      ", "       BBB       ", "        B        ", "                 ", "    C            ", "                 ", "            C    ", "                 ", "                 ", "                 ", "                 ", "                 ", "    C            ", "                 ", "        B   C    ", "       BBB       ", "      BBBBB      ", "      BBBBB      ", "      BBBBB      ", "    AAAAAAAAA    ", "  AAAAAAAAAAAAA  " },
-        { "  AAAAAAAAAAAAA  ", "   AAAAAAAAAAAC  ", "  C BBB    BB    ", "    BB     BB    ", "     B     B     ", "     BB   BB     ", "     BBB BBB     ", "      BBBBB      ", "       BBB       ", "   C         C   ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "       BBB       ", "   C  BBBBB  C   ", "     BBB BBB     ", "     BB   BB     ", "     B     B     ", "    BB     BB    ", "    BB     BB    ", "   AAAAAAAAAAA   ", "  AAAAAAAAAAAAA  " },
+        { "  AAAAAAAAAAAAA  ", "   AAAAAAAAAAAC  ", "  C BB     BB    ", "    BB     BB    ", "     B     B     ", "     BB   BB     ", "     BBB BBB     ", "      BBBBB      ", "       BBB       ", "   C         C   ", "                 ", "                 ", "                 ", "                 ", "                 ", "                 ", "       BBB       ", "   C  BBBBB  C   ", "     BBB BBB     ", "     BB   BB     ", "     B     B     ", "    BB     BB    ", "    BB     BB    ", "   AAAAAAAAAAA   ", "  AAAAAAAAAAAAA  " },
         { " AAAAAAAAAAAAAAA ", "  AAAAAAAAAAAAA  ", "  CB         B   ", "   B         B   ", "    B       B    ", "    B       B    ", "    B       B    ", "    BB     BB    ", "     BB   BB  C  ", "      BBBBB      ", "  C    BBB       ", "                 ", "                 ", "                 ", "       BBB       ", "      BBBBB      ", "     BB   BB  C  ", "    BB     BB    ", "  C B       B    ", "    B       B    ", "    B       B    ", "   B         B   ", "   B         B   ", "  AAAAAAAAAAAAAC ", " AAAAAAAAAAAAAAA " },
         { " AAAAAAAAAAAAAAA ", "  AAAAAAAAAAAAA  ", "   B         B   ", " C B         B   ", "   B         B   ", "   B         B   ", "   B         B   ", "    B       B  C ", "    B       B    ", "     B     B     ", "      B   B      ", " C     BBB       ", "                 ", "       BBB       ", "      B   B      ", "     B     B   C ", "    B       B    ", "    B       B    ", "   B         B   ", " C B         B   ", "   B         B   ", "   B         B   ", "   B         B   ", "  AAAAAAAAAAAAAC ", " AAAAAAAAAAAAAAA " },
         { "AAAAAAAAAAAAAAAAA", " AAAAAAAAAAAAAAA ", "  B           B  ", "  B           B  ", " CB           B  ", "   B         B   ", "   B         B C ", "   B         B   ", "    B       B    ", "    B       B    ", "     B     B     ", "      BBBBB      ", " C     BBB       ", "      BBBBB      ", "     B     B   C ", "    B       B    ", "    B       B    ", "   B         B   ", "   B         B   ", "   B         B   ", " CB           B  ", "  B           B  ", "  B           BC ", " AAAAAAAAAAAAAAA ", "AAAAAAAAAAAAAAAAA" },
@@ -292,7 +292,6 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
                     + EnumChatFormatting.WHITE
                     + GTUtility.formatNumbers(getWaterTier())
                     + EnumChatFormatting.RESET)
-            .addInfo("Controller block for the Residual Decontaminant Degasser Purification Unit.")
             .addInfo("Must be linked to a Purification Plant using a data stick to work.")
             .addSeparator()
             .addInfo(
@@ -305,11 +304,9 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
             .addInfo("Denote the lowest bit as bit 1, and the highest as bit 4.")
             .addSeparator()
             .addInfo(
-                EnumChatFormatting.WHITE + ""
-                    + EnumChatFormatting.BOLD
+                EnumChatFormatting.WHITE.toString() + EnumChatFormatting.BOLD
                     + "Bit 1: "
                     + EnumChatFormatting.BLUE
-                    + ""
                     + EnumChatFormatting.BOLD
                     + "Ozone Sparging by Inert Gas")
             .addInfo(
@@ -351,11 +348,9 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
                     + "Xenon")
             .addSeparator()
             .addInfo(
-                EnumChatFormatting.WHITE + ""
-                    + EnumChatFormatting.BOLD
+                EnumChatFormatting.WHITE.toString() + EnumChatFormatting.BOLD
                     + "Bit 2: "
                     + EnumChatFormatting.BLUE
-                    + ""
                     + EnumChatFormatting.BOLD
                     + "Superconductive Deionization")
             .addInfo(
@@ -390,7 +385,6 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
                     + EnumChatFormatting.GRAY
                     + " / "
                     + EnumChatFormatting.DARK_BLUE
-                    + ""
                     + EnumChatFormatting.BOLD
                     + "UIV"
                     + EnumChatFormatting.GRAY
@@ -400,7 +394,6 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
                     + EnumChatFormatting.GRAY
                     + " / "
                     + EnumChatFormatting.RED
-                    + ""
                     + EnumChatFormatting.BOLD
                     + "UMV"
                     + EnumChatFormatting.GRAY
@@ -409,25 +402,23 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
                     + "2x")
             .addSeparator()
             .addInfo(
-                EnumChatFormatting.WHITE + ""
-                    + EnumChatFormatting.BOLD
+                EnumChatFormatting.WHITE.toString() + EnumChatFormatting.BOLD
                     + "Bit 3: "
                     + EnumChatFormatting.BLUE
-                    + ""
                     + EnumChatFormatting.BOLD
                     + "Gravitationally-Generated Differential Vacuum Extraction")
             .addInfo(
                 "If this bit is on, you must insert " + EnumChatFormatting.RED
                     + "4608L "
                     + EnumChatFormatting.WHITE
-                    + "Molten Neutronium")
+                    + "Molten Neutronium"
+                    + EnumChatFormatting.GRAY
+                    + ".")
             .addSeparator()
             .addInfo(
-                EnumChatFormatting.WHITE + ""
-                    + EnumChatFormatting.BOLD
+                EnumChatFormatting.WHITE.toString() + EnumChatFormatting.BOLD
                     + "Bit 4: "
                     + EnumChatFormatting.BLUE
-                    + ""
                     + EnumChatFormatting.BOLD
                     + "Seldonian Settlement Process")
             .addInfo(
@@ -437,11 +428,9 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
                     + "all other bits and do not insert anything.")
             .addSeparator()
             .addInfo(
-                EnumChatFormatting.WHITE + ""
-                    + EnumChatFormatting.BOLD
+                EnumChatFormatting.WHITE.toString() + EnumChatFormatting.BOLD
                     + "No bits: "
                     + EnumChatFormatting.BLUE
-                    + ""
                     + EnumChatFormatting.BOLD
                     + "Machine Overload")
             .addInfo("In rare cases, the machine may overload and output no control signal at all.")
@@ -470,8 +459,8 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
                 EnumChatFormatting.AQUA + ""
                     + EnumChatFormatting.ITALIC
                     + "detects in the water, it will request various materials to complete the processes listed above.")
-            .addInfo(AuthorNotAPenguin)
             .beginStructureBlock(17, 25, 17, false)
+            .addController("Front center")
             .addCasingInfoRangeColored(
                 "Heat-Resistant Trinium Plated Casing",
                 EnumChatFormatting.GRAY,
@@ -488,17 +477,16 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
             .addCasingInfoExactlyColored(
                 "Bedrockium Frame Box",
                 EnumChatFormatting.GRAY,
-                126,
+                124,
                 EnumChatFormatting.GOLD,
                 false)
-            .addController("Front center")
             .addOutputHatch(EnumChatFormatting.GOLD + "1" + EnumChatFormatting.GRAY + "+, Any Trinium Casing", 1)
             .addInputHatch(EnumChatFormatting.GOLD + "1" + EnumChatFormatting.GRAY + "+, Any Trinium Casing", 1)
             .addOtherStructurePart(
                 "Degasser Control Hatch",
                 EnumChatFormatting.GOLD + "1" + EnumChatFormatting.GRAY + ", Any Trinium Casing",
                 1)
-            .toolTipFinisher("GregTech");
+            .toolTipFinisher(AuthorNotAPenguin);
         return tt;
     }
 
@@ -684,7 +672,7 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
             FluidStack waterOutput = currentRecipe.mFluidOutputs[0];
             FluidStack bonusOutput = new FluidStack(
                 waterOutput.getFluid(),
-                (int) (waterOutput.amount * (outputMultiplier - 1.0f)));
+                (int) (this.effectiveParallel * waterOutput.amount * (outputMultiplier - 1.0f)));
             this.addOutput(bonusOutput);
         }
     }
@@ -734,6 +722,8 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
         this.controlHatch = null;
         if (!checkPiece(STRUCTURE_PIECE_MAIN, STRUCTURE_X_OFFSET, STRUCTURE_Y_OFFSET, STRUCTURE_Z_OFFSET)) return false;
         if (casingCount < MIN_CASING) return false;
+        // Do not form without a valid control hatch
+        if (this.controlHatch == null || !this.controlHatch.isValid()) return false;
         return super.checkMachine(aBaseMetaTileEntity, aStack);
     }
 
@@ -782,7 +772,7 @@ public class MTEPurificationUnitDegasser extends MTEPurificationUnitBase<MTEPuri
     @Override
     public String[] getInfoData() {
         ArrayList<String> info = new ArrayList<>(Arrays.asList(super.getInfoData()));
-        info.add("Current control signal: " + EnumChatFormatting.YELLOW + controlSignal.toString());
+        info.add("Current control signal (binary): 0b" + EnumChatFormatting.YELLOW + controlSignal.toString());
         info.add("Current output multiplier: " + EnumChatFormatting.YELLOW + outputMultiplier);
         for (FluidStack stack : insertedStuffThisCycle.values()) {
             info.add(

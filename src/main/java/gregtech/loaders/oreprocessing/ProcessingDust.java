@@ -70,7 +70,8 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                         .addTo(cannerRecipes);
                 }
                 if (!aMaterial.mBlastFurnaceRequired) {
-                    GTRecipeRegistrator.registerReverseFluidSmelting(aStack, aMaterial, aPrefix.mMaterialAmount, null);
+                    GTRecipeRegistrator
+                        .registerReverseFluidSmelting(aStack, aMaterial, aPrefix.mMaterialAmount, null, false);
                     if (aMaterial.mSmeltInto.mArcSmeltInto != aMaterial) {
                         GTRecipeRegistrator.registerReverseArcSmelting(
                             GTUtility.copyAmount(1, aStack),
@@ -110,7 +111,8 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                 } else if (!aMaterial.contains(SubTag.NO_WORKING)) {
                     if ((!OrePrefixes.block.isIgnored(aMaterial))
                         && (null == GTOreDictUnificator.get(OrePrefixes.gem, aMaterial, 1L))
-                        && GTOreDictUnificator.get(OrePrefixes.block, aMaterial, 1L) != null) {
+                        && GTOreDictUnificator.get(OrePrefixes.block, aMaterial, 1L) != null
+                        && (aMaterial != Materials.Clay)) {
 
                         GTValues.RA.stdBuilder()
                             .itemInputs(GTUtility.copyAmount(9, aStack))
@@ -132,7 +134,9 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                         && (aMaterial != Materials.Glowstone)
                         && (aMaterial != Materials.Paper)
                         && (aMaterial != MaterialsUEVplus.TranscendentMetal)
-                        && (aMaterial != Materials.Clay && (aMaterial != Materials.Wood))) {
+                        && (aMaterial != Materials.Clay)
+                        && (aMaterial != Materials.Wood)
+                        && (aMaterial != Materials.Carbon)) {
                         // compressor recipe
                         {
                             if (GTOreDictUnificator.get(OrePrefixes.plate, aMaterial, 1L) != null) {
@@ -146,7 +150,7 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                         }
                     }
                 }
-                if ((aMaterial.mMaterialList.size() > 0) && ((aMaterial.mExtraData & 0x3) != 0)) {
+                if ((!aMaterial.mMaterialList.isEmpty()) && ((aMaterial.mExtraData & 0x3) != 0)) {
                     long tItemAmount = 0L;
                     long tCapsuleCount = 0L;
                     long tDensityMultiplier = aMaterial.getDensity() > 3628800L ? aMaterial.getDensity() / 3628800L
@@ -185,7 +189,7 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                     }
                     tItemAmount = (tItemAmount * tDensityMultiplier % aMaterial.getDensity() > 0L ? 1 : 0)
                         + tItemAmount * tDensityMultiplier / aMaterial.getDensity();
-                    if (tList.size() > 0) {
+                    if (!tList.isEmpty()) {
                         FluidStack tFluid = null;
                         int tList_sS = tList.size();
                         for (int i = 0; i < tList_sS; i++) {
@@ -199,7 +203,7 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                             }
                         }
                         if ((aMaterial.mExtraData & 0x1) != 0) {
-                            if (tList.size() > 0 || tFluid != null) {
+                            if (!tList.isEmpty() || tFluid != null) {
                                 GTRecipeBuilder recipeBuilder = GTValues.RA.stdBuilder();
                                 if (tCapsuleCount > 0L) {
                                     recipeBuilder.itemInputs(
@@ -208,7 +212,7 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                                 } else {
                                     recipeBuilder.itemInputs(GTUtility.copyAmount(tItemAmount, aStack));
                                 }
-                                if (tList.size() > 0) {
+                                if (!tList.isEmpty()) {
                                     ItemStack[] outputsArray = tList.toArray(new ItemStack[Math.min(tList.size(), 6)]);
                                     recipeBuilder.itemOutputs(outputsArray);
                                 }
@@ -222,7 +226,7 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                             }
                         }
                         if ((aMaterial.mExtraData & 0x2) != 0) {
-                            if (tList.size() > 0 || tFluid != null) {
+                            if (!tList.isEmpty() || tFluid != null) {
                                 GTRecipeBuilder recipeBuilder = GTValues.RA.stdBuilder();
                                 if (tCapsuleCount > 0L) {
                                     recipeBuilder.itemInputs(
@@ -231,7 +235,7 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                                 } else {
                                     recipeBuilder.itemInputs(GTUtility.copyAmount(tItemAmount, aStack));
                                 }
-                                if (tList.size() > 0) {
+                                if (!tList.isEmpty()) {
                                     ItemStack[] outputsArray = tList.toArray(new ItemStack[Math.min(tList.size(), 6)]);
                                     recipeBuilder.itemOutputs(outputsArray);
                                 }
@@ -358,6 +362,10 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                 }
             }
             case dustPure, dustImpure, dustRefined -> {
+                if (aMaterial.contains(SubTag.NO_ORE_PROCESSING)) {
+                    return;
+                }
+
                 Materials tByProduct = GTUtility.selectItemInList(
                     aPrefix == OrePrefixes.dustRefined ? 2 : aPrefix == OrePrefixes.dustPure ? 1 : 0,
                     aMaterial,
@@ -511,7 +519,8 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                     .eut(4)
                     .addTo(packagerRecipes);
                 if (!aMaterial.mBlastFurnaceRequired) {
-                    GTRecipeRegistrator.registerReverseFluidSmelting(aStack, aMaterial, aPrefix.mMaterialAmount, null);
+                    GTRecipeRegistrator
+                        .registerReverseFluidSmelting(aStack, aMaterial, aPrefix.mMaterialAmount, null, true);
                     if (aMaterial.mSmeltInto.mArcSmeltInto != aMaterial) {
                         GTRecipeRegistrator.registerReverseArcSmelting(
                             GTUtility.copyAmount(1, aStack),
@@ -531,7 +540,8 @@ public class ProcessingDust implements gregtech.api.interfaces.IOreRecipeRegistr
                     .eut(4)
                     .addTo(packagerRecipes);
                 if (!aMaterial.mBlastFurnaceRequired) {
-                    GTRecipeRegistrator.registerReverseFluidSmelting(aStack, aMaterial, aPrefix.mMaterialAmount, null);
+                    GTRecipeRegistrator
+                        .registerReverseFluidSmelting(aStack, aMaterial, aPrefix.mMaterialAmount, null, true);
                     if (aMaterial.mSmeltInto.mArcSmeltInto != aMaterial) {
                         GTRecipeRegistrator.registerReverseArcSmelting(
                             GTUtility.copyAmount(1, aStack),

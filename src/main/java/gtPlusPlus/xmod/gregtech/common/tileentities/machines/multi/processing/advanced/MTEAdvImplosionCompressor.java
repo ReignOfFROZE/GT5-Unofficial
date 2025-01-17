@@ -14,7 +14,9 @@ import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 
 import net.minecraft.item.ItemStack;
 
+import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 
 import gregtech.api.enums.SoundResource;
@@ -26,11 +28,12 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
-import gtPlusPlus.core.lib.GTPPCore;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
 
-public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosionCompressor> {
+public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosionCompressor>
+    implements ISurvivalConstructable {
 
     private int mCasing;
     private static IStructureDefinition<MTEAdvImplosionCompressor> STRUCTURE_DEFINITION = null;
@@ -61,7 +64,6 @@ public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosio
             .addInfo("Speed: +100% | EU Usage: 100% | Parallel: ((Tier/2)+1)")
             .addInfo("Constructed exactly the same as a normal Implosion Compressor")
             .addPollutionAmount(getPollutionPerSecond(null))
-            .addSeparator()
             .beginStructureBlock(3, 3, 3, true)
             .addController("Front center")
             .addCasingInfoMin("Robust TungstenSteel Casing", 10, false)
@@ -70,7 +72,7 @@ public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosio
             .addEnergyHatch("Any casing", 1)
             .addMaintenanceHatch("Any casing", 1)
             .addMufflerHatch("Any casing", 1)
-            .toolTipFinisher(GTPPCore.GT_Tooltip_Builder.get());
+            .toolTipFinisher();
         return tt;
     }
 
@@ -87,7 +89,7 @@ public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosio
                     ofChain(
                         buildHatchAdder(MTEAdvImplosionCompressor.class)
                             .atLeast(InputBus, OutputBus, Maintenance, Energy, Muffler)
-                            .casingIndex(48)
+                            .casingIndex(getCasingTextureId())
                             .dot(1)
                             .build(),
                         onElementPass(x -> ++x.mCasing, ofBlock(sBlockCasings4, 0))))
@@ -102,6 +104,12 @@ public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosio
     }
 
     @Override
+    public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
+        if (mMachine) return -1;
+        return survivialBuildPiece(mName, stackSize, 1, 1, 0, elementBudget, env, false, true);
+    }
+
+    @Override
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         mCasing = 0;
         return checkPiece(mName, 1, 1, 0) && mCasing >= 10 && checkHatch();
@@ -113,8 +121,18 @@ public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosio
     }
 
     @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return TexturesGtBlock.oMCAAdvancedImplosionActiveGlow;
+    }
+
+    @Override
     protected IIconContainer getInactiveOverlay() {
         return TexturesGtBlock.oMCAAdvancedImplosion;
+    }
+
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return TexturesGtBlock.oMCAAdvancedImplosionGlow;
     }
 
     @Override
@@ -155,7 +173,7 @@ public class MTEAdvImplosionCompressor extends GTPPMultiBlockBase<MTEAdvImplosio
 
     @Override
     public int getPollutionPerSecond(ItemStack aStack) {
-        return GTPPCore.ConfigSwitches.pollutionPerSecondMultiAdvImplosion;
+        return PollutionConfig.pollutionPerSecondMultiAdvImplosion;
     }
 
     @Override

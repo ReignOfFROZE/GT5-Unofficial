@@ -41,8 +41,8 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.core.block.ModBlocks;
-import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.core.util.minecraft.PlayerUtils;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
@@ -81,13 +81,11 @@ public class MTEIndustrialPlatePress extends GTPPMultiBlockBase<MTEIndustrialPla
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType(getMachineType())
-            .addInfo("Controller Block for Advanced Bending & Forming")
             .addInfo("500% faster than using single block machines of the same voltage")
             .addInfo("Processes four items per voltage tier")
             .addInfo("Circuit for recipe goes in the Input Bus")
             .addInfo("Each Input Bus can have a different Circuit/Shape!")
             .addPollutionAmount(getPollutionPerSecond(null))
-            .addSeparator()
             .beginStructureBlock(3, 3, 3, true)
             .addController("Front Center")
             .addCasingInfoMin("Material Press Machine Casings", 6, false)
@@ -96,7 +94,7 @@ public class MTEIndustrialPlatePress extends GTPPMultiBlockBase<MTEIndustrialPla
             .addEnergyHatch("Any Casing", 1)
             .addMaintenanceHatch("Any Casing", 1)
             .addMufflerHatch("Any Casing", 1)
-            .toolTipFinisher(GTPPCore.GT_Tooltip_Builder.get());
+            .toolTipFinisher();
         return tt;
     }
 
@@ -148,8 +146,18 @@ public class MTEIndustrialPlatePress extends GTPPMultiBlockBase<MTEIndustrialPla
     }
 
     @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return TexturesGtBlock.oMCDIndustrialPlatePressActiveGlow;
+    }
+
+    @Override
     protected IIconContainer getInactiveOverlay() {
         return TexturesGtBlock.oMCDIndustrialPlatePress;
+    }
+
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return TexturesGtBlock.oMCDIndustrialPlatePressGlow;
     }
 
     @Override
@@ -192,8 +200,8 @@ public class MTEIndustrialPlatePress extends GTPPMultiBlockBase<MTEIndustrialPla
     @Override
     public int getPollutionPerSecond(final ItemStack aStack) {
         if (machineMode == MACHINEMODE_FORMER)
-            return GTPPCore.ConfigSwitches.pollutionPerSecondMultiIndustrialPlatePress_ModeForming;
-        return GTPPCore.ConfigSwitches.pollutionPerSecondMultiIndustrialPlatePress_ModeBending;
+            return PollutionConfig.pollutionPerSecondMultiIndustrialPlatePress_ModeForming;
+        return PollutionConfig.pollutionPerSecondMultiIndustrialPlatePress_ModeBending;
     }
 
     @Override

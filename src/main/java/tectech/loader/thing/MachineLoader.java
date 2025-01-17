@@ -122,6 +122,8 @@ import static gregtech.api.enums.MetaTileEntityIDs.ParametrizertXt;
 import static gregtech.api.enums.MetaTileEntityIDs.QuantumComputer;
 import static gregtech.api.enums.MetaTileEntityIDs.Researchstation;
 import static gregtech.api.enums.MetaTileEntityIDs.TeslaTower;
+import static gregtech.api.enums.MetaTileEntityIDs.TestFactoryHatch;
+import static gregtech.api.enums.MetaTileEntityIDs.TestFactoryPipe;
 import static gregtech.api.enums.MetaTileEntityIDs.UEV1024AtLaserSourceHatch;
 import static gregtech.api.enums.MetaTileEntityIDs.UEV1024AtLaserTargetHatch;
 import static gregtech.api.enums.MetaTileEntityIDs.UEV1048576AtLaserSourceHatch;
@@ -356,6 +358,8 @@ import static tectech.thing.CustomItemList.Machine_TeslaCoil_4by4_MV;
 import static tectech.thing.CustomItemList.ParametrizerTXT_Hatch;
 import static tectech.thing.CustomItemList.ParametrizerX_Hatch;
 import static tectech.thing.CustomItemList.Parametrizer_Hatch;
+import static tectech.thing.CustomItemList.TestHatch;
+import static tectech.thing.CustomItemList.TestPipe;
 import static tectech.thing.CustomItemList.UncertaintyX_Hatch;
 import static tectech.thing.CustomItemList.Uncertainty_Hatch;
 import static tectech.thing.CustomItemList.UnusedStuff;
@@ -612,9 +616,12 @@ import static tectech.thing.CustomItemList.rack_Hatch;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.MetaTileEntityIDs;
+import gregtech.api.factory.test.TestFactoryHatch;
+import gregtech.api.factory.test.TestFactoryPipe;
 import tectech.thing.metaTileEntity.hatch.MTEHatchCapacitor;
 import tectech.thing.metaTileEntity.hatch.MTEHatchCreativeData;
 import tectech.thing.metaTileEntity.hatch.MTEHatchCreativeMaintenance;
@@ -641,16 +648,16 @@ import tectech.thing.metaTileEntity.multi.MTEActiveTransformer;
 import tectech.thing.metaTileEntity.multi.MTEDataBank;
 import tectech.thing.metaTileEntity.multi.MTEEnergyInfuser;
 import tectech.thing.metaTileEntity.multi.MTEEyeOfHarmony;
-import tectech.thing.metaTileEntity.multi.MTEForgeOfGods;
 import tectech.thing.metaTileEntity.multi.MTEMicrowave;
 import tectech.thing.metaTileEntity.multi.MTENetworkSwitch;
 import tectech.thing.metaTileEntity.multi.MTEQuantumComputer;
 import tectech.thing.metaTileEntity.multi.MTEResearchStation;
 import tectech.thing.metaTileEntity.multi.MTETeslaTower;
-import tectech.thing.metaTileEntity.multi.godforge_modules.MTEExoticModule;
-import tectech.thing.metaTileEntity.multi.godforge_modules.MTEMoltenModule;
-import tectech.thing.metaTileEntity.multi.godforge_modules.MTEPlasmaModule;
-import tectech.thing.metaTileEntity.multi.godforge_modules.MTESmeltingModule;
+import tectech.thing.metaTileEntity.multi.godforge.MTEExoticModule;
+import tectech.thing.metaTileEntity.multi.godforge.MTEForgeOfGods;
+import tectech.thing.metaTileEntity.multi.godforge.MTEMoltenModule;
+import tectech.thing.metaTileEntity.multi.godforge.MTEPlasmaModule;
+import tectech.thing.metaTileEntity.multi.godforge.MTESmeltingModule;
 import tectech.thing.metaTileEntity.pipe.MTEPipeBlockData;
 import tectech.thing.metaTileEntity.pipe.MTEPipeBlockEnergy;
 import tectech.thing.metaTileEntity.pipe.MTEPipeData;
@@ -2279,10 +2286,10 @@ public class MachineLoader implements Runnable {
                                                                                                                         // for
                                                                                                                         // NH
         Uncertainty_Hatch.set(
-            new MTEHatchUncertainty(UncertaintyResolver.ID, "hatch.certain.tier.07", "Uncertainty Resolver", 7)
+            new MTEHatchUncertainty(UncertaintyResolver.ID, "hatch.certain.tier.05", "Uncertainty Resolver", 5)
                 .getStackForm(1L));
         UncertaintyX_Hatch.set(
-            new MTEHatchUncertainty(UncertaintyResolverX.ID, "hatch.certain.tier.10", "Uncertainty Resolver X", 10)
+            new MTEHatchUncertainty(UncertaintyResolverX.ID, "hatch.certain.tier.07", "Uncertainty Resolver X", 7)
                 .getStackForm(1L));
         dataIn_Hatch.set(
             new MTEHatchDataInput(OpticalSlaveConnector.ID, "hatch.datain.tier.07", "Optical Reception Connector", 7)
@@ -2322,13 +2329,13 @@ public class MachineLoader implements Runnable {
                 WirelessAssemblylineSlaveConnector.ID,
                 "hatch.datainass.wireless.tier.12",
                 "Wireless Assembly line Reception Connector",
-                12).getStackForm(1L));
+                10).getStackForm(1L));
         dataOutAss_Wireless_Hatch.set(
             new MTEHatchWirelessDataItemsOutput(
                 WirelessDataBankMasterConnector.ID,
                 "hatch.dataoutass.wireless.tier.12",
                 "Wireless Data Bank Transmission Connector",
-                12).getStackForm(1L));
+                10).getStackForm(1L));
         rack_Hatch.set(new MTEHatchRack(ComputerRack.ID, "hatch.rack.tier.08", "Computer Rack", 8).getStackForm(1L));
         holder_Hatch.set(
             new MTEHatchObjectHolder(ObjectHolder.ID, "hatch.holder.tier.09", "Object Holder", 8).getStackForm(1L));
@@ -2343,6 +2350,12 @@ public class MachineLoader implements Runnable {
         LASERpipeSmart.set(
             new MTEPipeEnergyMirror(LaserVacuumMirror.ID, "pipe.energymirror", "Laser Vacuum Mirror").getStackForm(1L));
         DATApipe.set(new MTEPipeData(OpticalFiberCable.ID, "pipe.datastream", "Optical Fiber Cable").getStackForm(1L));
+
+        if ((boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+            TestPipe.set(new TestFactoryPipe(TestFactoryPipe.ID, "pipe.test", "Test Factory Pipe").getStackForm(1));
+            TestHatch
+                .set(new TestFactoryHatch(TestFactoryHatch.ID, "hatch.test", "Test Factory Hatch", 7).getStackForm(1));
+        }
 
         LASERpipeBlock.set(
             new MTEPipeBlockEnergy(LaserVacuumPipeCasing.ID, "pipe.energystream.block", "Laser Vacuum Pipe Casing")
@@ -2506,7 +2519,7 @@ public class MachineLoader implements Runnable {
                 AutoTapingMaintenanceHatch.ID,
                 "debug.tt.maintenance",
                 "Auto-Taping Maintenance Hatch",
-                14).getStackForm(1L));
+                8).getStackForm(1L));
         Machine_DebugGenny.set(
             new MTEDebugPowerGenerator(DebugPowerGenerator.ID, "debug.tt.genny", "Debug Power Generator", 14)
                 .getStackForm(1L));
@@ -2515,7 +2528,7 @@ public class MachineLoader implements Runnable {
                 .getStackForm(1L));
         UnusedStuff.set(new ItemStack(Blocks.air));
         hatch_CreativeUncertainty.set(
-            new MTEHatchCreativeUncertainty(UncertaintyResolution.ID, "debug.tt.certain", "Uncertainty Resolution", 14)
+            new MTEHatchCreativeUncertainty(UncertaintyResolution.ID, "debug.tt.certain", "Uncertainty Resolution", 11)
                 .getStackForm(1));
 
         // ===================================================================================================

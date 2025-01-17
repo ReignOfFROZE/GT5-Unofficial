@@ -17,6 +17,7 @@ import gregtech.api.objects.GTRenderedTexture;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTUtility;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.api.objects.Logger;
 import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.core.lib.GTPPCore;
@@ -26,7 +27,7 @@ public class MTESemiFluidGenerator extends MTEBasicGenerator {
     public int mEfficiency;
 
     public MTESemiFluidGenerator(int aID, String aName, String aNameRegional, int aTier) {
-        super(aID, aName, aNameRegional, aTier, "Requires semi-fluid Fuel", new ITexture[0]);
+        super(aID, aName, aNameRegional, aTier, "Requires semifluid Fuel");
         this.mEfficiency = 100 - (this.mTier * 5);
     }
 
@@ -37,8 +38,8 @@ public class MTESemiFluidGenerator extends MTEBasicGenerator {
 
     @Override
     public int getPollution() {
-        return (int) (GTPPCore.ConfigSwitches.basePollutionPerSecondSemiFluidGenerator
-            * GTPPCore.ConfigSwitches.pollutionReleasedByTierSemiFluidGenerator[this.mTier]);
+        return (int) (PollutionConfig.basePollutionPerSecondSemiFluidGenerator
+            * PollutionConfig.pollutionReleasedByTierSemiFluidGenerator[this.mTier]);
     }
 
     @Override

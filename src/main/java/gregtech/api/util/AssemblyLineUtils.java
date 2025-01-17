@@ -156,6 +156,7 @@ public class AssemblyLineUtils {
                 new GTRecipe.RecipeAssemblyLine(
                     null,
                     0,
+                    0,
                     aInputs.toArray(new ItemStack[0]),
                     aFluidInputs.toArray(new FluidStack[0]),
                     aOutput,
@@ -259,7 +260,7 @@ public class AssemblyLineUtils {
      * @return Is this Recipe Hash String valid?
      */
     public static boolean isValidHash(String aHash) {
-        if (aHash != null && aHash.length() > 0) {
+        if (aHash != null && !aHash.isEmpty()) {
             // persistent hash can never be 0
             return !aHash.equals("Invalid.Recipe.Hash") && !aHash.equals("Hash.0");
         }

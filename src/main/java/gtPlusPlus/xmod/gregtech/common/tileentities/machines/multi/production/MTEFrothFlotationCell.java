@@ -41,9 +41,9 @@ import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.recipe.check.SimpleCheckRecipeResult;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.core.block.ModBlocks;
-import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.core.material.Material;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
@@ -77,9 +77,9 @@ public class MTEFrothFlotationCell extends GTPPMultiBlockBase<MTEFrothFlotationC
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType(getMachineType())
             .addInfo("Process that milled ore!")
+            .addInfo(StatCollector.translateToLocal("GT5U.machines.perfectoc.tooltip"))
             .addInfo("You can only ever process one type of material per controller")
             .addPollutionAmount(getPollutionPerSecond(null))
-            .addSeparator()
             .beginStructureBlock(7, 9, 7, true)
             .addController("Front Center")
             .addCasingInfoMin("Inconel Reinforced Casing", 68, false)
@@ -89,7 +89,7 @@ public class MTEFrothFlotationCell extends GTPPMultiBlockBase<MTEFrothFlotationC
             .addOutputHatch("Bottom Casing", 1)
             .addEnergyHatch("Bottom Casing", 1)
             .addMaintenanceHatch("Bottom Casing", 1)
-            .toolTipFinisher(GTPPCore.GT_Tooltip_Builder.get());
+            .toolTipFinisher();
         return tt;
     }
 
@@ -104,8 +104,18 @@ public class MTEFrothFlotationCell extends GTPPMultiBlockBase<MTEFrothFlotationC
     }
 
     @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return TexturesGtBlock.oMCDFrothFlotationCellActiveGlow;
+    }
+
+    @Override
     protected IIconContainer getInactiveOverlay() {
         return TexturesGtBlock.oMCDFrothFlotationCell;
+    }
+
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return TexturesGtBlock.oMCDFrothFlotationCellGlow;
     }
 
     @Override
@@ -181,7 +191,7 @@ public class MTEFrothFlotationCell extends GTPPMultiBlockBase<MTEFrothFlotationC
 
     @Override
     public int getPollutionPerSecond(final ItemStack aStack) {
-        return GTPPCore.ConfigSwitches.pollutionPerSecondMultiFrothFlotationCell;
+        return PollutionConfig.pollutionPerSecondMultiFrothFlotationCell;
     }
 
     @Override
@@ -275,7 +285,7 @@ public class MTEFrothFlotationCell extends GTPPMultiBlockBase<MTEFrothFlotationC
 
     @Override
     public boolean isRecipeLockingEnabled() {
-        return lockedMaterialName != null && !lockedMaterialName.equals("");
+        return lockedMaterialName != null && !lockedMaterialName.isEmpty();
     }
 
     @Override

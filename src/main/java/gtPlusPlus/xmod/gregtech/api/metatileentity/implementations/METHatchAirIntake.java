@@ -4,6 +4,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 
+import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
+
+import gregtech.api.enums.Materials;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -101,27 +104,32 @@ public class METHatchAirIntake extends MTEHatchFluidGenerator {
 
         aWorld.spawnParticle(
             name,
-            (double) (xPos + ran1 * 0.5f),
-            (double) (yPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f),
-            (double) (zPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f),
-            (double) xSpd,
-            (double) -ySpd,
-            (double) zSpd);
+            xPos + ran1 * 0.5f,
+            yPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f,
+            zPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f,
+            xSpd,
+            -ySpd,
+            zSpd);
         aWorld.spawnParticle(
             name,
-            (double) (xPos + ran2 * 0.5f),
-            (double) (yPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f),
-            (double) (zPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f),
-            (double) xSpd,
-            (double) -ySpd,
-            (double) zSpd);
+            xPos + ran2 * 0.5f,
+            yPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f,
+            zPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f,
+            xSpd,
+            -ySpd,
+            zSpd);
         aWorld.spawnParticle(
             name,
-            (double) (xPos + ran3 * 0.5f),
-            (double) (yPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f),
-            (double) (zPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f),
-            (double) xSpd,
-            (double) -ySpd,
-            (double) zSpd);
+            xPos + ran3 * 0.5f,
+            yPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f,
+            zPos + METHatchAirIntake.floatGen.nextFloat() * 0.5f,
+            xSpd,
+            -ySpd,
+            zSpd);
+    }
+
+    @Override
+    protected FluidSlotWidget createFluidSlot() {
+        return super.createFluidSlot().setFilter(f -> f == Materials.Air.mGas);
     }
 }

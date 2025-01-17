@@ -8,27 +8,24 @@ import static gregtech.api.enums.GTValues.AuthorVolence;
 import static gregtech.api.enums.HatchElement.Energy;
 import static gregtech.api.enums.HatchElement.InputBus;
 import static gregtech.api.enums.HatchElement.Maintenance;
-import static gregtech.api.enums.HatchElement.Muffler;
 import static gregtech.api.enums.HatchElement.OutputBus;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_MULTI_LATHE;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_MULTI_LATHE_ACTIVE;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_MULTI_LATHE_ACTIVE_GLOW;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_MULTI_LATHE_GLOW;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
-import static net.minecraft.util.EnumChatFormatting.BLUE;
-import static net.minecraft.util.EnumChatFormatting.DARK_AQUA;
-import static net.minecraft.util.EnumChatFormatting.GOLD;
+import static gregtech.api.util.GTStructureUtility.chainAllGlasses;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -52,7 +49,6 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.GregTechTileClientEvents;
 import gregtech.api.metatileentity.implementations.MTEExtendedPowerMultiBlockBase;
-import gregtech.api.multitileentity.multiblock.casing.Glasses;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.render.TextureFactory;
@@ -78,40 +74,6 @@ public class MTEMultiLathe extends MTEExtendedPowerMultiBlockBase<MTEMultiLathe>
 
     protected int pipeTier = 0;
 
-    public enum PipeTiers {
-
-        Tin(1, 0.75F),
-        Brass(1, 0.8F),
-        Electrum(2, 0.9F),
-        Platinum(4, 1F),
-        Osmium(8, 1.5F),
-        Quantium(12, 2F),
-        FluxedElectrum(16, 3F),
-        BlackPlutonium(32, 4F);
-
-        final int maxParallel;
-        final float speedBoost;
-
-        PipeTiers(int maxParallel, float speedBoost) {
-            this.maxParallel = maxParallel;
-            this.speedBoost = speedBoost;
-        }
-    }
-
-    private PipeTiers getPipeData() {
-        pipeTier = getPipeTier();
-        return switch (pipeTier) {
-            case 2 -> PipeTiers.Brass;
-            case 3 -> PipeTiers.Electrum;
-            case 4 -> PipeTiers.Platinum;
-            case 5 -> PipeTiers.Osmium;
-            case 6 -> PipeTiers.Quantium;
-            case 7 -> PipeTiers.FluxedElectrum;
-            case 8 -> PipeTiers.BlackPlutonium;
-            default -> PipeTiers.Tin;
-        };
-    }
-
     // get tier from block meta
     private static Integer getTierFromMeta(Block block, Integer metaID) {
         if (block != GregTechAPI.sBlockCasings11) return -1;
@@ -136,28 +98,22 @@ public class MTEMultiLathe extends MTEExtendedPowerMultiBlockBase<MTEMultiLathe>
             STRUCTURE_PIECE_BODY,
             (transpose(
                 new String[][] { { "       ", "AAAAAAA", "       ", "       " },
-                    { "DBCCCCD", "DBCCCCD", "DBCCCCD", "       " }, { "DBCCCCD", "DBFFFFD", "DBCCCCD", "       " },
-                    { "DBCCCCD", "DBCCCCD", "DBCCCCD", "       " }, { "AAAAAAA", "AAAAAAA", "AAAAAAA", "AAAAAAA" } })))
+                    { "ABCCCCA", "ABCCCCA", "ABCCCCA", "       " }, { "ABCCCCA", "ABFFFFA", "ABCCCCA", "       " },
+                    { "ABCCCCA", "ABCCCCA", "ABCCCCA", "       " }, { "AAAAAAA", "AAAAAAA", "AAAAAAA", "AAAAAAA" } })))
         .addShape(
             STRUCTURE_PIECE_BODY_ALT,
             (transpose(
                 new String[][] { { "       ", "AAAAAAA", "       ", "       " },
-                    { "DCCCCBD", "DCCCCBD", "DCCCCBD", "       " }, { "DCCCCBD", "DFFFFBD", "DCCCCBD", "       " },
-                    { "DCCCCBD", "DCCCCBD", "DCCCCBD", "       " }, { "AAAAAAA", "AAAAAAA", "AAAAAAA", "AAAAAAA" } })))
+                    { "ACCCCBA", "ACCCCBA", "ACCCCBA", "       " }, { "ACCCCBA", "AFFFFBA", "ACCCCBA", "       " },
+                    { "ACCCCBA", "ACCCCBA", "ACCCCBA", "       " }, { "AAAAAAA", "AAAAAAA", "AAAAAAA", "AAAAAAA" } })))
         .addElement(
             'A',
-            buildHatchAdder(MTEMultiLathe.class).atLeast(Maintenance, Muffler, Energy)
+            buildHatchAdder(MTEMultiLathe.class).atLeast(InputBus, OutputBus, Maintenance, Energy)
                 .casingIndex(((BlockCasings2) GregTechAPI.sBlockCasings2).getTextureIndex(0))
                 .dot(1)
                 .buildAndChain(onElementPass(MTEMultiLathe::onCasingAdded, ofBlock(GregTechAPI.sBlockCasings2, 0))))
         .addElement('B', ofBlock(GregTechAPI.sBlockCasings3, 10)) // Steel Casings
-        .addElement('C', Glasses.chainAllGlasses()) // Glass
-        .addElement(
-            'D',
-            buildHatchAdder(MTEMultiLathe.class).atLeast(InputBus, OutputBus, Maintenance, Muffler, Energy)
-                .casingIndex(((BlockCasings2) GregTechAPI.sBlockCasings2).getTextureIndex(0))
-                .dot(1)
-                .buildAndChain(onElementPass(MTEMultiLathe::onCasingAdded, ofBlock(GregTechAPI.sBlockCasings2, 0))))
+        .addElement('C', chainAllGlasses()) // Glass
         .addElement(
             'F',
             ofBlocksTiered(
@@ -230,39 +186,24 @@ public class MTEMultiLathe extends MTEExtendedPowerMultiBlockBase<MTEMultiLathe>
         return rTexture;
     }
 
-    private static final String TOOLTIP_BAR = GOLD
-        + "---------------------------------------------------------------------------------------";
-
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType("Lathe")
-            .addInfo(TOOLTIP_BAR)
-            .addInfo("Controller Block for the Industrial Precision Lathe.")
-            .addInfo(TOOLTIP_BAR)
-            .addInfo(BLUE + "Allows more parallel recipes based on item pipe casing parallel and voltage.")
-            .addInfo("Max Parallel Recipes = Item Pipe Casing Parallel + (Voltage Tier * 2).")
-            .addInfo(BLUE + "Increases processing speed based on item pipe casing speed and voltage.")
-            .addInfo("Time Reduction = 1 / (Item Pipe Casing Speed Boost + Voltage Tier / 4).")
-            .addInfo("Speed Increase = (100 / Time Reduction).")
-            .addInfo(
-                DARK_AQUA
-                    + "For example, using Black Plutonium item pipe casings (boost of 4) and Tier 3 voltage (HV) ")
-            .addInfo(DARK_AQUA + "reduces processing time to 57% of the recipe time, making the machine 175% faster.")
-            .addInfo(BLUE + "Only uses 80% of the EU/T normally required.")
-            .addInfo(AuthorVolence)
-            .addSeparator()
+            .addInfo("300% faster than using single block machines of the same voltage")
+            .addInfo("Gains 8 parallel per Pipe Casing Tier")
+            .addInfo("Only uses 80% of the EU/t normally required.")
             .beginStructureBlock(7, 5, 5, true)
             .addController("Front Center")
             .addCasingInfoMin("Solid Steel Machine Casing", 42, false)
-            .addCasingInfoExactly("Steel Pipe Casing", 8, false)
-            .addInputBus("Any of the 9 Solid Steel Casing at Each End", 1)
-            .addOutputBus("Any of the 9 Solid Steel Casing at Each End", 1)
+            .addCasingInfoExactly("Grate Machine Casing", 9, false)
+            .addCasingInfoExactly("Any Glass", 32, false)
+            .addInputBus("Any Solid Steel Casing", 1)
+            .addOutputBus("Any Solid Steel Casing", 1)
             .addEnergyHatch("Any Solid Steel Casing", 1)
             .addMaintenanceHatch("Any Solid Steel Casing", 1)
-            .addMufflerHatch("Any Solid Steel Casing", 1)
             .addOtherStructurePart("4 Item Pipe Casings", "Center of the glass", 4)
-            .toolTipFinisher("GregTech");
+            .toolTipFinisher(AuthorVolence);
         return tt;
     }
 
@@ -285,8 +226,8 @@ public class MTEMultiLathe extends MTEExtendedPowerMultiBlockBase<MTEMultiLathe>
 
     @SideOnly(Side.CLIENT)
     @Override
-    protected ResourceLocation getActivitySoundLoop() {
-        return SoundResource.GT_MACHINES_MULTI_LATHE_LOOP.resourceLocation;
+    protected SoundResource getActivitySoundLoop() {
+        return SoundResource.GT_MACHINES_MULTI_LATHE_LOOP;
     }
 
     private int mCasingAmount;
@@ -304,36 +245,27 @@ public class MTEMultiLathe extends MTEExtendedPowerMultiBlockBase<MTEMultiLathe>
         getBaseMetaTileEntity().sendBlockEvent(GregTechTileClientEvents.CHANGE_CUSTOM_DATA, getUpdateData());
         if (!checkPiece(STRUCTURE_PIECE_BODY, 3, 4, -1) && !checkPiece(STRUCTURE_PIECE_BODY_ALT, 3, 4, -1))
             return false;
-        return this.mMaintenanceHatches.size() == 1 && pipeTier > 0
-            && mEnergyHatches.size() >= 1
-            && mCasingAmount >= 42
-            && mMufflerHatches.size() == 1;
-    }
-
-    public float speedBoost(float speedBoost, byte voltageTier) {
-        return 1F / ((speedBoost + voltageTier) / 4F);
+        return this.mMaintenanceHatches.size() == 1 && pipeTier > 0 && !mEnergyHatches.isEmpty() && mCasingAmount >= 42;
     }
 
     @Override
     protected ProcessingLogic createProcessingLogic() {
-        return new ProcessingLogic()
-            .setSpeedBonus(speedBoost(getPipeData().speedBoost, GTUtility.getTier(this.getMaxInputVoltage())))
+        return new ProcessingLogic().setSpeedBonus(1F / 4F)
             .setEuModifier(0.8F)
             .setMaxParallelSupplier(this::getMaxParallelRecipes);
     }
 
     public int getMaxParallelRecipes() {
-        return getPipeData().maxParallel + (GTUtility.getTier(this.getMaxInputVoltage()) * 2);
+        return (getPipeTier() * 8);
     }
 
     @Override
     public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
         int z) {
         super.getWailaNBTData(player, tile, tag, world, x, y, z);
-        tag.setInteger("itemPipeTier", Math.max(0, pipeTier));
-        tag.setFloat("speedBonus", getPipeData().speedBoost);
+        tag.setInteger("itemPipeTier", Math.max(0, getPipeTier()));
+        tag.setFloat("speedBonus", 400);
         tag.setFloat("getMaxParallelRecipes", Math.max(0, getMaxParallelRecipes()));
-        tag.setByte("voltageTier", GTUtility.getTier(this.getMaxInputVoltage()));
     }
 
     private static final DecimalFormat dfNone = new DecimalFormat("#");
@@ -354,7 +286,7 @@ public class MTEMultiLathe extends MTEExtendedPowerMultiBlockBase<MTEMultiLathe>
         currenttip.add(
             StatCollector.translateToLocal("GT5U.multiblock.speed") + ": "
                 + EnumChatFormatting.WHITE
-                + dfNone.format(Math.max(0, 100 / speedBoost(tag.getFloat("speedBonus"), tag.getByte("voltageTier"))))
+                + dfNone.format((Math.max(0, tag.getInteger("speedBonus"))))
                 + "%");
     }
 
@@ -402,5 +334,17 @@ public class MTEMultiLathe extends MTEExtendedPowerMultiBlockBase<MTEMultiLathe>
     protected void setProcessingLogicPower(ProcessingLogic logic) {
         logic.setAvailableVoltage(GTUtility.roundUpVoltage(this.getMaxInputVoltage()));
         logic.setAvailableAmperage(1L);
+    }
+
+    @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+        float aX, float aY, float aZ) {
+        batchMode = !batchMode;
+        if (batchMode) {
+            GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("misc.BatchModeTextOn"));
+        } else {
+            GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("misc.BatchModeTextOff"));
+        }
+        return true;
     }
 }

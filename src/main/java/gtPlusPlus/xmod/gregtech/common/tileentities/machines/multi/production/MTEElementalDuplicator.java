@@ -18,6 +18,7 @@ import java.util.Collections;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.gtnewhorizon.structurelib.alignment.IAlignmentLimits;
@@ -35,8 +36,8 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.pollution.PollutionConfig;
 import gtPlusPlus.core.block.ModBlocks;
-import gtPlusPlus.core.lib.GTPPCore;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchElementalDataOrbHolder;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.GTPPMultiBlockBase;
 import gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock;
@@ -73,11 +74,11 @@ public class MTEElementalDuplicator extends GTPPMultiBlockBase<MTEElementalDupli
         tt.addMachineType(getMachineType())
             .addInfo("Produces Elemental Material from UU Matter")
             .addInfo("Speed: +100% | EU Usage: 100% | Parallel: 8 * Tier")
+            .addInfo(StatCollector.translateToLocal("GT5U.machines.perfectoc.tooltip"))
             .addInfo("Maximum 1x of each bus/hatch.")
             .addInfo("Requires circuit 1-16 in your Data Orb Repository")
             .addInfo("depending on what Data Orb you want to prioritize")
             .addPollutionAmount(getPollutionPerSecond(null))
-            .addSeparator()
             .beginStructureBlock(9, 6, 9, true)
             .addController("Top Center")
             .addCasingInfoMin("Elemental Confinement Shell", 138, false)
@@ -94,7 +95,7 @@ public class MTEElementalDuplicator extends GTPPMultiBlockBase<MTEElementalDupli
             .addEnergyHatch("Any 1 dot hint", 1)
             .addMaintenanceHatch("Any 1 dot hint", 1)
             .addMufflerHatch("Any 1 dot hint", 1)
-            .toolTipFinisher(GTPPCore.GT_Tooltip_Builder.get());
+            .toolTipFinisher();
         return tt;
     }
 
@@ -151,7 +152,7 @@ public class MTEElementalDuplicator extends GTPPMultiBlockBase<MTEElementalDupli
                                 .build(),
                             buildHatchAdder(MTEElementalDuplicator.class)
                                 .hatchClass(MTEHatchElementalDataOrbHolder.class)
-                                .shouldReject(x -> x.mReplicatorDataOrbHatches.size() >= 1)
+                                .shouldReject(x -> !x.mReplicatorDataOrbHatches.isEmpty())
                                 .adder(MTEElementalDuplicator::addDataOrbHatch)
                                 .casingIndex(getCasingTextureIndex())
                                 .dot(1)
@@ -171,7 +172,7 @@ public class MTEElementalDuplicator extends GTPPMultiBlockBase<MTEElementalDupli
     public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack) {
         mCasing = 0;
         boolean aDidBuild = checkPiece(STRUCTURE_PIECE_MAIN, 4, 4, 0);
-        if (this.mInputHatches.size() != 1 || (this.mOutputBusses.size() != 1 && this.mOutputHatches.size() != 0)
+        if (this.mInputHatches.size() != 1 || (this.mOutputBusses.size() != 1 && !this.mOutputHatches.isEmpty())
             || this.mEnergyHatches.size() != 1
             || this.mReplicatorDataOrbHatches.size() != 1) {
             return false;
@@ -264,8 +265,18 @@ public class MTEElementalDuplicator extends GTPPMultiBlockBase<MTEElementalDupli
     }
 
     @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return TexturesGtBlock.oMCAElementalDuplicatorActiveGlow;
+    }
+
+    @Override
     protected IIconContainer getInactiveOverlay() {
         return TexturesGtBlock.oMCAElementalDuplicator;
+    }
+
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return TexturesGtBlock.oMCAElementalDuplicatorGlow;
     }
 
     @Override
@@ -312,7 +323,7 @@ public class MTEElementalDuplicator extends GTPPMultiBlockBase<MTEElementalDupli
 
     @Override
     public int getPollutionPerSecond(final ItemStack aStack) {
-        return GTPPCore.ConfigSwitches.pollutionPerSecondMultiMolecularTransformer;
+        return PollutionConfig.pollutionPerSecondElementalDuplicator;
     }
 
     @Override

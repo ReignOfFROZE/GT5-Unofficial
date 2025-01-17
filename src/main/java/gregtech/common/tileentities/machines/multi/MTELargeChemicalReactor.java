@@ -21,9 +21,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -49,6 +51,7 @@ import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.render.TextureFactory;
+import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 
 public class MTELargeChemicalReactor extends MTEEnhancedMultiBlockBase<MTELargeChemicalReactor>
@@ -100,11 +103,9 @@ public class MTELargeChemicalReactor extends MTEEnhancedMultiBlockBase<MTELargeC
     @Override
     public MultiblockTooltipBuilder createTooltip() {
         final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
-        tt.addMachineType("Chemical Reactor")
-            .addInfo("Controller block for the Large Chemical Reactor")
+        tt.addMachineType("Chemical Reactor, LCR")
             .addInfo("Does not lose efficiency when overclocked")
             .addInfo("Accepts fluids instead of fluid cells")
-            .addSeparator()
             .beginStructureBlock(3, 3, 3, false)
             .addController("Front center")
             .addCasingInfoRange("Chemically Inert Machine Casing", 8, 22, false)
@@ -116,8 +117,8 @@ public class MTELargeChemicalReactor extends MTEEnhancedMultiBlockBase<MTELargeC
             .addInputHatch("Any casing", 1, 2)
             .addOutputBus("Any casing", 1, 2)
             .addOutputHatch("Any casing", 1, 2)
-            .addStructureInfo("You can have multiple hatches/busses")
-            .toolTipFinisher("Gregtech");
+            .addStructureInfo("You can have multiple hatches/buses")
+            .toolTipFinisher();
         return tt;
     }
 
@@ -235,6 +236,13 @@ public class MTELargeChemicalReactor extends MTEEnhancedMultiBlockBase<MTELargeC
         }
 
         @Override
+        public boolean couldBeValid(MTELargeChemicalReactor t, World world, int x, int y, int z, ItemStack trigger) {
+            Block block = world.getBlock(x, y, z);
+            return block instanceof IHeatingCoil
+                && ((IHeatingCoil) block).getCoilHeat(world.getBlockMetadata(x, y, z)) != HeatingCoilLevel.None;
+        }
+
+        @Override
         public boolean spawnHint(MTELargeChemicalReactor t, World world, int x, int y, int z, ItemStack trigger) {
             StructureLibAPI.hintParticle(world, x, y, z, GregTechAPI.sBlockCasings5, 0);
             return true;
@@ -291,6 +299,18 @@ public class MTELargeChemicalReactor extends MTEEnhancedMultiBlockBase<MTELargeC
 
     @Override
     public boolean supportsBatchMode() {
+        return true;
+    }
+
+    @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+        float aX, float aY, float aZ, ItemStack aTool) {
+        batchMode = !batchMode;
+        if (batchMode) {
+            GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("misc.BatchModeTextOn"));
+        } else {
+            GTUtility.sendChatToPlayer(aPlayer, StatCollector.translateToLocal("misc.BatchModeTextOff"));
+        }
         return true;
     }
 }
